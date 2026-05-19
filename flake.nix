@@ -18,7 +18,7 @@
       modules = [
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
-        impermanence.nixosModule.impermanence
+        impermanence.nixosModules.impermanence
         ./hosts/NIXPC-HOLLOWHEAP/configuration.nix
       ];
     };

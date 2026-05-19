@@ -15,7 +15,7 @@ let
 in {
   imports = [
     ./disko.nix
-    ./hardware-configuration.nix
+    # ./hardware-configuration.nix
   ];
   # === Boot Settings ===
 
@@ -215,16 +215,15 @@ in {
 
   services.greetd = {
     enable = true;
-    settings.default_session.command = with pkgs; "${cage}/bin/cage -s -mlast -- ${regreet}/bin/regreet";
+    settings = {
+      default_session.command = with pkgs; "${dbus}/bin/dbus-run-session ${cage}/bin/cage -s -mlast -d -- ${regreet}/bin/regreet";
+      user = "greeter";
+    };
   };
 
   services.openssh.enable = true;
 
-  environment.sessionVariables = {
-
-  };
-
-  # === System Packages ===
+  # === System Environment ===
 
   environment = with pkgs; {
     systemPackages = [
@@ -235,6 +234,7 @@ in {
       home-manager
     ];
     shells = with pkgs; [ zsh fish ];
+    sessionVariables = {};
   };
 
   # === Programs ===
