@@ -1,12 +1,12 @@
 { config, lib, pkgs, ... }:
 let
-  inherit (nixpkgs.lib) nixosSystem foldl mkIf;
-  adminUser = "yuckyh";
+  adminUser = "hollowheap";
   allUsers = [ "steve" adminUser ];
   stateVersion = "25.11";
 
   baseUserConfig = {
     isNormalUser = true;
+    initialPassword = "";
   };
 
   adminConfig = baseUserConfig // {
@@ -162,7 +162,7 @@ in {
   #      };
   #    };
   #  };
-  networking.hostName = "NIXPC-YUCKYH";
+  networking.hostName = "NIXPC-HOLLOWHEAP";
 
 
   # === System settings ===
@@ -190,7 +190,7 @@ in {
     keyMap = "us";
   };
   system.stateVersion = "25.11";
-  users.users = foldl (acc: user:
+  users.users = lib.foldl (acc: user:
     acc // { "${user}" = if (user == adminUser) then adminConfig else baseUserConfig;
   }) {} allUsers;
 
