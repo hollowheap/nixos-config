@@ -15,7 +15,7 @@ let
 in {
   imports = [
     ./disko.nix
-    # ./hardware-configuration.nix
+    ./hardware-configuration.nix
   ];
   # === Boot Settings ===
 
@@ -29,7 +29,7 @@ in {
       kernelModules = [ "dm-snapshot" "cryptd"];
       availableKernelModules = [ "tpm_tis" ];
 
-      luks.devices."root".crypttabExtraOpts = [ "tpm2-device=auto" "tpm2-measure-pcr=yes" ];
+      # luks.devices."root".crypttabExtraOpts = [ "tpm2-device=auto" "tpm2-measure-pcr=yes" ];
 
       systemd = {
         enable = true;
@@ -105,14 +105,17 @@ in {
     "/".options = [ "compress=zstd" "noatime" ];
     "/home".options = [ "compress=zstd" "noatime" ];
     "/nix".options = [ "compress=zstd" "noatime" ];
-    "/swap".options = [ "noatime" ];
+    "/persist" = { 
+      options = [ "compress=zstd" "noatime" ];
+      neededForBoot = true;
+    };
     "/var/log" = {
       options = [ "compress=zstd" "noatime" ];
       neededForBoot = true;
     };
   };
 
-  swapDevices = [{ device = "/swap/swapfile"; size = 16 * 1024; }];
+  swapDevices = [{ device = "/.swapvol/swapfile"; size = 16384; }];
 
   # === Hardware settings ===
 

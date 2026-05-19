@@ -28,7 +28,7 @@
                   allowDiscards = true;
                   #keyFile = "/tmp/secret.key";
                 };
-                additionalKeyFiles = [ "/tmp/additionalSecret.key" ];
+                # additionalKeyFiles = [ "/tmp/additionalSecret.key" ];
                 content = {
                   type = "btrfs";
                   extraArgs = [ "-f" ];
@@ -43,6 +43,20 @@
                     "root-blank" = {};
                     "home" = {
                       mountpoint = "/home";
+                      mountOptions = [
+                        "compress=zstd"
+                        "noatime"
+                      ];
+                    };
+                    "log" = {
+                      mountpoint = "/var/log";
+                      mountOptions = [
+                        "compress=zstd"
+                        "noatime"
+                      ];
+                    };
+                    "persist" = {
+                      mountpoint = "/persist";
                       mountOptions = [
                         "compress=zstd"
                         "noatime"
