@@ -230,6 +230,7 @@ in {
 
   environment = with pkgs; {
     systemPackages = [
+      git
       wget
       sbctl
       tpm2-tss
