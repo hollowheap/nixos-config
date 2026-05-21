@@ -151,8 +151,8 @@ in {
 
   # === Network settings ===
 
-  #  networking.networkmanager = {
-  #    enable = true;
+  networking.networkmanager = {
+    enable = true;
   #    ensureProfiles.profiles = {
   #      "home" = {
   #        connection = {
@@ -164,7 +164,7 @@ in {
   # };
   #      };
   #    };
-  #  };
+  };
   networking.hostName = "NIXPC-HOLLOWHEAP";
 
 
@@ -207,7 +207,7 @@ in {
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
 
   # Enable CUPS to print documents.
-  # services.printing.enable = true;
+  services.printing.enable = true;
 
   services.pipewire = {
     enable = true;
@@ -230,7 +230,6 @@ in {
 
   environment = with pkgs; {
     systemPackages = [
-      vim
       wget
       sbctl
       tpm2-tss
@@ -241,6 +240,7 @@ in {
   };
 
   # === Programs ===
+  programs.command-not-found.enable = false;
   programs.regreet.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -250,6 +250,13 @@ in {
   #  enable = true;
   #   enableSSHSupport = true;
   # };
+  
+  # === Documentation settings ===
+  
+  documentation = {
+    doc.enable = false; # Remove generic 'doc' folders
+    # nixos.enable = false; # Remove NixOS-specific HTML docs
+  };
 
   # === Nix settings ===
 

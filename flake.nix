@@ -5,20 +5,20 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    impermanence.url = "github:nix-community/impermanence";
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    impermanence.url = "github:nix-community/impermanence";
   };
-  outputs = { self, nixpkgs, disko, sops-nix, impermanence, ... }@inputs : {
+  outputs = { self, nixpkgs, ... }@inputs : {
     nixosConfigurations."NIXPC-HOLLOWHEAP" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
       modules = [
-        disko.nixosModules.disko
-        sops-nix.nixosModules.sops
-        impermanence.nixosModules.impermanence
+        inputs.disko.nixosModules.disko
+        inputs.impermanence.nixosModules.impermanence
+        inputs.sops-nix.nixosModules.sops
         ./hosts/NIXPC-HOLLOWHEAP/configuration.nix
       ];
     };
