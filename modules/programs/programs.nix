@@ -1,0 +1,9 @@
+{ ... }:
+
+{
+  programs = {
+    command-not-found.enable = false;
+    nix-ld.enable = true;
+    zsh.enable = true;
+  };
+}

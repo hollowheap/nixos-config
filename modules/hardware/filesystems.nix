@@ -1,0 +1,39 @@
+{ ... }:
+
+{
+  fileSystems = {
+    "/".options = [
+      "compress=zstd"
+      "noatime"
+    ];
+    "/home".options = [
+      "compress=zstd"
+      "noatime"
+    ];
+    "/nix".options = [
+      "compress=zstd"
+      "noatime"
+    ];
+    "/persist" = {
+      options = [
+        "compress=zstd"
+        "noatime"
+      ];
+      neededForBoot = true;
+    };
+    "/var/log" = {
+      options = [
+        "compress=zstd"
+        "noatime"
+      ];
+      neededForBoot = true;
+    };
+  };
+
+  swapDevices = [
+    {
+      device = "/.swapvol/swapfile";
+      size = 16384;
+    }
+  ];
+}
