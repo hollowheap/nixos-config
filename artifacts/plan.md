@@ -38,6 +38,7 @@ Provision and manage host-level NixOS architecture, kernel parameters, hardware 
 - [ ] `security.pam.services`: Route KeePassXC/Vaultwarden WebAuthn authentication challenges to local `hyprpolkitagent` (fprintd/sudo integration).
 
 ### Sovereign Infrastructure & Self-Hosted Services
+- [x] Localhost DNS loopback: Declare `networking.hosts` mapping `127.0.0.1` to `baseDomain` and `headscaleDomain` to bypass router NAT hairpinning limitations.
 - [ ] `services.headscale.enable`: Deploy self-hosted control plane for WireGuard mesh networking; enable MagicDNS for immutable internal hostnames.
 - [ ] `services.vaultwarden.enable`: Deploy native container/service; inject `ADMIN_TOKEN` securely via system `sops-nix`.
 - [ ] `services.caddy.enable`: Intercept incoming DuckDNS traffic; terminate Let's Encrypt SSL certificates; proxy traffic to `localhost:8080`.
