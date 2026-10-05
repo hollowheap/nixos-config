@@ -16,5 +16,6 @@
 
     greetd.enable = true;
     openssh.enable = true;
+    upower.enable = true;
   };
 }

@@ -18,6 +18,8 @@ let
         "wheel"
         "tss"
         "networkmanager"
+        "i2c"
+        "video"
       ];
     }
     // baseUserConfig;
