@@ -6,6 +6,13 @@ let
   meshDomain = "mesh.${baseDomain}";
 in
 {
+  networking.hosts = {
+    "127.0.0.1" = [
+      baseDomain
+      headscaleDomain
+    ];
+  };
+
   services = {
     resolved = {
       enable = true;
