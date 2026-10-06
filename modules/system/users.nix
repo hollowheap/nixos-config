@@ -1,31 +1,37 @@
 { lib, pkgs, ... }:
 
 let
-  adminUser = "hollowheap";
+  inherit (lib.attrsets) genAttrs;
+  adminUsers = [ "hollowheap" ];
   users = [
     "steve"
-    adminUser
-  ];
+  ]
+  ++ adminUsers;
 
   baseUserConfig = {
     isNormalUser = true;
     initialPassword = "";
   };
 
-  usersConfig = lib.attrsets.genAttrs users (_: baseUserConfig) // {
-    "${adminUser}" = {
-      extraGroups = [
-        "wheel"
-        "tss"
-        "networkmanager"
-        "i2c"
-        "video"
-      ];
-    }
-    // baseUserConfig;
-  };
+  adminUserConfig = {
+    extraGroups = [
+      "wheel"
+      "tss"
+      "networkmanager"
+      "i2c"
+      "video"
+    ];
+  }
+  // baseUserConfig;
+
+  usersConfig = genAttrs users (_: baseUserConfig);
+
+  adminsConfig = genAttrs adminUsers (_: adminUserConfig);
 in
 {
-  users.users = usersConfig;
-  users.defaultUserShell = pkgs.zsh;
+  users = {
+    users = usersConfig // adminsConfig;
+    defaultUserShell = pkgs.zsh;
+    inherit adminUsers;
+  };
 }
