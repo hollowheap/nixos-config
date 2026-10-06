@@ -1,12 +1,15 @@
-{ config, ... }:
+{ config, lib, ... }:
 
 let
+  inherit (lib) mkIf;
+  isDesktop = config.profile == "desktop";
+
   baseDomain = "hollowheap.duckdns.org";
   headscaleDomain = "headscale.${baseDomain}";
   meshDomain = "mesh.${baseDomain}";
 in
 {
-  networking.hosts = {
+  networking.hosts = mkIf isDesktop {
     "127.0.0.1" = [
       baseDomain
       headscaleDomain
@@ -29,7 +32,7 @@ in
       };
     };
 
-    ddclient = {
+    ddclient = mkIf isDesktop {
       enable = true;
       usev4 = "webv4, webv4=ipify-ipv4";
       protocol = "duckdns";
@@ -37,7 +40,7 @@ in
       domains = [ baseDomain ];
     };
 
-    headscale = {
+    headscale = mkIf isDesktop {
       enable = true;
       settings = {
         dns = {
@@ -52,7 +55,7 @@ in
 
     tailscale.enable = true;
 
-    caddy = {
+    caddy = mkIf isDesktop {
       enable = true;
       virtualHosts."${headscaleDomain}" = {
         extraConfig = ''

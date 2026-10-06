@@ -11,7 +11,7 @@
 
       powerManagement = {
         enable = true;
-        finegrained = false;
+        finegrained = config.profile == "laptop";
       };
       package = config.boot.kernelPackages.nvidiaPackages.latest;
     };
