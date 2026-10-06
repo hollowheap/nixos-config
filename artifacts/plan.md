@@ -22,6 +22,17 @@ Provision and manage host-level NixOS architecture, kernel parameters, hardware 
 
 ## Tasks
 
+### Device Profiles & Module Decoupling
+- [x] Declare `options.profile` (`desktop` vs `laptop`) in `modules/options/profile.nix`
+- [x] Create `profiles/desktop.nix` and `profiles/laptop.nix` with minimal profile assignment
+- [x] Adapt Nvidia finegrained power management conditional on `config.profile == "laptop"` in `modules/hardware/nvidia.nix`
+- [x] Create `modules/hardware/laptop-power.nix` for power-profiles-daemon conditional on `config.profile == "laptop"`
+- [x] Update `modules/services/network-services.nix` to gate Caddy, Headscale, ddclient, and DNS loopback behind `profile == "desktop"`
+- [x] Update `modules/security/sops.nix` to gate `duckdns_password` secret behind `profile == "desktop"`
+- [x] Add `brightnessctl` to `modules/system/packages.nix`
+- [x] Update `hosts/NIXPC-HOLLOWHEAP/configuration.nix` to import `profiles/desktop.nix` and keep `services.upower.enable = true`
+- [x] Verify build with `nixos-rebuild dry-build --flake . --show-trace`
+
 ### System Foundation & Boot Architecture
 - [ ] **System Partitioning (Disko):** Declarative LUKS encryption, BTRFS subvolumes, and root ephemeral filesystem setup.
 - [ ] **Impermanence (`/persist`):** Bind mounts for persistent host state (SSH host keys, NetworkManager connections, logs).
