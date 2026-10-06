@@ -1,25 +1,36 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  config,
+  ...
+}:
 
 {
   programs = {
-    noctalia-greeter.enable = true;
-    noctalia-greeter.settings = {
+
+    uwsm.enable = true;
+
+    # Window Managers
+    hyprland = {
+      enable = true;
+      package = pkgs.unstable.hyprland;
+      withUWSM = true;
+    };
+  };
+
+  services.displayManager.noctalia-greeter = {
+    enable = true;
+    passwordless-sync-users = config.users.adminUsers;
+    settings = {
       cursor = {
         theme = "Bibata-Modern-Classic";
         size = 20;
         path = "${pkgs.bibata-cursors}/share/icons";
       };
       keyboard.layout = "us";
+
+      output = {
+        scale = 1;
+      };
     };
-
-    uwsm.enable = true;
-
-    # Window Managers
-    hyprland.enable = true;
-    hyprland.package = pkgs.unstable.hyprland;
-    hyprland.withUWSM = true;
-    niri.enable = true;
-    river-classic.enable = true;
-    river-classic.extraPackages = lib.mkForce [ ];
   };
 }
