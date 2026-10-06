@@ -34,6 +34,16 @@
             psk = "$HOME_PSK";
           };
         };
+        "Home 2" = {
+          connection = {
+            id = "Home 2";
+            type = "wifi";
+          };
+          wifi.ssid = "$HOME2_SSID";
+          wifi-security = {
+            psk = "$HOME2_PSK";
+          };
+        };
         "Phone" = {
           connection = {
             id = "Phone";
