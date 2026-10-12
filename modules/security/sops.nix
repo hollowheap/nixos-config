@@ -1,13 +1,5 @@
-{
-  inputs,
-  config,
-  lib,
-  ...
-}:
+{ inputs, ... }:
 
-let
-  isDesktop = config.profile == "desktop";
-in
 {
   sops = {
     defaultSopsFile = inputs.self + "/secrets.yaml";
@@ -17,11 +9,6 @@ in
     secrets = {
       "wireless_env" = {
         restartUnits = [ "NetworkManager.service" ];
-      };
-    }
-    // lib.optionalAttrs isDesktop {
-      "duckdns_password" = {
-        restartUnits = [ "ddclient.service" ];
       };
     };
   };

@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 
 {
   hardware = {
@@ -11,7 +11,7 @@
 
       powerManagement = {
         enable = true;
-        finegrained = config.profile == "laptop";
+        finegrained = lib.mkDefault false;
       };
       package = config.boot.kernelPackages.nvidiaPackages.latest;
     };

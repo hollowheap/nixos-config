@@ -1,9 +1,9 @@
-{ ... }:
+_:
 
 {
   imports = [
     ../../modules
-    ../../profiles/desktop.nix
+    ../../profiles/desktop
   ];
 
   services.upower.enable = true;
