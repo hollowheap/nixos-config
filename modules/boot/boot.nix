@@ -40,7 +40,12 @@
         efiSupport = true;
         enableCryptodisk = true;
         useOSProber = true;
-        # theme = pkgs.minegrub-double-menu;
+        theme = pkgs.double-minegrub-menu;
+        extraConfig = ''
+          if [ -z "$chosen" ]; then
+            configfile /theme/mainmenu.cfg
+          fi
+        '';
         extraInstallCommands = with pkgs; ''
           if [ -f /boot/EFI/NixOS-boot/grubx64.efi ]; then
             ${sbctl}/bin/sbctl sign /boot/EFI/NixOS-boot/grubx64.efi
