@@ -20,6 +20,7 @@ let
       "networkmanager"
       "i2c"
       "video"
+      "podman"
     ];
   }
   // baseUserConfig;

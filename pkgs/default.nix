@@ -1,28 +1,61 @@
 pkgs:
 let
   inherit (pkgs) lib;
-  dirContents = builtins.readDir ./.;
 
-  # 1. Filter: Keep directories AND .nix files (excluding default.nix)
-  validItems = lib.filterAttrs (
-    name: type:
-    name != "default.nix"
-    && (
-      type == "directory"
-      || (type == "regular" && lib.hasSuffix ".nix" name)
-      || (type == "symlink" && lib.hasSuffix ".nix" name)
-    )
-  ) dirContents;
-
-  # 2. Map: Use mapAttrs' to strip the ".nix" extension from the final attribute name
-  packageMap = lib.mapAttrs' (
-    name: _:
+  # Convert kebab-case names to camelCase (e.g. hyprland-plugins -> hyprlandPlugins)
+  kebabToCamel =
+    str:
     let
-      # If it's a file, drop the .nix. If it's a directory, keep the name as-is.
-      pkgName = lib.removeSuffix ".nix" name;
+      parts = lib.splitString "-" str;
+      capitalize =
+        w:
+        if w == "" then
+          ""
+        else
+          lib.toUpper (builtins.substring 0 1 w)
+          + builtins.substring 1 (builtins.stringLength w) w;
     in
-    # Return a name/value pair to construct the final attribute set
-    lib.nameValuePair pkgName (pkgs.callPackage (./. + "/${name}") { })
-  ) validItems;
+    if builtins.length parts <= 1 then
+      str
+    else
+      lib.head parts + lib.concatMapStrings capitalize (lib.tail parts);
+
+  # Recursively process directories into nested attrsets, and .nix files into packages
+  processDir =
+    scope: dir:
+    let
+      dirContents = builtins.readDir dir;
+
+      validItems = lib.filterAttrs (
+        name: type:
+        name != "default.nix"
+        && !lib.hasPrefix "." name
+        && (
+          type == "directory"
+          || (type == "regular" && lib.hasSuffix ".nix" name)
+          || (type == "symlink" && lib.hasSuffix ".nix" name)
+        )
+      ) dirContents;
+    in
+    lib.mapAttrs' (
+      name: type:
+      let
+        itemPath = dir + "/${name}";
+      in
+      if type == "directory" then
+        let
+          attrName = kebabToCamel name;
+          subScope = scope.${attrName} or { };
+          mergedSubScope = if builtins.isAttrs subScope then subScope else { };
+          subAttrSet = processDir mergedSubScope itemPath;
+        in
+        lib.nameValuePair attrName (mergedSubScope // subAttrSet)
+      else
+        let
+          pkgName = lib.removeSuffix ".nix" name;
+        in
+        lib.nameValuePair pkgName (pkgs.callPackage itemPath { })
+    ) validItems;
 in
-packageMap
+processDir pkgs ./.
+

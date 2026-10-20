@@ -10,5 +10,7 @@
 ## Workspace Skills
 SKILL.md procedures live in `skills/` (agentskills.io format). Load the matching skill before task work:
 - **nix-flake-eval**: before any nix eval, build, dry-run, or check touching new files.
+- **upstream-recon**: before adding or altering unfamiliar NixOS options, services, or package derivations.
 - **selfhosted-service**: before deploying or altering network-facing services, Caddy reverse proxies, or DNS/TLS challenges.
 - **profile-author**: before adding or refactoring machine profiles under `profiles/`.
+

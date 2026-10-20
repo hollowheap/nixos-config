@@ -32,89 +32,28 @@
   outputs =
     inputs:
     let
-      unfreePackages = [
-        "nvidia-x11"
-        "nvidia-settings"
-        "nvidia-kernel-modules"
-      ];
-
-      disabledPackages = [
-        "foot"
-      ];
-
-      nixSettingsConfig = {
-        nix = {
-          settings = {
-            trusted-users = [ "@wheel" ];
-            experimental-features = [
-              "nix-command"
-              "flakes"
-            ];
-            auto-optimise-store = true;
-          };
-          gc = {
-            automatic = true;
-            dates = "weekly";
-            options = "--delete-older-than 7d";
-          };
-          optimise = {
-            automatic = true;
-            dates = [ "weekly" ];
-          };
-        };
-      };
-
-      packagesConfig = {
-        nixpkgs = {
-          config.allowUnfreePredicate = pkg: builtins.elem (inputs.nixpkgs.lib.getName pkg) unfreePackages;
-          overlays = [
-            (final: prev: {
-              unstable = import inputs.nixpkgs-unstable {
-                localSystem = prev.stdenv.hostPlatform.system;
-                config = prev.config;
-              };
-            })
-            (_: prev: (import ./pkgs/default.nix prev))
-
-            (
-              _: prev:
-              prev.lib.attrsets.genAttrs disabledPackages (
-                name: prev.writeShellScriptBin name ''echo "package is disable"''
-              )
-            )
-          ];
-        };
-      };
-      stateVersionConfig = {
-        system.stateVersion = "26.05";
-      };
-
       hostConfig = hostName: {
         networking = { inherit hostName; };
       };
 
       osConfigurations =
-        with inputs;
         hosts:
-        nixpkgs.lib.attrsets.genAttrs hosts (
+        inputs.nixpkgs.lib.attrsets.genAttrs hosts (
           name:
-          nixpkgs.lib.nixosSystem {
+          inputs.nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             specialArgs = {
               inherit inputs;
             };
             modules = [
-              disko.nixosModules.disko
-              sops-nix.nixosModules.sops
-              noctalia-greeter.nixosModules.default
-              minecraft-plymouth-theme.nixosModules.default
+              inputs.disko.nixosModules.disko
+              inputs.sops-nix.nixosModules.sops
+              inputs.noctalia-greeter.nixosModules.default
+              inputs.minecraft-plymouth-theme.nixosModules.default
               ./hosts/${name}/configuration.nix
               ./hosts/${name}/hardware-configuration.nix
               ./hosts/${name}/disko.nix
               (hostConfig name)
-              packagesConfig
-              stateVersionConfig
-              nixSettingsConfig
             ];
           }
         );
@@ -123,5 +62,22 @@
       nixosConfigurations = osConfigurations [
         "NIXPC-HOLLOWHEAP"
       ];
+
+      overlays.default = _: prev: import ./pkgs/default.nix prev;
+
+      devShells.x86_64-linux.default =
+        let
+          pkgs = import inputs.nixpkgs {
+            system = "x86_64-linux";
+          };
+        in
+        pkgs.mkShell {
+          name = "nixos-config-dev";
+          packages = with pkgs; [
+            git
+            sops
+            nixfmt
+          ];
+        };
     };
 }

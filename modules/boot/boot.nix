@@ -2,19 +2,18 @@
 
 {
   boot = {
+    consoleLogLevel = 0;
+
     # Use latest kernel from unstable.
     kernelPackages = pkgs.unstable.linuxPackages_latest;
     supportedFilesystems = [ "btrfs" ];
 
     initrd = {
+      verbose = false;
       # Modules needed for encrypted boot with tpm unlock
       kernelModules = [
         "dm-snapshot"
         "cryptd"
-        "nvidia"
-        "nvidia_uvm"
-        "nvidia_drm"
-        "nvidia_modeset"
       ];
       availableKernelModules = [ "tpm_tis" ];
 
@@ -70,26 +69,17 @@
       };
     };
 
-    blacklistedKernelModules = [ "nouveau" ];
-
     kernelParams = [
       # Silent Boot
       "quiet"
       "systemd.show_status=auto"
       "vt.global_cursor_default=0"
-      "loglevel=3"
       "udev.log_level=3"
       "rd.udev.log_level=3"
       # Enable splash
       "splash"
       # Fallback boot
       "boot.shell_on_fail"
-      # Graphics
-      "nvidia-drm.fbdev=1"
-      "nvidia.NVreg_UsePageAttributeTable=1"
-      "nvidia.NVreg_PreserveVideoMemoryAllocations=1"
-      "nvidia_modeset.disable_vrr_memclk_switch=1"
-      "nouveau.modeset=0"
     ];
 
     kernelModules = [

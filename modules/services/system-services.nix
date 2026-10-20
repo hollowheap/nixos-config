@@ -3,7 +3,6 @@ _:
 {
   services = {
     xserver.enable = false;
-    xserver.videoDrivers = [ "nvidia" ];
 
     printing.enable = true;
 

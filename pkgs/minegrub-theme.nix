@@ -11,7 +11,7 @@ stdenvNoCC.mkDerivation {
     owner = "Lxtharia";
     repo = "minegrub-theme";
     rev = "dev";
-    hash = "sha256-2qP9aYUmFTmMYenLfbfYJ8P+XUGJYJFDdbQBheasr8k=";
+    hash = "sha256-JPu+WSXX4TaQnue+UKGMmv2YYCbM5t9Bwwm0fp6lJXc=";
   };
 
   postPatch = ''

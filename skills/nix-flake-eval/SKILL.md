@@ -1,28 +1,19 @@
 ---
 name: nix-flake-eval
-description: Flake evaluation hygiene for nixos-config. Use when nix eval, dry-build, or check returns empty or fails because files were newly created.
+description: Flake evaluation hygiene for nixos-config. Load ONLY when evaluating new or untracked files. Do NOT load for syntax or option shape errors.
 ---
-
-New files are invisible to flake evaluation until tracked. Dirty trees evaluate tracked-worktree plus staged-new and nothing else.
-
-## Use / Do NOT use
-
-Use when: adding new modules, profile files, custom pkgs derivations, or testing flake outputs.
-Do NOT use when: purely editing existing tracked files without adding new paths.
 
 ## Workflow
 
-1. `git status --porcelain` before evaluating; spot `??` files.
-2. `git add <paths>` by name: stage explicit paths only, never commit unasked.
-3. Re-run eval or dry-build: `nix build .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.system.build.toplevel --dry-run`.
-4. Close with `nix flake check --no-build`.
+1. Run git status --porcelain before evaluating; spot ?? untracked files.
+2. Run git add <path> by name to stage untracked files; never commit unasked.
+3. Re-run eval or dry-build: nix build .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.system.build.toplevel --dry-run.
+4. Close with nix flake check --no-build.
 
 ## Rules
 
-1. Never `git add -A`; stage explicit paths only.
-2. Inspect `--show-trace` on evaluation failure rather than guessing attribute shapes.
-3. Keep untracked data/secrets files out of staging via `.gitignore`.
+- Never git add -A or git add .; stage explicit paths only.
+- Inspect --show-trace on evaluation failure rather than guessing attribute shapes.
+- Keep untracked data and secrets files out of staging via .gitignore.
+- Verify: Dry-build evaluates successfully after staging new files.
 
-## Verification
-
-Dry-build evaluates successfully after staging new files; flake check passes.

@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 
 let
   baseDomain = "hollowheap.duckdns.org";
@@ -19,6 +19,12 @@ in
   };
 
   services = {
+    hardware.openrgb = {
+      enable = true;
+      package = pkgs.openrgb-with-all-plugins;
+      motherboard = "intel";
+    };
+
     ddclient = {
       enable = true;
       usev4 = "webv4, webv4=ipify-ipv4";
