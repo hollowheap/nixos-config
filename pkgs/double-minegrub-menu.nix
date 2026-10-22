@@ -13,7 +13,7 @@ stdenvNoCC.mkDerivation {
     owner = "Lxtharia";
     repo = "double-minegrub-menu";
     rev = "dev";
-    hash = "sha256-JkTUy/j2H1Et8vvN2BCMX37DAPcQHqMTpQ667NbVpOk=";
+    hash = "sha256-VhZ4Jw6xmvnIo+thPoWIr7SOILDVPkWTWMqlbB30doE=";
   };
 
   passthru = {
@@ -34,6 +34,7 @@ stdenvNoCC.mkDerivation {
     cp mainmenu.cfg $out/
     substituteInPlace $out/mainmenu.cfg \
       --replace-fail '$prefix/themes/minegrub' '/theme/themes/minegrub' \
+      --replace-fail 'set timeout=15' 'set timeout=3' \
       --replace-fail 'configfile $prefix/grub.cfg' 'set chosen="Singlebooter"; export chosen; configfile $prefix/grub.cfg'
 
     runHook postInstall

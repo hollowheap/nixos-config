@@ -14,6 +14,7 @@
       kernelModules = [
         "dm-snapshot"
         "cryptd"
+        "i915"
       ];
       availableKernelModules = [ "tpm_tis" ];
 
@@ -30,6 +31,7 @@
     };
 
     loader = {
+      timeout = 3;
       efi.canTouchEfiVariables = true;
 
       grub = {
@@ -78,6 +80,7 @@
       "rd.udev.log_level=3"
       # Enable splash
       "splash"
+      "i915.fastboot=1"
       # Fallback boot
       "boot.shell_on_fail"
     ];

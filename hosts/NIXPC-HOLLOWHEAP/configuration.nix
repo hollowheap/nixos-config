@@ -4,7 +4,6 @@ _:
   imports = [
     ../../modules
     ../../profiles/desktop
+    ../../profiles/laptop
   ];
-
-  services.upower.enable = true;
 }

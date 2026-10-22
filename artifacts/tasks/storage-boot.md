@@ -10,4 +10,8 @@
 - [x] **Secure Boot Signing Hooks:** `boot.loader.grub.extraInstallCommands` running `sbctl sign` on EFI binaries and kernels.
 - [x] **Plymouth Splash & Silent Boot:** Minecraft plymouth theme, silent kernel flags (`quiet`, `systemd.show_status=auto`, `splash`), early console font setup (`Lat2-Terminus16`), `boot.consoleLogLevel = 0`, and `boot.initrd.verbose = false`.
 - [x] **Double Minegrub Menu Theme:** Package double-minegrub-menu trio (`minegrub-theme`, `minegrub-world-sel-theme`, `double-minegrub-menu`) in `pkgs/` and enable `boot.loader.grub.theme = pkgs.double-minegrub-menu;` with declarative `/theme/mainmenu.cfg` redirection.
-- [ ] **Secure Boot Key Enrollment:** Manual `sbctl` key generation and enrollment on host firmware.
+- [x] **Secure Boot Key Enrollment:** Manual `sbctl` key generation and enrollment on host firmware.
+
+## UEFI Firmware Boundary & Motherboard Banner
+- **Firmware Boundary:** Motherboard UEFI POST banners and diagnostic prompts are displayed by hardware firmware prior to bootloader execution. OS-level software (GRUB, Linux kernel) cannot suppress hardware POST graphics.
+- **Hardware Remediation:** To silence or bypass motherboard vendor POST messages, configure `Fast Boot = Enabled` and `Quiet Boot / Post Logo = Disabled` directly within the motherboard UEFI BIOS setup utility.

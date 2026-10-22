@@ -35,7 +35,7 @@ Provision and manage host-level NixOS architecture, kernel parameters, hardware 
 - [-] Implement root ephemeral filesystem wipe and Impermanence bind mounts (`/persist`) [DROPPED]
 - [x] Configure declarative GRUB EFI bootloader with `sbctl` signing hooks
 - [x] Package double-minegrub-menu and configure declarative GRUB double menu
-- [ ] Enroll Secure Boot keys (sbctl) on host firmware
+- [x] Enroll Secure Boot keys (sbctl) on host firmware
 - [x] Implement Flake architecture decoupling system and user space with clean module loaders
 - [x] Configure display manager, authentication, and session routing (Noctalia Greeter, UWSM, Hyprland)
 - [x] Establish host secret management (`sops-nix`) and dynamic DNS (`services.duckdns`)
