@@ -1,8 +1,9 @@
-{ lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   inherit (lib.attrsets) genAttrs;
   adminUsers = [ "hollowheap" ];
+  # steve is a non-admin test user.
   users = [
     "steve"
   ]
@@ -14,14 +15,7 @@ let
   };
 
   adminUserConfig = {
-    extraGroups = [
-      "wheel"
-      "tss"
-      "networkmanager"
-      "i2c"
-      "video"
-      "podman"
-    ];
+    extraGroups = [ "wheel" ] ++ config.users.adminExtraGroups;
   }
   // baseUserConfig;
 

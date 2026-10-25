@@ -14,13 +14,6 @@ _:
       "compress=zstd"
       "noatime"
     ];
-    "/persist" = {
-      options = [
-        "compress=zstd"
-        "noatime"
-      ];
-      neededForBoot = true;
-    };
     "/var/log" = {
       options = [
         "compress=zstd"

@@ -3,7 +3,7 @@
     disk = {
       main = {
         type = "disk";
-        device = "/dev/sda";
+        device = "/dev/nvme0n1";
         content = {
           type = "gpt";
           partitions = {
@@ -18,7 +18,7 @@
               };
             };
             luks = {
-              size = "100%";
+              size = "399G";
               content = {
                 type = "luks";
                 name = "crypted";
@@ -45,13 +45,6 @@
                     };
                     "log" = {
                       mountpoint = "/var/log";
-                      mountOptions = [
-                        "compress=zstd"
-                        "noatime"
-                      ];
-                    };
-                    "persist" = {
-                      mountpoint = "/persist";
                       mountOptions = [
                         "compress=zstd"
                         "noatime"

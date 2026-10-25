@@ -1,24 +1,38 @@
-{ inputs, ... }:
+{ config, inputs, ... }:
 let
-  unfreePackages = [
-    "nvidia-x11"
-    "nvidia-settings"
-    "nvidia-kernel-modules"
-  ];
-
   disabledPackages = [
     "foot"
   ];
+
+  allowUnfreePredicate = pkg: builtins.elem (inputs.nixpkgs.lib.getName pkg) config.unfreePackages;
+
+  packageConfig = system: {
+    localSystem = system;
+    config.allowUnfreePredicate = allowUnfreePredicate;
+    overlays = [
+      (_: prev: import ../../pkgs/default.nix prev)
+    ];
+  };
 in
 {
+  unfreePackages = [
+    "antigravity-cli"
+    "crush"
+    "github-copilot-cli"
+    "kiro-cli"
+    "kiro-cli-unwrapped"
+    "modrinth-app"
+    "modrinth-app-unwrapped"
+    "steam"
+    "steam-unwrapped"
+    "zoom"
+  ];
+
   nixpkgs = {
-    config.allowUnfreePredicate = pkg: builtins.elem (inputs.nixpkgs.lib.getName pkg) unfreePackages;
+    config.allowUnfreePredicate = allowUnfreePredicate;
     overlays = [
       (final: prev: {
-        unstable = import inputs.nixpkgs-unstable {
-          localSystem = prev.stdenv.hostPlatform.system;
-          config = prev.config;
-        };
+        unstable = import inputs.nixpkgs-unstable (packageConfig prev.stdenv.hostPlatform.system);
       })
       (_: prev: (import ../../pkgs/default.nix prev))
 

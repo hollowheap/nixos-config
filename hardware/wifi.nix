@@ -1,14 +1,7 @@
 { config, ... }:
 
 {
-  networking.firewall = {
-    allowedTCPPorts = [
-      80
-      443
-    ];
-
-    allowedUDPPorts = [ 3478 ];
-  };
+  users.adminExtraGroups = [ "networkmanager" ];
 
   networking.networkmanager = {
     enable = true;
@@ -41,6 +34,7 @@
           };
           wifi.ssid = "$HOME2_SSID";
           wifi-security = {
+            key-mgmt = "sae";
             psk = "$HOME2_PSK";
           };
         };

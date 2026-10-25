@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-26.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     disko = {
@@ -11,6 +11,11 @@
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    home-manager = {
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     stylix = {
@@ -27,57 +32,18 @@
       url = "github:nikp123/minecraft-plymouth-theme";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-on-droid = {
+      url = "github:nix-community/nix-on-droid/master";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake/beta";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
-  outputs =
-    inputs:
-    let
-      hostConfig = hostName: {
-        networking = { inherit hostName; };
-      };
-
-      osConfigurations =
-        hosts:
-        inputs.nixpkgs.lib.attrsets.genAttrs hosts (
-          name:
-          inputs.nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            specialArgs = {
-              inherit inputs;
-            };
-            modules = [
-              inputs.disko.nixosModules.disko
-              inputs.sops-nix.nixosModules.sops
-              inputs.noctalia-greeter.nixosModules.default
-              inputs.minecraft-plymouth-theme.nixosModules.default
-              ./hosts/${name}/configuration.nix
-              ./hosts/${name}/hardware-configuration.nix
-              ./hosts/${name}/disko.nix
-              (hostConfig name)
-            ];
-          }
-        );
-    in
-    {
-      nixosConfigurations = osConfigurations [
-        "NIXPC-HOLLOWHEAP"
-      ];
-
-      overlays.default = _: prev: import ./pkgs/default.nix prev;
-
-      devShells.x86_64-linux.default =
-        let
-          pkgs = import inputs.nixpkgs {
-            system = "x86_64-linux";
-          };
-        in
-        pkgs.mkShell {
-          name = "nixos-config-dev";
-          packages = with pkgs; [
-            git
-            sops
-            nixfmt
-          ];
-        };
-    };
+  outputs = inputs: import ./flake inputs;
 }

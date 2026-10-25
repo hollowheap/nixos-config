@@ -9,5 +9,11 @@ in
       type = listOf str;
       description = "List of users that are administrators.";
     };
+
+    adminExtraGroups = mkOption {
+      type = listOf str;
+      default = [ ];
+      description = "Extra groups granted to every administrator; modules append their own.";
+    };
   };
 }

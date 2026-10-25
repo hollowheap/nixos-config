@@ -1,10 +1,10 @@
 keys:
   - &admin_hollow 41F93F1724EDF2D022E696E86B2A3C5D49EE0523
-  - &server_hollow age1khp44p0rx427m4eg7gm277krkrgfucg8v09uvg8y2ck6zxsm746qz4ymz0
+  - &lacuna age1cumjaqrwsju80h4q93nudr2uwcn5408v8sr78098mwp9eze52p7s2xjmfd
 creation_rules:
   - path_regex: ^secrets\.yaml$
     key_groups:
       - pgp:
         - *admin_hollow
         age:
-        - *server_hollow
+        - *lacuna

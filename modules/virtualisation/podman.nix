@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  users.adminExtraGroups = [ "podman" ];
+
   virtualisation.podman = {
     enable = true;
     dockerCompat = true;

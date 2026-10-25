@@ -5,6 +5,8 @@
 }:
 
 {
+  imports = [ ./services.nix ];
+
   programs = {
 
     uwsm.enable = true;
