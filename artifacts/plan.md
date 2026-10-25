@@ -1,61 +1,792 @@
 # Implementation Plan
 
-Master tracking for host configuration, system security, hardware profiles, and sovereign infrastructure. Architectural contracts and invariants live in `artifacts/specs.md`. Settled architectural decisions live in `artifacts/decisions.md`.
+Active tasks, completed history, and verification commands. Requirements live in `artifacts/requirements.md`; decisions in `artifacts/decisions.md`; invariants in `artifacts/specs.md`.
 
-## Active Implementation Tasks (Bootloader & Display Transition)
+## Completed — Restored historical range
 
-- [x] T01 [S01] [D01] (blocked-by: none): Patch pkgs/double-minegrub-menu.nix to substitute set timeout=15 with set timeout=3 in mainmenu.cfg | Verify: grep "set timeout=3" $(nix eval --raw .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.boot.loader.grub.theme.outPath)/mainmenu.cfg
-- [x] T02 [S02] [D01] (blocked-by: T01): Set boot.loader.timeout = 3 in modules/boot/boot.nix for primary GRUB menu consistency | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.boot.loader.timeout | grep -w 3
-- [x] T03 [S03] [D02] (blocked-by: none): Document UEFI vendor POST banner boundary and BIOS Quiet Boot configuration in artifacts/tasks/storage-boot.md | Verify: grep -q "UEFI Firmware Boundary" artifacts/tasks/storage-boot.md
-- [x] T04 [S04] [D03] (blocked-by: none): Add i915 kernel module to boot.initrd.kernelModules in modules/boot/boot.nix for Early KMS Intel display init | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.boot.initrd.kernelModules | grep -q "i915"
-- [x] T05 [S05] [D03] (blocked-by: T04): Add i915.fastboot=1 kernel parameter to boot.kernelParams in modules/boot/boot.nix to prevent display engine reinitialization | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.boot.kernelParams | grep -q "i915.fastboot=1"
+- [x] T48 [S35] (blocked-by: none): Extract shared module discovery to `lib/default.nix` | Verify: grep -q "mkModuleLoader" modules/default.nix
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S35 contract.
+  - Risk: stale option or path.
 
-## Historical Completed Initiatives
 
-### Initiative 1: Flake Architecture & Code Quality
-- [x] T101 [S11] [D11] (blocked-by: none): Extract shared module discovery to lib/default.nix (scanModules, mkModuleLoader) | Verify: nix flake check --no-build
-- [x] T102 [S12] [D12] (blocked-by: T101): Port recursive package discovery with camelCase namespacing to pkgs/default.nix | Verify: nix eval .#double-minegrub-menu.name
-- [x] T103 [S11] [D11] (blocked-by: T101): Modularize flake.nix outputs; extract system daemon and package overlays to modules/system/ | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.system.build.toplevel --dry-run
-- [x] T104 [S11] [D11] (blocked-by: none): Standardize repo skills into small-pillar format with references/examples.md | Verify: test -d skills/nix-flake-eval
-- [x] T105 [S11] [D11] (blocked-by: none): Add maintenance devShells.x86_64-linux.default (git, sops, nixfmt) | Verify: nix develop --command echo ok
 
-### Initiative 2: Containerization & Development Environment
-- [x] T106 [S13] [D13] (blocked-by: none): Deploy rootless Podman runtime with Docker CLI compatibility (dockerCompat = true) | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.virtualisation.podman.enable | grep true
-- [x] T107 [S13] [D13] (blocked-by: T106): Expose Podman socket as Docker socket for devcontainers and compose tools | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.virtualisation.podman.dockerSocket.enable | grep true
-- [x] T108 [S13] [D13] (blocked-by: T106): Configure inter-container DNS resolution (defaultNetwork.settings.dns_enabled = true) | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.virtualisation.podman.defaultNetwork.settings.dns_enabled | grep true
-- [x] T109 [S13] [D13] (blocked-by: none): Grant admin users podman group membership | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.users.users.hollowheap.extraGroups | grep podman
 
-### Initiative 3: Boot Hygiene & Terminal Noise Suppression
-- [x] T110 [S22] [D16] (blocked-by: none): Set boot.consoleLogLevel = 0 and boot.initrd.verbose = false to silence ACPI BIOS error noise | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.boot.consoleLogLevel | grep -w 0
-- [x] T111 [S22] [D16] (blocked-by: none): Set UWSM_SILENT_START = 2 to silence UWSM stdout and warnings during session launch | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.environment.sessionVariables.UWSM_SILENT_START | grep '"2"'
 
-### Initiative 4: Hardware Profile Decoupling
-- [x] T112 [S14] [D08] (blocked-by: none): Decouple Nvidia driver stack from universal modules into profiles/laptop/nvidia.nix | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.hardware.nvidia.modesetting.enable | grep true
-- [x] T113 [S14] [D08] (blocked-by: T112): Configure Intel UHD graphics and microcode in modules/hardware/cpu.nix | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.hardware.cpu.intel.updateMicrocode | grep true
+- [x] T49 [S36] (blocked-by: none): Port recursive package discovery to `pkgs/default.nix` | Verify: nix eval --raw .#nixosConfigurations.lacuna.pkgs.double-minegrub-menu.name | grep -q double-minegrub-menu
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S36 contract.
+  - Risk: stale option or path.
 
-### Initiative 5: Storage, Bootloader & System Security
-- [x] T114 [S16] [D04] (blocked-by: none): Declarative GPT partitioning with Disko and dedicated BTRFS subvolumes | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.disko.devices.disk.main.type | grep disk
-- [x] T115 [S17] [D05] (blocked-by: T114): Systemd initrd with TPM2 PCR unlock options for encrypted root container | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.boot.initrd.systemd.tpm2.enable | grep true
-- [x] T116 [S18] [D06] (blocked-by: T115): Secure Boot signing hooks in boot.loader.grub.extraInstallCommands via sbctl | Verify: nix eval --raw .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.boot.loader.grub.extraInstallCommands | grep sbctl
-- [x] T117 [S19] [D10] (blocked-by: none): PipeWire sound server deployment with ALSA and PulseAudio emulation | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.services.pipewire.enable | grep true
-- [x] T118 [S20] [D14] (blocked-by: none): Encrypted DNS-over-TLS using systemd-resolved and Cloudflare endpoints | Verify: nix eval --raw .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.services.resolved.extraConfig | grep security.cloudflare-dns.com
-- [x] T119 [S21] [D15] (blocked-by: none): Declarative NetworkManager profiles with iwd backend and encrypted secrets | Verify: nix eval --raw .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.networking.networkmanager.wifi.backend | grep iwd
-- [x] T120 [S23] [D17] (blocked-by: none): Host secrets decryption via sops-nix and SSH ed25519 host key | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.sops.defaultSopsFormat | grep yaml
-- [x] T121 [S24] [D18] (blocked-by: none): Removable storage and device integration via udisks2, gvfs, and usbmuxd | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.services.udisks2.enable | grep true
-- [x] T122 [S25] [D19] (blocked-by: none): Intel laptop power and thermal management via thermald and power-profiles-daemon | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.services.thermald.enable | grep true
-- [x] T123 [S26] [D20] (blocked-by: none): Automated monthly BTRFS filesystem scrub timer across all subvolumes | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.services.btrfs.autoScrub.enable | grep true
-- [x] T124 [S27] [D21] (blocked-by: none): Headscale WireGuard mesh control plane with Caddy reverse proxy and ddclient | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.services.headscale.enable | grep true
-- [x] T125 [S28] [D22] (blocked-by: T124): Self-hosted Vaultwarden instance bound to loopback behind Caddy TLS proxy | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.services.vaultwarden.enable | grep true
-- [x] T126 [S29] [D23] (blocked-by: none): Noctalia Greeter display manager with automatic admin user synchronization | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.services.displayManager.noctalia-greeter.enable | grep true
-- [x] T127 [S30] [D24] (blocked-by: none): Hyprland Wayland compositor with UWSM session daemon management | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.programs.hyprland.withUWSM | grep true
-- [x] T128 [S31] [D25] (blocked-by: none): Automated Nix store weekly garbage collection and deduplication | Verify: nix eval .#nixosConfigurations.NIXPC-HOLLOWHEAP.config.nix.settings.auto-optimise-store | grep true
 
-### Dropped Initiatives (Explicit Non-Goals)
-- [-] **Ephemeral Root & Impermanence:** Dropped; state is persisted directly on BTRFS subvolumes.
-- [-] **WebAuthn PAM Hardening:** Dropped; no biometric hardware present.
-- [-] **Passive TPM Auto-Unlock:** Avoided to prevent zero-factor authentication.
 
-## Reference Documents
-- Architecture Contracts & Invariants: [artifacts/specs.md](file:///home/hollowheap/repos/nixos-config/artifacts/specs.md)
-- Architectural Decisions: [artifacts/decisions.md](file:///home/hollowheap/repos/nixos-config/artifacts/decisions.md)
-- Detailed Checklists: [artifacts/tasks/](file:///home/hollowheap/repos/nixos-config/artifacts/tasks/)
+
+
+- [x] T50 [S01] (blocked-by: none): Modularize flake outputs into `flake/default.nix` | Verify: test -f flake/default.nix
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S01 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T51 [S01] (blocked-by: none): Standardize repo skills under `skills/` | Verify: test -d skills/nix-flake-eval
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S01 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T52 [S37] (blocked-by: none): Add the maintenance devShell | Verify: nix eval .#devShells.x86_64-linux.default.name >/dev/null
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S37 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T53 [S17] (blocked-by: none): Deploy rootless Podman | Verify: nix eval .#nixosConfigurations.lacuna.config.virtualisation.podman.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S17 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T54 [S17] (blocked-by: none): Expose the Docker socket | Verify: nix eval .#nixosConfigurations.lacuna.config.virtualisation.podman.dockerSocket.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S17 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T55 [S17] (blocked-by: none): Enable container DNS resolution | Verify: nix eval .#nixosConfigurations.lacuna.config.virtualisation.podman.defaultNetwork.settings.dns_enabled | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S17 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T56 [S17] (blocked-by: none): Grant the podman group through the admin seam | Verify: nix eval --json .#nixosConfigurations.lacuna.config.users.users.hollowheap.extraGroups | grep -q podman
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S17 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T57 [S06] (blocked-by: none): Silence console boot noise | Verify: nix eval .#nixosConfigurations.lacuna.config.boot.consoleLogLevel | grep -qx 0
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S06 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T58 [S11] (blocked-by: none): Silence UWSM startup output | Verify: nix eval .#nixosConfigurations.lacuna.config.environment.sessionVariables.UWSM_SILENT_START | grep -qx 2
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S11 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T59 [S05] (blocked-by: none): Decouple the Nvidia driver stack | Verify: nix eval .#nixosConfigurations.acervus.config.hardware.nvidia.modesetting.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S05 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T60 [S26] (blocked-by: none): Enable Intel microcode | Verify: nix eval .#nixosConfigurations.lacuna.config.hardware.cpu.intel.updateMicrocode | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S26 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T61 [S07] (blocked-by: none): Declare the Disko GPT/LUKS/BTRFS layout | Verify: nix eval .#nixosConfigurations.lacuna.config.disko.devices.disk.main.type | grep -qx disk
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S07 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T62 [S27] (blocked-by: none): Enable TPM2 systemd initrd unlock | Verify: nix eval .#nixosConfigurations.lacuna.config.boot.initrd.systemd.tpm2.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S27 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T63 [S28] (blocked-by: none): Add Secure Boot signing hooks | Verify: nix eval --raw .#nixosConfigurations.lacuna.config.boot.loader.grub.extraInstallCommands | grep -q sbctl
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S28 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T64 [S30] (blocked-by: none): Enable PipeWire audio | Verify: nix eval .#nixosConfigurations.lacuna.config.services.pipewire.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S30 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T65 [S31] (blocked-by: none): Enable DNS-over-TLS | Verify: nix eval --raw .#nixosConfigurations.lacuna.config.services.resolved.extraConfig | grep -q security.cloudflare-dns.com
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S31 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T66 [S32] (blocked-by: none): Use NetworkManager with iwd | Verify: nix eval --raw .#nixosConfigurations.lacuna.config.networking.networkmanager.wifi.backend | grep -qx iwd
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S32 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T67 [S10] (blocked-by: none): Decrypt host secrets with the SSH age key | Verify: nix eval .#nixosConfigurations.lacuna.config.sops.defaultSopsFormat | grep -qx yaml
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S10 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T68 [S33] (blocked-by: none): Enable removable-media daemons | Verify: nix eval .#nixosConfigurations.lacuna.config.services.udisks2.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S33 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T69 [S34] (blocked-by: none): Enable laptop power management | Verify: nix eval .#nixosConfigurations.lacuna.config.services.thermald.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S34 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T70 [S40] (blocked-by: none): Enable BTRFS autoScrub | Verify: nix eval .#nixosConfigurations.lacuna.config.services.btrfs.autoScrub.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S40 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T71 [S08] (blocked-by: none): Deploy Headscale and Caddy | Verify: nix eval .#nixosConfigurations.lacuna.config.services.headscale.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S08 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T72 [S08] (blocked-by: none): Deploy loopback Vaultwarden | Verify: nix eval .#nixosConfigurations.lacuna.config.services.vaultwarden.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S08 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T73 [S11] (blocked-by: none): Deploy Noctalia greeter | Verify: nix eval .#nixosConfigurations.lacuna.config.services.displayManager.noctalia-greeter.enable | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S11 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T74 [S11] (blocked-by: none): Enable Hyprland with UWSM | Verify: nix eval .#nixosConfigurations.lacuna.config.programs.hyprland.withUWSM | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S11 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+- [x] T75 [S01] (blocked-by: none): Enable weekly Nix GC and optimisation | Verify: nix eval .#nixosConfigurations.lacuna.config.nix.settings.auto-optimise-store | grep -qx true
+  - Files: restored historical change.
+  - Notes: current equivalent is part of the S01 contract.
+  - Risk: stale option or path.
+
+
+
+
+
+## Completed — Current implementation
+
+- [x] T01 [S01] (blocked-by: none): Merge Home Manager into `home/` and expose NixOS and standalone outputs | Verify: nix eval .#homeConfigurations.hollowheap.activationPackage.drvPath >/dev/null && nix eval .#nixosConfigurations.lacuna.config.system.build.toplevel.drvPath >/dev/null
+  - Files: `flake.nix`, `flake/default.nix`, `home/`, `hosts/lacuna/default.nix`.
+  - Notes: copied the current Home Manager visual modules from the sibling repository.
+  - Risk: missing input, divergent option sets.
+
+
+
+
+
+
+
+- [x] T02 [S03] (blocked-by: T01): Generate hosts from `hosts/<name>/default.nix` and compose profiles, roles, and traits | Verify: grep -q "profiles/laptop" hosts/lacuna/default.nix && grep -q "roles/server/system" hosts/lacuna/default.nix && test -f hosts/lacuna/hardware.nix
+  - Files: `flake/default.nix`, `hosts/lacuna`, `hosts/acervus`.
+  - Notes: host-local `hardware.nix` groups traits; `boot.nix` groups boot components.
+  - Risk: double profile imports, hidden hardware in profiles.
+
+
+
+
+
+
+
+- [x] T03 [S02] (blocked-by: T01): Keep NixOS on release-26.05 and Home Manager on unstable | Verify: nix eval --raw .#nixosConfigurations.lacuna.pkgs.lib.version | grep -q "26\.05" && nix eval --raw .#nixosConfigurations.lacuna.config.home-manager.users.hollowheap.desktop.nixpkgsVersion | grep -q "26\.11"
+  - Files: `flake.nix`, `modules/system/nixpkgs.nix`, `roles/desktop/home/default.nix`.
+  - Notes: Home Manager overrides `pkgsPath` and the extended lib.
+  - Risk: unstable drivers leaking into NixOS.
+
+
+
+
+
+
+
+- [x] T04 [S06] (blocked-by: T01): Split boot into kernel, GRUB, TPM, Secure Boot, Minegrub, and Plymouth modules | Verify: for f in grub tpm secure-boot minegrub kernel plymouth; do test -f boot/$f.nix; done && test ! -e modules/boot/boot.nix
+  - Files: `boot/`, `hosts/lacuna/boot.nix`, `hosts/acervus/boot.nix`.
+  - Notes: hosts import only the boot components they use.
+  - Risk: missing GRUB or TPM module, duplicate boot settings.
+
+
+
+
+
+
+
+- [x] T05 [S07] (blocked-by: T01): Keep the Disko LUKS/BTRFS layout in the lacuna host | Verify: test -f hosts/lacuna/disko.nix && nix eval .#nixosConfigurations.lacuna.config.disko.devices.disk.main.type | grep -qx disk
+  - Files: `hosts/lacuna/disko.nix`.
+  - Notes: acervus keeps a placeholder until installation.
+  - Risk: unencrypted root, missing subvolumes.
+
+
+
+
+
+
+
+- [x] T06 [S04] (blocked-by: T01): Gate touch and HDR through hardware flags and Home Manager shared modules | Verify: grep -q "home-manager.sharedModules" hardware/touch.nix && grep -q "home-manager.sharedModules" hardware/hdr.nix && grep -Rq "config.desktop.touch" home/gui && grep -Rq "config.desktop.hdr" home/gui
+  - Files: `hardware/touch.nix`, `hardware/hdr.nix`, `home/cli/desktop-options.nix`, `home/gui/touch.nix`, `home/gui/hdr.nix`.
+  - Notes: compositor modules use `lib.mkIf` inside the HM flag boundary.
+  - Risk: missing shared module, flag defaults false.
+
+
+
+
+
+
+
+- [x] T07 [S05] (blocked-by: T06): Keep lacuna Intel-only and import hybrid Intel + Nvidia on acervus | Verify: grep -q "hybrid-gpu" hosts/acervus/default.nix && ! grep -q "hybrid-gpu" hosts/lacuna/hardware.nix && nix eval .#nixosConfigurations.acervus.config.hardware.nvidia.prime.offload.enable | grep -qx true
+  - Files: `hardware/nvidia.nix`, `hardware/hybrid-gpu.nix`, `hosts/acervus/default.nix`.
+  - Notes: Nvidia unfree names live in the Nvidia trait.
+  - Risk: driver/kernel mismatch, stale PRIME bus IDs.
+
+
+
+
+
+
+
+- [x] T08 [S17] (blocked-by: T01): Add `users.adminExtraGroups` and let modules own their groups | Verify: nix eval --json .#nixosConfigurations.lacuna.config.users.users.hollowheap.extraGroups | grep -q '"podman"' && ! grep -q '"podman"' modules/system/users.nix
+  - Files: `modules/options/users.nix`, `modules/system/users.nix`, `modules/virtualisation/podman.nix`, `hardware/wifi.nix`, `hardware/rgb.nix`, `boot/tpm.nix`, `hardware/graphics.nix`.
+  - Notes: Podman, Wi-Fi, RGB, TPM, and graphics append groups.
+  - Risk: stale groups on hosts that omit a module.
+
+
+
+
+
+
+
+- [x] T09 [S16] (blocked-by: T03): Replace the hardcoded unfree list with a declarable `unfreePackages` option | Verify: nix eval .#nixosConfigurations.lacuna.config.unfreePackages --apply 'ps: builtins.elem "steam" ps' | grep -qx true && grep -q "config.unfreePackages" modules/system/nixpkgs.nix
+  - Files: `modules/options/unfree.nix`, `modules/system/nixpkgs.nix`, `hardware/nvidia.nix`.
+  - Notes: owning modules append their package names.
+  - Risk: predicate not applied to the unstable set.
+
+
+
+
+
+
+
+- [x] T10 [S08] (blocked-by: T01): Run Headscale, Vaultwarden, Caddy, and ddclient from the lacuna server role | Verify: nix eval --json .#nixosConfigurations.lacuna.config.services --apply 's: map (n: s.${n}.enable or false) [ "headscale" "vaultwarden" "caddy" "ddclient" ]' | grep -qx '\[true,true,true,true\]'
+  - Files: `roles/server/system/default.nix`, `hosts/lacuna/default.nix`.
+  - Notes: acervus does not import the server role yet.
+  - Risk: duplicated services, acervus running the vault.
+
+
+
+
+
+
+
+- [x] T11 [S09] (blocked-by: T10): Use Caddy internal TLS for loopback names and point tailscaled at its CA | Verify: grep -q "tls internal" roles/server/system/default.nix && grep -q "SSL_CERT_FILE" roles/server/system/default.nix
+  - Files: `roles/server/system/default.nix`.
+  - Notes: DNS-01 remains a future task.
+  - Risk: untrusted CA, ACME retries.
+
+
+
+
+
+
+
+- [x] T12 [S10] (blocked-by: T01): Rekey sops to lacuna's age key, keep admin PGP recovery, and install secrets via systemd | Verify: grep -q "&lacuna age1cum" .sops.yaml && grep -q "recipient: age1cum" secrets.yaml && nix eval .#nixosConfigurations.lacuna.config.sops.useSystemdActivation | grep -qx true
+  - Files: `.sops.yaml`, `secrets.yaml`, `modules/security/sops.nix`.
+  - Notes: `sops updatekeys --yes` completed; activation decrypts at boot.
+  - Risk: wrong recipient, lost recovery key.
+
+
+
+
+
+
+
+- [x] T13 [S19] (blocked-by: T12): Restore `vaultwarden_env` and generate an admin token | Verify: nix eval --json .#nixosConfigurations.lacuna.config.services.vaultwarden.environmentFile | grep -q "/run/secrets/vaultwarden_env" && grep -q "vaultwarden_env:" secrets.yaml
+  - Files: `roles/server/system/default.nix`, `secrets.yaml`.
+  - Notes: token is generated and retrievable with `sops decrypt --extract`.
+  - Risk: missing env file, token in git.
+
+
+
+
+
+
+
+- [x] T14 [S15] (blocked-by: T01): Add the flake checks | Verify: nix flake check
+  - Files: `flake/default.nix`.
+  - Notes: checks profile, role, hardware, boot, Home Manager, and Termux paths.
+  - Risk: stale path checks, missing files.
+
+
+
+
+
+
+
+- [x] T15 [S14] (blocked-by: T01): Add the `fovea` nix-on-droid output | Verify: nix eval .#nixOnDroidConfigurations.fovea.config.system.stateVersion | grep -qx "24.05" && test ! -d hosts/fovea
+  - Files: `flake.nix`, `flake/default.nix`, `nix-on-droid.nix`.
+  - Notes: output uses unstable aarch64 and stays outside host enumeration.
+  - Risk: missing input, host directory collision.
+
+
+
+
+
+
+
+- [x] T16 [S11] (blocked-by: T01): Keep the system session and wire Home Manager user configuration | Verify: nix eval .#nixosConfigurations.lacuna.config.programs.hyprland.withUWSM | grep -qx true && nix eval .#homeConfigurations.hollowheap.config.wayland.windowManager.hyprland.enable | grep -qx true
+  - Files: `roles/desktop/system/default.nix`, `roles/desktop/home/default.nix`, `home/gui`.
+  - Notes: system owns greeter, package, and portals.
+  - Risk: double compositor, missing greeter.
+
+
+
+
+
+
+
+- [x] T17 [S12] (blocked-by: T16): Split `home/cli` and `home/gui` | Verify: ! grep -R "home/gui" home/cli && grep -Rq "launchApp" home/cli && grep -Rq "defaultApps" home/cli
+  - Files: `home/cli`, `home/gui`, `home/cli.nix`, `home/gui.nix`.
+  - Notes: shared options live in the CLI tier.
+  - Risk: GUI leakage into CLI, duplicate options.
+
+
+
+
+
+
+
+- [x] T18 [S13] (blocked-by: T17): Render the neutral shortcut catalog in Hyprland | Verify: nix eval .#nixosConfigurations.lacuna.config.home-manager.users.hollowheap.desktop.shortcuts --apply 's: (builtins.hasAttr "close-window" s) && (builtins.hasAttr "focus-window-left" s) && (builtins.hasAttr "move-window-to-workspace" s)' | grep -qx true
+  - Files: `home/cli/shortcuts.nix`, `home/gui/hyprland.nix`.
+  - Notes: action names map to Hyprland dispatchers.
+  - Risk: duplicate keybinds, unsupported action.
+
+
+
+
+
+
+
+- [x] T19 [S20] (blocked-by: T17): Port the visual baseline into `home/gui` | Verify: nix eval .#homeConfigurations.hollowheap.config.gtk.theme.name >/dev/null && nix eval .#homeConfigurations.hollowheap.config.wayland.windowManager.hyprland.enable | grep -qx true
+  - Files: `home/gui`, `assets/`, `pkgs/`.
+  - Notes: Hyprland, Noctalia, Wallust, styles, fonts, cursor, and dconf.
+  - Risk: missing theme package, unresolved assets.
+
+
+
+
+
+
+
+- [x] T20 [S18] (blocked-by: T01): Keep acervus awake with the lid closed and no charge cap | Verify: nix eval .#nixosConfigurations.acervus.config.services.logind.settings.Login.HandleLidSwitch | grep -qx ignore && nix eval .#nixosConfigurations.acervus.config.systemd.sleep.settings.Sleep.AllowSuspend | grep -qx no
+  - Files: `hosts/acervus/default.nix`.
+  - Notes: power policy belongs to the acervus host.
+  - Risk: suspend on AC, battery cap reintroduced.
+
+
+
+
+
+
+
+- [x] T21 [S21] (blocked-by: T17): Move PrismLauncher into the opt-in gaming bundle | Verify: test -f home/apps/gaming/prismlauncher.nix && ! grep -R "prismlauncher" home/cli
+  - Files: `home/apps/gaming/`, `home/cli`.
+  - Notes: bundles are explicit host or role imports.
+  - Risk: PrismLauncher reaching CLI-only hosts.
+
+
+
+
+
+
+
+- [x] T24 [S24] (blocked-by: T17): Add long-press and multi-finger hyprgrass gestures | Verify: grep -q 'kind = "longpress"' home/gui/touch.nix
+  - Files: `home/gui/touch.nix`, `home/gui/hyprland.nix`.
+  - Notes: map gestures to window, launcher, and workspace actions.
+  - Risk: gesture conflicts, unsupported actions.
+
+
+
+
+
+
+
+- [x] T25 [S25] (blocked-by: none): Set the GRUB and Minegrub timeout to three seconds | Verify: nix eval .#nixosConfigurations.lacuna.config.boot.loader.timeout | grep -qx 3 && grep -q "set timeout=3" pkgs/double-minegrub-menu.nix
+  - Files: `boot/grub.nix`, `pkgs/double-minegrub-menu.nix`.
+  - Notes: loader and packaged theme agree.
+  - Risk: theme still ships 15 seconds.
+
+
+
+
+
+
+
+- [x] T26 [S26] (blocked-by: none): Add i915 early KMS and fastboot to the Intel graphics trait | Verify: nix eval .#nixosConfigurations.lacuna.config.boot.initrd.kernelModules | grep -q '"i915"' && nix eval .#nixosConfigurations.lacuna.config.boot.kernelParams | grep -q 'i915.fastboot=1'
+  - Files: `hardware/graphics.nix`.
+  - Notes: trait owns the module and parameter.
+  - Risk: late KMS, panel reset.
+
+
+
+
+
+
+
+- [x] T27 [S27] (blocked-by: none): Configure TPM2 unlock and PCR measurement in systemd initrd | Verify: nix eval .#nixosConfigurations.lacuna.config.boot.initrd.systemd.tpm2.enable | grep -qx true && nix eval .#nixosConfigurations.lacuna.config.boot.initrd.luks.devices.crypted.crypttabExtraOpts | grep -q "tpm2-device=auto"
+  - Files: `boot/tpm.nix`.
+  - Notes: `tpm_tis` and PCR phases are enabled.
+  - Risk: missing firmware, passphrase-only boot.
+
+
+
+
+
+
+
+- [x] T28 [S28] (blocked-by: T27): Sign GRUB and kernels with sbctl during install | Verify: nix eval --raw .#nixosConfigurations.lacuna.config.boot.loader.grub.extraInstallCommands | grep -q sbctl
+  - Files: `boot/secure-boot.nix`.
+  - Notes: signing runs from GRUB install hooks.
+  - Risk: wrong EFI path, unsigned kernel.
+
+
+
+
+
+
+
+- [x] T29 [S29] (blocked-by: T25): Keep Minegrub packages in pkgs and theme selection in boot | Verify: nix eval --raw .#nixosConfigurations.lacuna.config.boot.loader.grub.theme.name | grep -q double-minegrub-menu && test ! -e hardware/minegrub.nix
+  - Files: `pkgs/double-minegrub-menu.nix`, `boot/minegrub.nix`.
+  - Notes: only lacuna imports the theme.
+  - Risk: hardware minegrub module, broken mainmenu path.
+
+
+
+
+
+
+
+- [x] T30 [S30] (blocked-by: none): Enable PipeWire with ALSA and PulseAudio compatibility | Verify: nix eval .#nixosConfigurations.lacuna.config.services.pipewire.enable | grep -qx true && nix eval .#nixosConfigurations.lacuna.config.services.pipewire.pulse.enable | grep -qx true
+  - Files: `roles/desktop/system/services.nix`.
+  - Notes: 32-bit ALSA is enabled.
+  - Risk: missing PulseAudio bridge.
+
+
+
+
+
+
+
+- [x] T31 [S31] (blocked-by: none): Route DNS through systemd-resolved with Cloudflare DoT | Verify: nix eval --raw .#nixosConfigurations.lacuna.config.services.resolved.extraConfig | grep -q "security.cloudflare-dns.com"
+  - Files: `modules/services/network-services.nix`.
+  - Notes: DNS-over-TLS is enforced.
+  - Risk: plaintext fallback.
+
+
+
+
+
+
+
+- [x] T32 [S32] (blocked-by: none): Configure NetworkManager with iwd and sops Wi-Fi profiles | Verify: nix eval --raw .#nixosConfigurations.lacuna.config.networking.networkmanager.wifi.backend | grep -qx iwd && grep -q "wireless_env" hardware/wifi.nix
+  - Files: `hardware/wifi.nix`.
+  - Notes: profiles read `wireless_env`.
+  - Risk: invalid key-mgmt, missing secret.
+
+
+
+
+
+
+
+- [x] T33 [S33] (blocked-by: none): Enable udisks2, gvfs, and usbmuxd | Verify: nix eval .#nixosConfigurations.lacuna.config.services.udisks2.enable | grep -qx true && nix eval .#nixosConfigurations.lacuna.config.services.gvfs.enable | grep -qx true
+  - Files: `roles/desktop/system/services.nix`.
+  - Notes: desktop media and iOS access.
+  - Risk: root-only mounts.
+
+
+
+
+
+
+
+- [x] T34 [S34] (blocked-by: none): Keep thermald, upower, and power-profiles-daemon in the laptop profile | Verify: nix eval .#nixosConfigurations.lacuna.config.services.thermald.enable | grep -qx true && nix eval .#nixosConfigurations.lacuna.config.services.upower.enable | grep -qx true
+  - Files: `profiles/laptop/default.nix`.
+  - Notes: chassis policy only.
+  - Risk: hardware traits owning policy.
+
+
+
+
+
+
+
+- [x] T35 [S35] (blocked-by: none): Keep recursive module discovery in lib/default.nix | Verify: grep -q "mkModuleLoader" modules/default.nix && test -f lib/default.nix
+  - Files: `lib/default.nix`, `modules/default.nix`.
+  - Notes: new modules are discovered automatically.
+  - Risk: manual import drift.
+
+
+
+
+
+
+
+- [x] T36 [S36] (blocked-by: none): Keep the local package overlay recursive | Verify: nix eval --raw .#nixosConfigurations.lacuna.pkgs.double-minegrub-menu.name | grep -q double-minegrub-menu && grep -q "kebabToCamel" pkgs/default.nix
+  - Files: `pkgs/default.nix`, `pkgs/`.
+  - Notes: file names stay kebab, directory scopes camelCase.
+  - Risk: missing package, broken scope.
+
+
+
+
+
+
+
+- [x] T37 [S37] (blocked-by: none): Expose every language devShell and alias | Verify: for s in default ts c rust python pico nix typescript js clang cpp; do nix eval .#devShells.x86_64-linux.$s.name >/dev/null || exit 1; done
+  - Files: `flake/devshells.nix`, `flake/default.nix`.
+  - Notes: shells stay flake-local.
+  - Risk: missing alias, stale package.
+
+
+
+
+
+
+
+- [x] T38 [S38] (blocked-by: none): Trust the Termux, community, and Hyprland Cachix caches | Verify: nix eval --json .#nixosConfigurations.lacuna.config.nix.settings.substituters | grep -q "nix-on-droid.cachix.org" && nix eval --json .#nixosConfigurations.lacuna.config.nix.settings.substituters | grep -q "hyprland.cachix.org"
+  - Files: `modules/system/cachix.nix`.
+  - Notes: cache.nixos.org stays default.
+  - Risk: missing public key.
+
+
+
+
+
+
+
+- [x] T39 [S39] (blocked-by: T10): Keep server ingress ports with the Headscale role | Verify: grep -q "Headscale ingress" roles/server/system/default.nix && grep -q "allowedUDPPorts = \[ 3478 \]" roles/server/system/default.nix
+  - Files: `roles/server/system/default.nix`.
+  - Notes: ports 80/443 and 3478.
+  - Risk: ports in generic modules.
+
+
+
+
+
+
+
+- [x] T40 [S40] (blocked-by: none): Enable BTRFS scrub, zram, and explicit mount options | Verify: nix eval .#nixosConfigurations.lacuna.config.services.btrfs.autoScrub.enable | grep -qx true && nix eval .#nixosConfigurations.lacuna.config.zramSwap.enable | grep -qx true
+  - Files: `hardware/filesystems.nix`.
+  - Notes: monthly scrub and zram swap.
+  - Risk: missing scrub, lost mount flags.
+
+
+
+
+
+
+
+
+- [x] T41 [S41] (blocked-by: T14): Move flake checks into `tests/` and split them by domain | Verify: nix build .#checks.x86_64-linux.layout .#checks.x86_64-linux.policy .#checks.x86_64-linux.hardware .#checks.x86_64-linux.home .#checks.x86_64-linux.services .#checks.x86_64-linux.users
+  - Files: `tests/default.nix`, `tests/{layout,policy,hardware,home,services,users}.nix`, `flake/default.nix`.
+  - Notes: `tests/default.nix` recursively imports domain files; flake only imports the tests tree.
+  - Risk: duplicate domain names, missing test file, stale path checks.
+
+
+
+
+
+
+
+
+- [x] T42 [S42] (blocked-by: T17): Port zsh, zoxide, git, direnv, tealdeer, and core terminal tools into `home/cli` | Verify: test -f home/cli/zsh.nix && nix eval .#homeConfigurations.hollowheap.config.programs.zsh.enable | grep -qx true && nix eval .#homeConfigurations.hollowheap.config.programs.eza.enable | grep -qx true
+  - Files: `home/cli/{zsh,zoxide,tools,git,ssh,direnv,tealdeer}.nix`, `home/cli.nix`.
+  - Notes: zsh-fzf-tab-source was dropped because the sibling module referenced an undefined `zshPlugins`.
+  - Risk: duplicate options, custom package missing from nixpkgs.
+
+
+
+
+
+
+
+
+- [x] T43 [S43] (blocked-by: T42): Port starship, tmux, and wallust-themed bat/btop/yazi/lazygit config after sharing style options with CLI | Verify: test -f home/cli/starship.nix
+  - Files: `home/cli/starship.nix`, `home/cli/tmux.nix`, `home/cli/{bat,btop,yazi,lazygit}.nix`.
+  - Notes: move `styles.pills` and wallust templates into the CLI tier or a shared base first.
+  - Risk: GUI-only theme dependency, duplicate options.
+
+
+
+
+
+
+- [x] T44 [S43] (blocked-by: T42): Port GUI app modules into opt-in `home/apps/gui` bundles | Verify: test -f home/apps/gui/ghostty.nix
+  - Files: `home/apps/gui/{ghostty,zen-browser,vesktop,thunderbird,obs-studio,pear-desktop}.nix`.
+  - Notes: keep each app optional and absent from CLI-only hosts.
+  - Risk: missing external flake modules, GUI leakage into CLI.
+
+
+
+
+
+
+- [x] T45 [S43] (blocked-by: T42): Port opencode and the AI option schema into `home/cli` | Verify: test -f home/cli/opencode.nix && nix eval .#homeConfigurations.hollowheap.config.programs.opencode.enable | grep -qx true
+  - Files: `home/cli/{opencode,ai-options,ai-render,opencode-ai-hooks.ts}`, `home/cli.nix`.
+  - Notes: AI agents/skills content and nvim/nvf remain separate slices.
+  - Risk: HM opencode option drift, wallust template path.
+
+
+
+
+
+
+## Open
+
+- [ ] T22 [S22] (blocked-by: T10): Add DuckDNS DNS-01 for publicly trusted Caddy certificates | Verify: grep -q "dns duckdns" roles/server/system/default.nix
+  - Files: `roles/server/system/default.nix`, `flake.nix`, `secrets.yaml`.
+  - Notes: only the public baseDomain vhost uses DNS-01; loopback Headscale/Vaultwarden still use internal TLS. Runtime issuance untested.
+  - Risk: missing token, DuckDNS subdomain delegation, plugin hash mismatch.
+
+
+
+
+
+
+
+- [ ] T23 [S23] (blocked-by: T01): Make passwords and SSH keys declarative through sops | Verify: nix eval .#nixosConfigurations.lacuna.config.users.users.hollowheap.hashedPasswordFile >/dev/null
+  - Files: `modules/system/users.nix`, `secrets.yaml`, `.sops.yaml`.
+  - Notes: Deferred until hollowheap's password hash and SSH keys are supplied; steve remains a non-admin test user. Disable mutable users only after keys are declared.
+  - Risk: account lockout, missing secret.
+
+
+
+
+
+
+
+- [ ] T46 [S43] (blocked-by: T42): Port auxiliary services and core environment modules | Verify: test -f home/cli/services.nix
+  - Files: `home/cli/{services-auth-agents,rclone,store-hygiene,env,accounts,packages}.nix`.
+  - Notes: keep GUI-only services out of CLI.
+  - Risk: service assumptions, missing packages.
+
+
+
+
+
+
+- [ ] T47 [S43] (blocked-by: T42): Port default apps and remaining shell utilities | Verify: test -f home/cli/default-apps.nix
+  - Files: `home/cli/{default-apps,utilities,fastfetch}.nix`.
+  - Notes: mimeApps defaults, delta/wallust-free utilities, fastfetch.
+  - Risk: references to missing GUI apps, duplicate options.
+
+- [ ] T76 [S43] (blocked-by: T45): Port nvim/nvf modules into `home/cli` | Verify: test -f home/cli/nvim.nix
+  - Files: `home/cli/nvim/*.nix`, `flake.nix`.
+  - Notes: requires the nvf input and the wallust nvim template.
+  - Risk: large closure, nvf option drift.
+
+- [ ] T77 [S43] (blocked-by: T45): Port AI agents, disciplines, rules, skills, and hooks content | Verify: test -f home/cli/ai-agents.nix
+  - Files: `home/cli/ai/{agents,disciplines,rules,skills,hooks}.nix`.
+  - Notes: fills the schema ported in T45 with the actual prompt/skill content.
+  - Risk: prompt drift, missing skill assets.
+
+
+
+
+
+
+
+## References
+- Requirements: [artifacts/requirements.md](file:///home/hollowheap/repos/nixos-config/artifacts/requirements.md)
+- Decisions: [artifacts/decisions.md](file:///home/hollowheap/repos/nixos-config/artifacts/decisions.md)
+- Specifications: [artifacts/specs.md](file:///home/hollowheap/repos/nixos-config/artifacts/specs.md)
