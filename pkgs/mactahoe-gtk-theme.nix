@@ -5,7 +5,6 @@
   glib,
   libxml2,
   unixtools,
-  gtk-engine-murrine,
   jdupes,
 }:
 stdenvNoCC.mkDerivation {
@@ -16,7 +15,7 @@ stdenvNoCC.mkDerivation {
     owner = "vinceliuice";
     repo = "MacTahoe-gtk-theme";
     rev = "main";
-    hash = "sha256-XzvLVclV0My+2dq2+7CYBn9GsJy3BZzOBiqhjjiGv0M=";
+    hash = "sha256-6a42HU49N4ChSm4AyW7i6FYAIENZzDogpZzM51muCbg=";
   };
 
   nativeBuildInputs = [
@@ -27,14 +26,11 @@ stdenvNoCC.mkDerivation {
     unixtools.getent
   ];
 
-  propagatedUserEnvPkgs = [
-    gtk-engine-murrine
-  ];
-
   patchPhase = ''
     sed -i 's/MY_USERNAME=.*/MY_USERNAME="nixbld"/' libs/lib-core.sh
     sed -i 's/MY_HOME=.*/MY_HOME="\/build"/' libs/lib-core.sh
     sed -i 's/SUDO_BIN="$(which sudo)"/SUDO_BIN=""/' libs/lib-core.sh
+    sed -i 's|SUDO_BIN="$(command -v sudo)"|SUDO_BIN="false"|' libs/lib-core.sh
     sed -i 's/exec 2>.*/# removed exec/' libs/lib-core.sh
 
     # Disable animations and terminal clearing
