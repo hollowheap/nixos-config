@@ -39,8 +39,7 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 
 ## Known Debt
 
-- `home-manager` specs still disagree with code: 31 false and 9 stale, left to that repo.
-- `my-pi-agent` specs have 4 stale and 1 false entries, left to that repo.
+- `my-pi-agent` specs have 4 stale and 1 false entry, left to that repo.
 - Historical `retro.md` and generated `repomap.md` may mention removed skills; they are historical or generated.
 - `review/references/robust.md` needs explicit diff, slice, and robust lens definitions.
 - `artifacts/architecture.md` is newly established and must be updated only by a full workspace review or a boundary-changing decision.

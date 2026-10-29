@@ -1,15 +1,10 @@
 # Cross-Repo Spec Audit
 
-Scope: `~/repos/{docmd,home-manager,lively,md-questioner,my-pi-agent,nixos-config,pico-car}`.
+Scope: `~/repos/{docmd,lively,md-questioner,my-pi-agent,nixos-config,pico-car}`.
+`home-manager` is migrated and excluded from this audit.
 Method: parsed `artifacts/specs.md` and `artifacts/tasks.md` (or legacy `artifacts/plan.md`); compared spec titles; counted spec parents per task.
 
 ## Findings
-
-### home-manager
-
-- 111 specs; every `Seam` repeats the spec title.
-- Every `Behavior` is the boilerplate `The invariant holds when the Verify command passes.`
-- No duplicate titles and no task with three or more spec parents.
 
 ### my-pi-agent
 
@@ -46,14 +41,12 @@ Method: parsed `artifacts/specs.md` and `artifacts/tasks.md` (or legacy `artifac
 
 ## Duplication Repaired
 
-- `home-manager`: removed 111 duplicated `Seam` lines and 111 boilerplate `Behavior` lines; specs keep title and `Verify`.
 - `my-pi-agent`: removed 74 duplicated `Seam` lines and 50 duplicated `Behavior` lines.
 - No semantic behavior was invented; only exact duplicates were removed.
-- `verify-links` still passes in both repos.
+- `verify-links` still passes.
 
 ## Code Audit
 
-- `home-manager`: 71 verified, 9 stale, 31 false. See `artifacts/review/home-manager-spec-code-audit.md`.
 - `my-pi-agent`: 132 verified, 4 stale, 1 false. See `artifacts/review/my-pi-agent-spec-code-audit.md`.
 
 ## Decision
