@@ -34,7 +34,7 @@
           };
           wifi.ssid = "$HOME2_SSID";
           wifi-security = {
-            key-mgmt = "sae";
+            key-mgmt = "wpa-psk";
             psk = "$HOME2_PSK";
           };
         };
