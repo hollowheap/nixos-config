@@ -2,12 +2,12 @@
 
 - [x] D01 [R01]: Use Layout A class-separated trees and merge Home Manager into `home/`.
   - Alternatives: a full dendritic flake, or an external Home Manager repository.
-  - Consequences: `home/cli`, `home/gui`, and `home/apps` share one lockfile.
+  - Consequences: `home/modules/{ai,core,environment,programs,services,shell,styles}` share one lockfile.
   - One evaluation keeps the system and user layers reviewable together.
 
 - [x] D02 [R02]: Keep release-26.05 as the primary nixpkgs, with `pkgs.unstable`, the kernel, Home Manager, and user programs on unstable.
   - Alternatives: unstable primary with stable hardware, or all-stable.
-  - Consequences: Home Manager overrides `pkgsPath` and the extended lib; NixOS stays stable.
+  - Consequences: standalone Home Manager uses unstable packages; NixOS stays stable.
   - Stable drivers avoid regressions while desktop programs track current nixpkgs.
 
 - [x] D03 [R03]: Hosts import one chassis profile, role modules, and explicit hardware and boot traits.
@@ -17,7 +17,7 @@
 
 - [x] D04 [R04]: Treat touch and HDR as hardware traits that bridge into Home Manager.
   - Alternatives: duplicate host checks in compositor modules.
-  - Consequences: standalone Home Manager defaults both flags to false.
+  - Consequences: standalone Home Manager sets both flags for lacuna; hardware traits record host capability.
   - Hardware capabilities gate compositor behavior without host-specific branches.
 
 - [x] D05 [R04]: Lacuna is Intel Arc only; acervus uses hybrid Intel + Nvidia PRIME.
@@ -55,10 +55,10 @@
   - Consequences: Home Manager sets `package = null` and `portalPackage = null`.
   - The login path remains stable while user configuration iterates.
 
-- [x] D12 [R08]: Split `home/cli` for shared options from `home/gui` for the compositor and visual tier.
+- [x] D12 [R08]: Split `home/cli.nix` for shared options from `home/gui.nix` for the compositor and visual tier.
   - Alternatives: one monolithic Home Manager tree.
   - Consequences: CLI-only hosts can import the baseline without GUI modules.
-  - The boundary keeps desktop duty out of server and Termux users.
+  - Superseded by D46's recursive import-tree layout.
 
 - [x] D13 [R08]: Define a neutral verb-object shortcut catalog and render it in Hyprland.
   - Alternatives: hardcode every keybind in the compositor module.
@@ -80,12 +80,12 @@
   - Consequences: `tests/default.nix` maps each file to `checks.x86_64-linux.<name>`.
   - Splitting by domain isolates failures and keeps flake composition small.
 
-- [x] D42 [R16]: Port the shell and terminal toolset into `home/cli` before adding GUI app bundles or prompt theming.
+- [x] D42 [R16]: Port the shell and terminal toolset into `home/modules/shell` before adding GUI app bundles or prompt theming.
   - Alternatives: keep every Home Manager module in one tree.
   - Consequences: zsh, zoxide, git, direnv, tealdeer, and core tools have no GUI dependency.
   - A CLI-only host must be useful without a compositor or theme generator.
 
-- [ ] D43 [R17]: Port remaining Home Manager modules in functional slices and mark parity only after each slice evaluates.
+- [x] D43 [R17]: Port remaining Home Manager modules in functional slices and mark parity only after each slice evaluates.
   - Alternatives: copy every module at once.
   - Consequences: prompt theming, GUI apps, editor/AI, and auxiliary services land independently.
   - Most sibling modules are still absent; the current completed tasks cover infrastructure and the visual baseline only.
@@ -115,7 +115,7 @@
   - Consequences: apps, touch, and HDR followed as separate slices.
   - The visual baseline gives the desktop identity before app expansion.
 
-- [ ] D21 [R11]: Split optional apps into `home/apps/<bundle>` and keep PrismLauncher out of the CLI baseline.
+- [x] D21 [R11]: Split optional apps into `home/modules/programs/gaming` and keep PrismLauncher out of the CLI baseline.
   - Alternatives: install every GUI app globally.
   - Consequences: gaming apps are explicit host or role imports.
   - Optional apps must not expand CLI-only hosts.
@@ -130,7 +130,7 @@
   - Consequences: `hashedPasswordFile` and `openssh.authorizedKeys` come from secrets.
   - Declarative identity removes imperative account drift.
 
-- [ ] D24 [R14]: Add long-press, multi-finger, and edge gestures to the touch compositor module.
+- [x] D24 [R14]: Add long-press, multi-finger, and edge gestures to the touch compositor module.
   - Alternatives: keep only workspace swipe and the on-screen keyboard bind.
   - Consequences: gestures map to window, launcher, and workspace actions.
   - Touch navigation should cover common window management without a keyboard.
@@ -215,10 +215,172 @@
   - Consequences: `hardware/filesystems.nix` owns scrub, zram, and mount policy.
   - Regular scrubs detect bitrot while zram reduces swap pressure.
 
+- [x] D44 [R08]: Organize Home Manager implementation modules by domain under `home/modules/{ai,core,environment,programs,services,shell,styles}`.
+  - Alternatives: tier directories under `home/modules/{cli,gui,apps}`, or a flat module tree.
+  - Consequences: domain modules load without a central file list.
+  - Superseded entrypoint details by D46.
+
+- [x] D45 [R08]: Name per-user Home Manager entrypoints after the account and discover them from `home/*.nix`.
+  - Alternatives: one generic `home.nix` with inline user identity, or a hardcoded user list in the flake.
+  - Consequences: `home/hollowheap.nix` owns identity and imports; a future `home/steve.nix` is discovered automatically.
+  - User files express identity while shared domain modules stay reusable.
+
+- [x] D46 [R08]: Load Home Manager modules recursively with `import-tree` and centralize shared desktop values in `modules/options/desktop.nix`.
+  - Alternatives: explicit `home/cli.nix` and `home/gui.nix` import lists, or duplicated Hyprland and greeter values.
+  - Consequences: no central module list; Hyprland and the greeter read the same monitors, primary output, scale, and fonts.
+  - Modules own their options and wiring; only genuinely shared data is centralized.
+
+- [x] D47 [R08]: Keep Hyprland binds and submaps in `home/modules/programs/hyprland/keybinds.nix`, with shared Lua helpers in `home/lib/hyprland.nix`.
+  - Alternatives: duplicate the bind table in each host's compositor module.
+  - Consequences: any Home Manager configuration using `import-tree` gets the same keybinds; host-specific compositor settings stay separate.
+  - Shared interaction policy without a centralized host list.
+
+- [x] D48 [R08]: Keep compositor window dimensions in `home/modules/environment/compositor.nix` under `desktop.compositor`.
+  - Alternatives: keep dimensions under `styles.dims` or Hyprland-specific options.
+  - Consequences: Hyprland and Noctalia consume the same gaps, borders, radius, and bar height.
+  - Compositor geometry is not a theme token or a program-specific setting.
+
+- [x] D49 [R18]: Scope `/retro` to the active session context with emission to `artifacts/retro.md`.
+  - Alternatives: automatic post-task triggers, or mixing scope drift reconciliation into retro.
+  - Consequences: `/retro` focuses strictly on efficiency, errors, winning patterns, and rule compliance; alignment reconciliation stays in `/update`.
+  - Keeping retrospective analysis separate from artifact reconciliation prevents conflating task delivery with execution critique.
+
+- [x] D50 [R19]: Introduce corpus-audit skill focused on thinking loops and harness rule synthesis.
+  - Alternatives: overload single-session retro, or expand session-audit without multi-session compaction.
+  - Consequences: `corpus-audit` processes multiple compacted session logs across harnesses; findings feed directly into `author-harness` and rule sets.
+  - Separate intra-session reflection from multi-session meta-evaluation across agent lifecycles.
+
+- [x] D51 [R20]: Decompose Neovim configuration into domain modules co-locating lazy plugins, options, and keymaps.
+  - Alternatives: maintain the monolithic 940-line `keymaps.nix` and central `core.nix` plugin dictionary.
+  - Consequences: `quickfix.nix`, `preview.nix`, `editing.nix` encapsulate their respective packages, whichKey registrations, and keymaps; `core.nix` retains only editor core/primitives and `keymaps.nix` retains global leader/operator tables.
+  - Co-locating configuration with keybindings eliminates orphan mappings and keeps domain concerns modular.
+
+- [x] D52 [R20]: Dual clipboard yank mappings (`ry` and `<leader>y`) with native register access.
+  - Alternatives: restrict clipboard yank exclusively to `ry` operator or `<leader>y` leader map; keep `"` cleared.
+  - Consequences: both `ry` and `<leader>y` (with `yy` and `Y` variants) yank to system clipboard (`"+y`), restoring symmetry with `<leader>p`/`<leader>P`; removing `"` from `<Nop>` clears restores native register prefixes.
+  - Symmetrical clipboard bindings accommodate both Helix operator-style and Vim leader-style muscle memory while preserving native register access.
+
+- [x] D53 [R19]: Universal harness rules with eager/lazy skill partitioning.
+  - Alternatives: dump framework-specific commands (deno, svelte) into global rules, or keep domain UI skills eagerly loaded on all primary agents.
+  - Consequences: `rules.nix` encodes 6 universal clamps (declared runner check, exact verify, gate integrity, experiment timebox, subagent caps, primary agent user handoff); primary `engineer` sheds 7 domain skills to cut eager XML prompt bloat by ~50%, delegating UI work to `worker` and UI audits to `code-reviewer`.
+  - Negative constraints and circuit breakers must be eager in system prompt; primary agents never invoke other primary agents and halt upon slice completion.
+
+- [x] D54 [R19]: Consolidate frontend micro-skills into `ui-author` and `ui-audit` umbrella skills.
+  - Alternatives: maintain 6 discrete micro-skills (`a11y-interaction-audit`, `design-tokens-audit`, `layout-audit`, `ui-state-model`, `headless-primitive-author`, `motion-choreography`) or introduce custom specialist subagents.
+  - Consequences: `ui-author` unifies headless primitives, async state machines, and compositor motion for `engineer` and `worker`; `ui-audit` unifies accessibility, layout density, and design token checks for `code-reviewer`. Superseded by review absorption; both lenses now live in `assets/skills/review/references/ui.md`.
+  - Replaces 6 granular schema entries with 2 cohesive umbrella skills, reducing prompt bloat while preserving full frontend authoring and auditing capabilities without specialist subagents.
+
+- [x] D55 [R19]: Full-stack backend and architecture umbrella skills (`backend-author` and `modular-design`).
+  - Alternatives: maintain granular database/API micro-skills, or create specialist backend subagents.
+  - Consequences: `backend-author` governs transport boundary validation, thin controllers, pure domain services, standardized RFC 9457 errors, and timeout budgets for `engineer` and `worker`; `modular-design` governs vertical domain slices, deep modules, inverted ports & adapters seams, and explicit composition roots across `architect`, `engineer`, and `worker`. Superseded by review absorption; backend guidance now lives in `assets/skills/review/references/backend.md`, while `modular-design` remains standalone.
+  - Provides comprehensive full-stack and architectural design discipline without specialist subagents or excessive prompt XML bloat.
+
+- [x] D56 [R19]: Harness model routing and reasoning effort alignment.
+  - Alternatives: retain dummy Copilot models in `ai.tiers` and legacy Minimax fallbacks in Kiro.
+  - Consequences: Codex settings and agents declare `model = "gpt-6-luna"` with `model_reasoning_effort = "xhigh"`; Kiro agents declare `claude-sonnet-5.5` at effort `low` for high tier (`architect`) and `claude-haiku-5.5` at effort `xhigh` for medium/low tiers; global `ai.tiers` default centralizes on `opencode-go` (`deepseek-v4.1-flash` and `beam-free`).
+- [x] D57 [R19]: Dynamic Bitwarden/rbw key delivery for AI harnesses.
+  - Alternatives: store plaintext API keys in dotfiles, or require manual shell exports.
+  - Consequences: `zsh.nix` exports `OPENCODE_API_KEY` and `OPENCODE_GO_API_KEY` on startup and via `preexec` hook before AI harness executions; `opencode.nix` explicitly queries environment variables; `pi-coding-agent.nix` declares `auth.json` with dynamic `!rbw get` execution; `ai-hooks.nix` guards `session-start` against non-git home directory scans.
+- [x] D58 [R08]: Declarative XDG user directories and Wallust template unification.
+  - Alternatives: unmanaged user directories and hardcoded `~/.config/wallust/templates`.
+  - Consequences: `xdg.userDirs` maps clean user paths and redirects unwanted standard directories (`desktop`, `templates`, `publicShare`) into `~/.local/share/`; Wallust templates deploy into `${config.xdg.userDirs.templates}` (`~/.local/share/templates`) and mirror to `~/.config/wallust/templates`; Noctalia passes `--templates-dir` directly.
+  - Ensures a clean `$HOME` without unused clutter directories while unifying template assets across tools.
+
+- [x] D59 [R21]: Vertical domain slices for server role daemons.
+  - Alternatives: maintain monolithic `roles/server/system/default.nix` with hardcoded reverse proxy ports and secrets.
+  - Consequences: `roles/server/system/` decomposes into `caddy.nix`, `headscale.nix`, `vaultwarden.nix`, and `ddclient.nix`, tied together by `default.nix`; each service declares its own `services.caddy.virtualHosts` block, ports, and restart units.
+  - Enables open-closed extensibility where adding or modifying a service touches only its dedicated slice without mutating the reverse proxy monolith.
+
+- [x] D60 [R22]: Decoupled home module taxonomy across terminal, cli, and programs.
+  - Alternatives: mix interactive shells, headless utilities, and GUI/AI apps inside a bloated `home/modules/programs/`.
+  - Consequences: `home/modules/terminal` holds shell runtime, prompts, and multiplexers (`zsh`, `starship`, `tmux`, `zoxide`, `direnv`); `home/modules/cli` holds standalone headless utilities (`git`, `lazygit`, `bat`, `btop`, `yazi`, `fastfetch`, `tealdeer`, `gpg`, `ssh`); `home/modules/programs` retains complex desktop suites, editors, and AI harnesses.
+  - Creates clear cohesion boundaries matching process lifecycle and user interaction model while leaving `import-tree` auto-discovery intact.
+
+- [x] D61 [R23]: Import `github:can1357/oh-my-pi` flake input and bind `programs.omp` via `home/modules/programs/omp.nix`.
+  - Alternatives: install via curl installer imperatively, or write a bespoke derivation from source without the upstream flake.
+  - Consequences: `inputs.omp.homeManagerModules.default` provides `programs.omp`; `home/modules/programs/omp.nix` wires shared skills, disciplines, rules, agents, and hooks into `~/.omp/agent/`.
+  - Provides declarative, hermetic integration with the upstream cached binary and full `ai.*` abstraction bindings.
+
+- [x] D62 [R24]: Exclude Pi built-in extensions via `programs.pi-coding-agent.settings.extensions` overrides.
+  - Alternatives: pass `--no-mcp` or tool flags in CLI wrapper which leaves `tool-search` and `llama.cpp` active.
+  - Consequences: `settings.extensions` declares `["-builtin:tool-search" "-builtin:mcp" "-builtin:llama.cpp"]`, which Pi's `DefaultPackageManager` applies during startup and reload to deactivate those extension factories and tools.
+  - Keeps extension configuration declarative and hermetic in Home Manager.
+
+- [x] D63 [R25]: Direct wallpaper Hook orchestration and Wallust Hyprland border template.
+  - Alternatives: maintain Noctalia `theme.templates.user` stub templates for triggering individual post-hooks.
+  - Consequences: Noctalia `wallpaper_changed` hook directly invokes `wallust run`, computes primary color, and drives `mactahoe-gtk-accent`, `mactahoe-icon-accent --apply`, OpenRGB, and `hyprctl reload`; Wallust renders `hypr-colors.lua` directly into `~/.config/hypr/noctalia.lua`; `mactahoe-icon-accent` updates `dconf`, `gsettings`, and GTK `settings.ini` files unconditionally; Noctalia stub templates and files are dropped.
+
+- [x] D64 [R26]: Deploy `diagram.nvim` and `image.nvim` with Kitty protocol and bundled CLI tools in Neovim.
+  - Alternatives: ASCII diagramming (venn.nvim) or external browser preview extensions.
+  - Consequences: `diagram.nvim` renders Mermaid, PlantUML, D2, and Graphviz inline; `image.nvim` renders images via Ghostty's Kitty graphics protocol with `magick_cli`; CLI packages (`imagemagick`, `mermaid-cli`, `plantuml`, `d2`, `graphviz`) are provided in `programs.nvf.settings.vim.extraPackages`; `"diagram.nvim"` added to `allowUnfreePredicate`.
+
+- [ ] D65 [R27]: Put the deny-all rule first in every permission block and remove the invalid `write` key.
+  - Alternatives: keep allow-then-deny and rely on tool lists.
+  - Consequences: OpenCode's last-match-wins resolver stops hiding write and delegation; one `edit` key covers write, edit, and patch.
+  - The current order already breaks subagent write and task delegation.
+
+- [ ] D66 [R28]: Render every harness from `agentBodyFor` and resolve model and effort from `ai.tiers`.
+  - Alternatives: keep per-harness prompt handling and hardcoded model pins.
+  - Consequences: seven renderers lose their empty `instructions` path; model changes happen once.
+  - Prompt and model drift is the main cross-harness failure.
+
+- [ ] D67 [R32]: Move pointer, gesture, keyboard, and touch policy into shared desktop options consumed by compositor, greeter, and console.
+  - Alternatives: keep Hyprland-only options and duplicate the layout in the greeter.
+  - Consequences: `natural_scroll`, gesture binds, layout/variant, and touch transform derive from one option set.
+  - The touchpad inversion is an unset default, not a hardware defect.
+
+- [ ] D68 [R33]: Use suspend-then-hibernate with a bounded delay and a firmware charge threshold where available.
+  - Alternatives: keep plain suspend, or disable hibernation entirely.
+  - Consequences: logind and sleep policy are declared; a battery cap is applied only when the hardware exposes it.
+  - Suspend-until-empty is the current data-loss path.
+
+- [ ] D69 [R34]: Bind internal services to loopback or the mesh, turn Caddy admin off, and disable SSH password authentication.
+  - Alternatives: keep 0.0.0.0 binds and rely on host-header routing.
+  - Consequences: firewall ports move under interface scopes; local users lose the Caddy admin API.
+  - Current exposure is wider than the mesh-only assumption.
+
+- [ ] D70 [R39]: Keep rclone mounts, but add a delete guard, backup directory, timeouts, and a documented bisync resync.
+  - Alternatives: drop sync mode, or replace rclone with a snapshotting backup.
+  - Consequences: sync refuses mass deletion; mounts fail fast on network loss; bisync has a bootstrap step.
+  - The user mounts remotes, so the mount path stays.
+
+- [ ] D71 [R40]: Keep at least ten generations, a saved default, and a panic/watchdog policy.
+  - Alternatives: keep three generations and a three-second timeout.
+  - Consequences: rollback survives more bad updates and headless boots recover.
+  - Three generations and seven days is too narrow for an unstable kernel.
+
+- [ ] D72 [R41]: Add a LUKS recovery key and a rescue credential without changing initrd signing.
+  - Alternatives: rely on the single passphrase slot and physical rescue media.
+  - Consequences: one recovery key slot and a documented root/rescue path; measured boot stays out of scope.
+  - Recovery must not depend on undocumented TPM state.
+
+- [ ] D73 [R48]: Give fovea a separate headless Home Manager profile built from platform-neutral modules.
+  - Alternatives: reuse the full desktop profile, or keep the package stub.
+  - Consequences: a shared `pkgs`/HM factory, no GUI or compositor imports, and an activation-package check.
+  - The desktop profile hardcodes `/home/hollowheap` and desktop-only packages.
+
+- [ ] D74 [R50]: Replace ad-hoc template entries with one theme-consumer registry that owns template, target, reload, order, and mode.
+  - Alternatives: keep per-module `programs.wallust.settings` mutations.
+  - Consequences: activation and wallpaper hooks render the same registry; consumers register data only.
+  - Two palette authorities currently produce two accent colors.
+
+- [ ] D75 [R42]: Move firmware enablement into a base hardware trait imported by every host.
+  - Alternatives: keep it in the Bluetooth trait and duplicate it per host.
+  - Consequences: Wi-Fi, GPU, audio, and regulatory firmware become host-wide.
+  - A Bluetooth capability currently gates unrelated firmware.
+
+- [ ] D76 [R45]: Enable SMART monitoring and a Nix free-space floor.
+  - Alternatives: rely on btrfs checksum errors and manual GC.
+  - Consequences: disk degradation and store exhaustion become observable before failure.
+  - Both failures currently surface only at the point of damage.
+
 ## Non-Goals
+- Automated backup and restore for Vaultwarden, Headscale, Caddy state, or home data; rclone safety is the only sync change in this backlog.
+- UKI/lanzaboote initrd signing, measured boot, and TPM PCR policy changes.
 - Ephemeral root and Impermanence bind mounts.
 - WebAuthn/biometric PAM challenges.
 - Nvidia or hybrid graphics on lacuna.
 - WSL hosts, AMD GPU support, systemd-boot.
 - Battery charge thresholds on acervus.
 - Public ACME on loopback-only hostnames.
+- Rebuilding OMP Rust and Bun compiler stack from source when cached upstream flake binaries exist.
