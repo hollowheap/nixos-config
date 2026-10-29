@@ -15,7 +15,7 @@ pkgs.runCommand "check-layout" {
   test ! -e profiles/laptop/configuration.nix
 
   test -f roles/desktop/system/default.nix
-  test -f roles/desktop/home/default.nix
+  test -f home/modules/programs/gui/pear-desktop.nix
   test -f roles/server/system/default.nix
   test -f boot/grub.nix
   test -f boot/tpm.nix
@@ -31,12 +31,15 @@ pkgs.runCommand "check-layout" {
   test -f hosts/acervus/hardware-configuration.nix
   test -f nix-on-droid.nix
 
-  test -f home/home.nix
-  test -f home/cli.nix
-  test -f home/gui.nix
-  test -f home/gui/hyprland.nix
-  test -f home/cli/shortcuts.nix
-  test -f home/apps/gaming/prismlauncher.nix
+  test -f home/hollowheap.nix
+  test -f home/lib/toolchains.nix
+  test -f modules/options/desktop.nix
+  test -f home/modules/ai/options.nix
+  test -f home/modules/programs/hyprland/hyprland.nix
+  test -f home/modules/programs/hyprland/keybinds.nix
+  test -f home/modules/environment/compositor.nix
+  test -f home/modules/environment/shortcuts.nix
+  test -f home/modules/programs/gaming/prismlauncher.nix
 
   touch $out
 ''

@@ -14,7 +14,8 @@ pkgs.runCommand "check-policy" {
   ! grep -R "profiles/desktop" hosts/lacuna/default.nix
 
   grep -q "roles/server/system" hosts/lacuna/default.nix
-  grep -q "home/gui" roles/desktop/home/default.nix
+  grep -q "homeUserNames" flake/default.nix
+  grep -q "inputs.import-tree ./modules" home/hollowheap.nix
   ! grep -q "roles/server" hosts/acervus/default.nix
   ! grep -q "roles/desktop" hosts/acervus/default.nix
 

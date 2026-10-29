@@ -34,6 +34,9 @@ in
       (final: prev: {
         unstable = import inputs.nixpkgs-unstable (packageConfig prev.stdenv.hostPlatform.system);
       })
+      (final: _: {
+        intel-npu-driver = final.unstable.intel-npu-driver;
+      })
       (_: prev: (import ../../pkgs/default.nix prev))
 
       (

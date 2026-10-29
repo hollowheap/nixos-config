@@ -18,10 +18,12 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    stylix = {
-      url = "github:nix-community/stylix/release-26.05";
+    nvf = {
+      url = "github:notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    import-tree.url = "github:denful/import-tree";
 
     noctalia-greeter = {
       url = "github:noctalia-dev/noctalia-greeter";
@@ -42,6 +44,11 @@
       url = "github:0xc000022070/zen-browser-flake/beta";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs.home-manager.follows = "home-manager";
+    };
+
+    omp = {
+      url = "github:can1357/oh-my-pi";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
   };
 

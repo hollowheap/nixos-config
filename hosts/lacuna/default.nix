@@ -9,13 +9,7 @@
     ../../modules
     ../../profiles/laptop
     ../../roles/desktop/system
-    ../../roles/desktop/home
     ../../roles/server/system
-  ];
-
-  home-manager.users.hollowheap.imports = [
-    ../../home/apps/gaming/prismlauncher.nix
-    ../../home/apps/gui.nix
   ];
 
   hardware.graphics.extraPackages = with pkgs; [

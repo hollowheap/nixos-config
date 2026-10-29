@@ -74,18 +74,7 @@ def main():
 
     if apply_mode:
         os.makedirs(cache_dir, exist_ok=True)
-        cached = ""
-        if os.path.isfile(cache_file):
-            try:
-                with open(cache_file, "r") as f:
-                    cached = f.read().strip()
-            except Exception:
-                pass
-
         current = f"{clean_hex} {mode} {theme}"
-        if cached == current:
-            return
-
         try:
             with open(cache_file, "w") as f:
                 f.write(current + "\n")
@@ -94,6 +83,31 @@ def main():
 
         subprocess.run(["dconf", "write", "/org/gnome/desktop/interface/icon-theme", f"'{theme}'"], capture_output=True)
         subprocess.run(["gsettings", "set", "org.gnome.desktop.interface", "icon-theme", theme], capture_output=True)
+
+        for ini_name in ["gtk-3.0/settings.ini", "gtk-4.0/settings.ini"]:
+            ini_path = os.path.expanduser(os.environ.get("XDG_CONFIG_HOME", "~/.config")) + "/" + ini_name
+            if os.path.isfile(ini_path):
+                try:
+                    with open(ini_path, "r") as f:
+                        lines = f.readlines()
+                    found = False
+                    new_lines = []
+                    for line in lines:
+                        if line.startswith("gtk-icon-theme-name="):
+                            new_lines.append(f"gtk-icon-theme-name={theme}\n")
+                            found = True
+                        else:
+                            new_lines.append(line)
+                    if not found:
+                        if "[Settings]\n" in new_lines:
+                            idx = new_lines.index("[Settings]\n") + 1
+                            new_lines.insert(idx, f"gtk-icon-theme-name={theme}\n")
+                        else:
+                            new_lines.append(f"gtk-icon-theme-name={theme}\n")
+                    with open(ini_path, "w") as f:
+                        f.writelines(new_lines)
+                except Exception:
+                    pass
 
     print(theme)
 

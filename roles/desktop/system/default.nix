@@ -40,7 +40,8 @@
       keyboard.layout = "us";
 
       output = {
-        scale = 1;
+        name = config.desktop.primaryOutput;
+        scale = config.desktop.primaryScale;
       };
     };
   };

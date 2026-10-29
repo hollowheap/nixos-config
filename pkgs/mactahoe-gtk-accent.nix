@@ -55,7 +55,7 @@ writeShellApplication {
     theme_src="${mactahoe-gtk-theme.src}"
     work="''${XDG_CACHE_HOME:-$HOME/.cache}/noctalia/mactahoe"
     marker="$work/accent.hex"
-    rev="$(basename "$theme_src")"
+    rev="$theme_src $0"
 
     mkdir -p "$work"
 
@@ -72,24 +72,43 @@ writeShellApplication {
     cp -r "$theme_src/src/main/gtk-4.0" "$theme_src/src/main/gtk-3.0" "$work/src/main/"
     chmod -R u+w "$work/src"
     cp "$work/src/sass/_theme-options.scss" "$work/src/sass/_theme-options-temp.scss"
-    sed -i "/\$darker/s/false/true/" "$work/src/sass/_theme-options-temp.scss"
-    sed -i "/\$blur/s/false/true/" "$work/src/sass/_theme-options-temp.scss"
-    sed -i "/\$max_window_style/s/square/round/" "$work/src/sass/_theme-options-temp.scss"
     cp "$work/src/sass/_gtk-base.scss" "$work/src/sass/_gtk-base-temp.scss"
+
+    # shellcheck disable=SC2016
+    sed -i '/\$darker/s/false/true/' "$work/src/sass/_theme-options-temp.scss"
+    # shellcheck disable=SC2016
+    sed -i '/\$blur/s/false/true/' "$work/src/sass/_theme-options-temp.scss"
     sed -i "s/^\$theme_color_default:.*/\$theme_color_default: #$accent;/" "$work/src/sass/_colors-palette.scss"
 
-    sassc -t expanded "$work/src/main/gtk-4.0/gtk-Dark.scss" "$work/out/c4.css" || exit 0
-    sassc -t expanded "$work/src/main/gtk-3.0/gtk-Dark.scss" "$work/out/c3.css" || exit 0
+    sassc -t expanded "$work/src/main/gtk-4.0/gtk-Dark.scss" "$work/out/c4.css" || exit 1
+    sassc -t expanded "$work/src/main/gtk-3.0/gtk-Dark.scss" "$work/out/c3.css" || exit 1
 
     {
-      cat "$work/out/c4.css"
-      printf '\n/* mactahoe-accent: %s */\n@define-color accent_color #%s;\n@define-color accent_bg_color #%s;\n@define-color accent_fg_color #%s;\n' "$accent" "$accent" "$accent" "$fg"
-    } > "$work/out/final4.css"
+      printf '\n/* mactahoe-accent: %s */\n' "$accent"
+      printf '@define-color accent_color #%s;\n' "$accent"
+      printf '@define-color accent_bg_color #%s;\n' "$accent"
+      printf '@define-color accent_fg_color #%s;\n' "$fg"
+      for n in 1 2 3 4 5; do
+        printf '@define-color blue_%s #%s;\n' "$n" "$accent"
+      done
+      printf ':root {\n'
+      printf '  --accent-blue: #%s;\n' "$accent"
+      printf '  --accent-bg-color: #%s;\n' "$accent"
+      printf '  --accent-fg-color: #%s;\n' "$fg"
+      printf '  --accent-color: #%s;\n' "$accent"
+      printf '}\n'
+    } >> "$work/out/c4.css"
+
     {
-      cat "$work/out/c3.css"
-      printf '\n/* mactahoe-accent: %s */\n@define-color accent_color #%s;\n@define-color accent_bg_color #%s;\n@define-color accent_fg_color #%s;\n' "$accent" "$accent" "$accent" "$fg"
-    } > "$work/out/final3.css"
-    cp "$work/out/final3.css" "$work/out/final3d.css"
+      printf '\n/* mactahoe-accent: %s */\n' "$accent"
+      printf '@define-color accent_color #%s;\n' "$accent"
+      printf '@define-color accent_bg_color #%s;\n' "$accent"
+      printf '@define-color accent_fg_color #%s;\n' "$fg"
+      for n in 1 2 3 4 5; do
+        printf '@define-color blue_%s #%s;\n' "$n" "$accent"
+      done
+    } >> "$work/out/c3.css"
+    cp "$work/out/c3.css" "$work/out/c3d.css"
 
     install_css() {
       mkdir -p "$(dirname "$2")"
@@ -99,9 +118,9 @@ writeShellApplication {
         rm -f "$1"
       fi
     }
-    install_css "$work/out/final4.css" "$out4"
-    install_css "$work/out/final3.css" "$out3"
-    install_css "$work/out/final3d.css" "$out3d"
+    install_css "$work/out/c4.css" "$out4"
+    install_css "$work/out/c3.css" "$out3"
+    install_css "$work/out/c3d.css" "$out3d"
 
     echo "$accent $rev" > "$marker"
     rm -f "''${XDG_CONFIG_HOME:-$HOME/.config}/gtk-4.0/theme-gtk.css"

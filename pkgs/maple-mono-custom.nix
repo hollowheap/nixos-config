@@ -3,15 +3,18 @@
   stdenvNoCC,
   maple-mono,
   python3,
-  baseFont ? maple-mono.NF,
-  features ? [
+}:
+let
+  baseFont = maple-mono.NF;
+  features = [
     "calt"
+    "zero"
     "cv03"
     "cv09"
     "cv10"
-    "cv41"
     "cv42"
     "cv43"
+    "cv61"
     "cv62"
     "cv65"
     "cv98"
@@ -23,10 +26,7 @@
     "ss09"
     "ss10"
     "ss11"
-    "zero"
-  ],
-}:
-let
+  ];
   featureStr = if builtins.isList features then lib.concatStringsSep "," features else features;
   py = python3.withPackages (ps: [
     ps.opentype-feature-freezer

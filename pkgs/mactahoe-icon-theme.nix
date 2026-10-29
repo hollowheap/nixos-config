@@ -13,7 +13,7 @@ stdenvNoCC.mkDerivation {
     owner = "vinceliuice";
     repo = "MacTahoe-icon-theme";
     rev = "main";
-    hash = "sha256-CXZn4r1B+eB2Uv00vutFGQjOKJIia/I5RkPOBAAJKYA=";
+    hash = "sha256-NAahlBOYub0QlqkYStamoCbyWh+H5JG/iFm4Ws9EU3A=";
   };
 
   nativeBuildInputs = [
@@ -21,13 +21,15 @@ stdenvNoCC.mkDerivation {
     jdupes
   ];
 
+  dontFixup = true;
+
   installPhase = ''
-    runHook postInstall
+    runHook preInstall
 
     mkdir -p $out/share/icons
-    bash install.sh -d $out/share/icons
+    bash install.sh -d $out/share/icons -n mactahoe-icon-theme-latest -t all
 
-    find $out -type l ! -exec test -e {} \; -delete
+    find $out -xtype l -delete
 
     jdupes --quiet --link-hard --recurse $out/share
 

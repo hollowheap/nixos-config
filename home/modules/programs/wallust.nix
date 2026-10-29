@@ -1,0 +1,50 @@
+{
+  config,
+  pkgs,
+  ...
+}:
+{
+  programs.wallust = {
+    enable = true;
+    settings = {
+      backend = "resized";
+      color_space = "salience";
+      palette = "saliencedarkbalanced16";
+      check_contrast = true;
+      fallback_generator = "interpolate";
+      saturation = 35;
+
+      templates = {
+        sequences = {
+          template = "sequences";
+          target = "${config.home.homeDirectory}/.cache/wallust/sequences";
+        };
+        hyprland = {
+          template = "hypr-colors.lua";
+          target = "${config.xdg.configHome}/hypr/noctalia.lua";
+        };
+      };
+
+      hooks = {
+        # wallust runs with -s (see the noctalia gtk hook) so its own set_seq never
+        # clobbers the pinned neutrals; push the pinned sequences to open terminals here.
+        sequences = ''
+          seq="''${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences"
+          if [ -f "$seq" ]; then
+            for tty in /dev/pts/[0-9]*; do
+              if [ -w "$tty" ]; then
+                ${pkgs.coreutils}/bin/tr -d '\r\n' < "$seq" > "$tty" 2>/dev/null || true
+              fi
+            done
+          fi
+        '';
+      };
+    };
+  };
+
+  # Deploy Wallust templates into XDG user templates directory (~/.local/share/templates)
+  xdg.dataFile."templates".source = ../../../assets/wallust-templates;
+
+  # Maintain ~/.config/wallust/templates for manual CLI invocations
+  xdg.configFile."wallust/templates".source = config.xdg.dataFile."templates".source;
+}

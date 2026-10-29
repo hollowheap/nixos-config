@@ -16,8 +16,9 @@ pkgs.runCommand "check-hardware" {
   grep -q "traits = \[" hosts/lacuna/hardware.nix
   grep -q "hybrid-gpu" hosts/acervus/default.nix
   ! grep -q "hybrid-gpu" hosts/lacuna/hardware.nix
-  grep -q "home-manager.sharedModules" hardware/touch.nix
-  grep -q "home-manager.sharedModules" hardware/hdr.nix
+  grep -q "desktop.touch = true" hardware/touch.nix
+  grep -q "desktop.hdr = true" hardware/hdr.nix
+  grep -q "desktop.touch = true" home/hollowheap.nix
 
   touch $out
 ''
