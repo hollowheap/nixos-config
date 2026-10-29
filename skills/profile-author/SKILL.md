@@ -1,8 +1,3 @@
----
-name: profile-author
-description: Machine profile authoring for profiles/<device>. Load ONLY when adding or modifying device-specific hardware or profile bundles. Do NOT load for universal modules.
----
-
 ## Workflow
 
 1. Place device configurations under profiles/<device>/configuration.nix.

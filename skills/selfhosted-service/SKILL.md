@@ -1,8 +1,3 @@
----
-name: selfhosted-service
-description: Host daemon isolation and Caddy reverse proxy protocol. Load ONLY when deploying or modifying host system daemons, Caddy virtualHosts, or TLS. Do NOT load for local user tools.
----
-
 ## Workflow
 
 1. Bind daemon strictly to loopback: 127.0.0.1:<port> (or mesh IP 100.64.0.1).

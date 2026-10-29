@@ -1,8 +1,8 @@
 # Upstream-Recon Examples
 
 ## Bad
-- Guessing service option names like `services.caddy.virtualHosts.<host>.reverseProxy` without verifying nixpkgs module declarations.
-- Adding a package to `environment.systemPackages` assuming its package name matches the binary name without checking `meta.mainProgram`.
+- Assume `programs.codex.agents` exists and fail at eval time.
+- Guess option names from third-party blog posts rather than nixpkgs source.
 
 ## Good
-- Inspect `options.services.caddy` via nix eval, read declaration files in `/nix/store`, and write verified virtual host config.
+- Introspect `options.programs.codex` via eval, find only `context`, `skills`, `settings`, and route agents via `home.file` TOML.
