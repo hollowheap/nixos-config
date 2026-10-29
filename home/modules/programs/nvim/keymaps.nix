@@ -75,8 +75,6 @@ in
           "<leader>tz" = "Toggle Zen Mode";
           "<leader>td" = "Toggle Scope Dimming";
           "<leader>tZ" = "Toggle Zoom";
-
-          "<leader>y" = "+Yank clipboard";
         };
       };
       hardtime-nvim = {
@@ -723,9 +721,9 @@ in
       {
         key = "<leader>sn";
         lua = true;
-        action = "function() Snacks.picker.noice() end";
+        action = "function() Snacks.picker.notifications() end";
         mode = modes.nv;
-        desc = "Noice";
+        desc = "Notifications";
       }
       {
         key = "<leader>sd";

@@ -8,13 +8,9 @@ let
 in
 {
   programs = {
-    neovim = {
-      enable = true;
-      defaultEditor = true;
-    };
-
     nvf = {
       enable = true;
+      defaultEditor = true;
 
       settings.vim = {
         luaConfigPre = ''
@@ -56,6 +52,8 @@ in
         };
 
         undoFile.enable = true;
+
+        hideSearchHighlight = true;
 
         lineNumberMode = "relNumber";
         syntaxHighlighting = true;
@@ -107,6 +105,9 @@ in
 
           scrolloff = 4;
 
+          updatetime = 300;
+          hlsearch = true;
+
           cmdheight = 0;
 
           mouse = "a";
@@ -120,6 +121,14 @@ in
 
           pumheight = 10;
         };
+
+        luaConfigRC.clipboard = ''
+          if vim.env.WAYLAND_DISPLAY then
+            vim.o.clipboard = "unnamedplus"
+          elseif vim.env.SSH_TTY then
+            vim.g.clipboard = "osc52"
+          end
+        '';
 
         augroups = [
           { name = "UserAutocmds"; }
@@ -147,5 +156,7 @@ in
         ];
       };
     };
+
   };
+  home.sessionVariables.VISUAL = "nvim";
 }

@@ -84,6 +84,9 @@ in
                 gap = 1;
               }
               {
+                section = "session";
+              }
+              {
                 section = "startup";
               }
             ];

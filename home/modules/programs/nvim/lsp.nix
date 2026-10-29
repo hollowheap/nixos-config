@@ -14,11 +14,15 @@ in
       enableFormat = true;
       enableTreesitter = true;
 
+      bash.enable = true;
       clang.enable = true;
       clang.dap.enable = true;
+      json.enable = true;
+      lua.enable = true;
       nix.enable = true;
       python.enable = true;
       python.dap.enable = true;
+      toml.enable = true;
       tsx.enable = true;
       typescript.enable = true;
       yaml.enable = true;
@@ -27,8 +31,29 @@ in
       markdown.extensions.markview-nvim.enable = true;
     };
 
+    spellcheck = {
+      enable = true;
+      ignoredFiletypes = [
+        "toggleterm"
+        "nix"
+        "lua"
+        "python"
+        "c"
+        "cpp"
+        "typescript"
+        "typescriptreact"
+        "yaml"
+        "zsh"
+        "json"
+        "toml"
+        "bash"
+        "sh"
+      ];
+    };
+
     lsp = {
       enable = true;
+      formatOnSave = true;
       inlayHints.enable = true;
       lightbulb.enable = true;
       lspkind.enable = true;
@@ -42,6 +67,7 @@ in
         listDocumentSymbols = null;
         goToType = null;
         toggleFormatOnSave = null;
+        signatureHelp = null;
       };
       servers = {
         nil.nix.flake = {
@@ -52,6 +78,7 @@ in
     };
 
     diagnostics = {
+      enable = true;
       config = {
         virtual_text = {
           prefix = "●";
@@ -65,9 +92,7 @@ in
       };
       nvim-lint = {
         enable = true;
-        linters_by_ft = lib.genAttrs [ "yaml" "zsh" ] (
-          ft: editorToolchains.linters.${ft}
-        );
+        linters_by_ft = editorToolchains.linters;
       };
     };
 
@@ -77,6 +102,7 @@ in
         mappings = {
           nextHunk = "]h";
           previousHunk = "[h";
+          toggleDeleted = null;
         };
       };
       git-conflict.enable = true;
