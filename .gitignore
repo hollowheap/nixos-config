@@ -7,3 +7,7 @@ result-*
 
 # Ignore untracked data and certificates
 data/
+
+# Python cache
+__pycache__/
+*.pyc
