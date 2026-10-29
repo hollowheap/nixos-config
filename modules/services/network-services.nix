@@ -19,7 +19,7 @@
 
     tailscale = {
       enable = true;
-      extraSetFlags = [ "--operator=hollowheap" ];
+      extraSetFlags = map (u: "--operator=${u}") config.users.adminUsers;
       useRoutingFeatures = "both";
     };
   };
