@@ -40,6 +40,8 @@ in
     terminal = "tmux-256color";
     baseIndex = 1;
     mouse = true;
+    historyLimit = 10000;
+    focusEvents = true;
     plugins = with pkgs.tmuxPlugins; [
       {
         plugin = resurrect;
@@ -86,7 +88,7 @@ in
 
       set -g set-clipboard on
       set -g allow-passthrough on
-      set -g status-interval 1
+      set -g status-interval 5
 
       # Prefix + C-<key> passes the control key to the active pane.
       # Do not bind these to tmux actions; that makes the keys unreachable
@@ -136,8 +138,8 @@ in
       # Window navigation (p/n; C-p/C-n stay available to the pane)
       bind c new-window -c "#{pane_current_path}"
       bind Tab last-window
-      bind -n C-p previous-window
-      bind -n C-n next-window
+      bind -n M-p previous-window
+      bind -n M-n next-window
       bind -n C-Tab next-window
       bind -n C-S-Tab previous-window
       bind -n C-BTab previous-window
@@ -177,9 +179,9 @@ in
       bind v copy-mode
       bind -T copy-mode-vi v send -X begin-selection
       bind -T copy-mode-vi C-v send -X rectangle-toggle
-      bind -T copy-mode-vi y send -X copy-pipe-and-cancel "wl-copy"
+      bind -T copy-mode-vi y send -X copy-pipe-and-cancel "wl-copy 2>/dev/null || xclip -selection clipboard"
       bind -T copy-mode-vi Escape send -X cancel
-      bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-and-cancel "wl-copy"
+      bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-and-cancel "wl-copy 2>/dev/null || xclip -selection clipboard"
 
       # Direct C-g/C-y/C-b open popups. Prefix C-g/C-y/C-b remain
       # pass-through bindings above.
