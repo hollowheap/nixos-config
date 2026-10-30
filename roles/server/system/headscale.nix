@@ -14,6 +14,19 @@ in
     enable = true;
     settings = {
       server_url = "https://${domains.headscale}";
+      trusted_proxies = [ "127.0.0.1/32" ];
+      node.expiry = "180d";
+      policy = {
+        mode = "file";
+        path = ./acl.hujson;
+      };
+      derp = {
+        server = {
+          enabled = true;
+          region_id = 999;
+          stun_listen_addr = "0.0.0.0:3478";
+        };
+      };
       dns = {
         magic_dns = true;
         base_domain = domains.mesh;
@@ -22,20 +35,13 @@ in
           "1.0.0.2"
         ];
         search_domains = [ domains.mesh ];
-        extra_records = [
-          {
-            name = domains.vaultMesh;
-            type = "A";
-            value = domains.desktopTailscaleIp;
-          }
-        ];
       };
     };
   };
 
   services.caddy.virtualHosts."${domains.headscale}" = {
     extraConfig = ''
-      tls ${../../../certs/local-leaf.crt} ${config.sops.secrets."caddy_tls_key".path}
+      tls internal
       reverse_proxy 127.0.0.1:8080
     '';
   };

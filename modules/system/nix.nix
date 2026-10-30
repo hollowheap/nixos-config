@@ -7,6 +7,8 @@
         "flakes"
       ];
       auto-optimise-store = true;
+      min-free = "5G";
+      max-free = "20G";
     };
     gc = {
       automatic = true;

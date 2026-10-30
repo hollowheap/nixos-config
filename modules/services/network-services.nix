@@ -12,7 +12,8 @@
             "2606:4700:4700::1112#security.cloudflare-dns.com"
             "2606:4700:4700::1002#security.cloudflare-dns.com"
           ];
-          DNSOverTLS = true;
+          DNSOverTLS = "opportunistic";
+          FallbackDNS = [ "9.9.9.9#dns.quad9.net" ];
         };
       };
     };

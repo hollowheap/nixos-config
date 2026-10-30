@@ -6,11 +6,14 @@ in
 {
   services.ddclient = {
     enable = true;
-    usev4 = "webv4, webv4=ipify-ipv4";
     protocol = "duckdns";
-    passwordFile = config.sops.secrets."duckdns_password".path;
+    passwordFile = "/run/credentials/ddclient.service/duckdns";
     domains = [ domains.base ];
   };
+
+  systemd.services.ddclient.serviceConfig.LoadCredential = [
+    "duckdns=${config.sops.secrets."duckdns_password".path}"
+  ];
 
   sops.secrets."duckdns_password" = {
     restartUnits = [ "ddclient.service" ];

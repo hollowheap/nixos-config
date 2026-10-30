@@ -10,16 +10,12 @@ in
         domains.base
       ];
     };
-    firewall.allowedTCPPorts = [
-      80
-      443
-    ];
+    firewall = {
+      allowedTCPPorts = [ ];
+      interfaces.tailscale0.allowedTCPPorts = [ 443 ];
+      interfaces.lo.allowedTCPPorts = [ 443 ];
+    };
   };
-
-  # Deterministic local CA for loopback-only vhosts
-  security.pki.certificateFiles = [
-    ../../../certs/local-ca.crt
-  ];
 
   services.caddy = {
     enable = true;
@@ -28,6 +24,9 @@ in
       hash = "sha256-hdJoUoWpDZEz367Rwhagz5040TMHBReLY+hhHjMfwgM=";
     };
     environmentFile = config.sops.templates."caddy_env".path;
+    enableReload = false;
+    globalConfig = "admin off\ngrace_period 10s";
+    email = "admin@example.com";
     virtualHosts."${domains.base}" = {
       extraConfig = ''
         tls {
@@ -36,12 +35,6 @@ in
         respond 204
       '';
     };
-  };
-
-  sops.secrets."caddy_tls_key" = {
-    owner = "caddy";
-    mode = "0400";
-    restartUnits = [ "caddy.service" ];
   };
 
   sops.templates."caddy_env" = {
