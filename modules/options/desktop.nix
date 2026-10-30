@@ -1,7 +1,7 @@
 { lib, ... }:
 let
   inherit (lib) mkEnableOption mkOption;
-  inherit (lib.types) float int listOf nullOr str submodule;
+  inherit (lib.types) bool float int listOf nullOr str submodule;
 
   monitorType = submodule {
     options = {
@@ -33,6 +33,46 @@ let
         type = nullOr str;
         default = null;
         description = "Color management preset.";
+      };
+      vrr = mkOption {
+        type = nullOr int;
+        default = null;
+        description = "Per-output VRR mode.";
+      };
+      transform = mkOption {
+        type = nullOr int;
+        default = null;
+        description = "Output transform rotation.";
+      };
+      disabled = mkOption {
+        type = nullOr bool;
+        default = null;
+        description = "Whether the output is disabled.";
+      };
+      icc = mkOption {
+        type = nullOr str;
+        default = null;
+        description = "ICC profile path for the output.";
+      };
+      supports_hdr = mkOption {
+        type = nullOr int;
+        default = null;
+        description = "Whether the output supports HDR.";
+      };
+      supports_wide_color = mkOption {
+        type = nullOr int;
+        default = null;
+        description = "Whether the output supports wide color.";
+      };
+      sdrbrightness = mkOption {
+        type = nullOr float;
+        default = null;
+        description = "SDR brightness in HDR mode.";
+      };
+      sdrsaturation = mkOption {
+        type = nullOr float;
+        default = null;
+        description = "SDR saturation in HDR mode.";
       };
     };
   };

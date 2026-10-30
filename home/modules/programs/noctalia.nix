@@ -5,10 +5,8 @@
   ...
 }: {
   programs.noctalia.enable = true;
+  programs.noctalia.systemd.enable = true;
   desktop = {
-    compositor.autostart = [
-      {command = "noctalia";}
-    ];
 
     # Shell-backed actions. Replace this block when changing desktop shells;
     # keybinds and gestures refer only to the neutral names.
@@ -57,6 +55,10 @@
   };
 
   programs.noctalia.settings = {
+    nightlight = {
+      enabled = true;
+    };
+
     hooks = {
       wallpaper_changed = "${pkgs.writeShellScript "noctalia-wallpaper-hook" ''
         if [ -n "$NOCTALIA_WALLPAPER_PATH" ] && [ -f "$NOCTALIA_WALLPAPER_PATH" ]; then

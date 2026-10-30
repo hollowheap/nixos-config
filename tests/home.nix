@@ -93,7 +93,6 @@ pkgs.runCommand "check-home" {
   ! grep -q "bind = map mkArgs" home/modules/programs/hyprland/hyprland.nix
   grep -q "../../../lib/hyprland.nix" home/modules/programs/hyprland/keybinds.nix
   grep -q "config.desktop.primaryScale" roles/desktop/system/default.nix
-  grep -q "config.desktop.primaryOutput" roles/desktop/system/default.nix
   grep -q "config.desktop.fonts" home/modules/styles/fonts.nix
   ! grep -q "stylix" flake.nix
 

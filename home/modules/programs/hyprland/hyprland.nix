@@ -83,11 +83,11 @@ in
             inherit (gesture) pattern;
             action =
               if builtins.isString gesture.action && touchCommands ? ${gesture.action} then
-                mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd("${touchCommands.${gesture.action}}"))''
+                mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd(${builtins.toJSON touchCommands.${gesture.action}}))''
               else if builtins.isString gesture.action && config.desktop.actions ? ${gesture.action} then
-                mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd("${config.desktop.actions.${gesture.action}.command}"))''
+                mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd(${builtins.toJSON config.desktop.actions.${gesture.action}.command}))''
               else if builtins.isAttrs gesture.action then
-                mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd("${gesture.action.exec}"))''
+                mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd(${builtins.toJSON gesture.action.exec}))''
               else
                 gesture.action;
           }
@@ -117,11 +117,16 @@ in
         monitor:
         let
           configured = lib.filterAttrs (_: value: value != null) monitor;
+          hdr = config.desktop.hdr && configured.output == config.desktop.primaryOutput;
         in
-        if configured.output == config.desktop.primaryOutput then
+        (if configured.output == config.desktop.primaryOutput then
           configured // { scale = config.desktop.primaryScale; }
         else
-          configured
+          configured)
+        // lib.optionalAttrs hdr {
+          cm = "hdr";
+          supports_hdr = 1;
+        }
       ) config.desktop.monitors;
 
       device = map (
@@ -206,7 +211,7 @@ in
             contrast = 0.9;
             brightness = 0.8;
             vibrancy = 0.17;
-            new_optimizations = false;
+            new_optimizations = true;
           };
 
           motion_blur = {
@@ -223,6 +228,10 @@ in
           disable_splash_rendering = true;
           disable_scale_notification = true;
           vrr = 3;
+          allow_session_lock_restore = true;
+          session_lock_xray = true;
+          focus_on_activate = true;
+          font_family = config.desktop.fonts.sansSerif;
         };
 
         ecosystem = {
@@ -297,7 +306,7 @@ in
         in
         mkArgs [
           "hyprland.start"
-          (mkLuaFn ''hl.exec_cmd("${command}")'')
+          (mkLuaFn ''hl.exec_cmd(${builtins.toJSON command})'')
         ]
       ) config.desktop.compositor.autostart;
 
@@ -306,26 +315,23 @@ in
       workspace_rule = [
         {
           workspace = "w[tv1]s[false]";
-          gaps_out = config.desktop.compositor.margin.inner;
-          gaps_in = 0;
+          gaps_in = config.desktop.compositor.margin.inner;
+          gaps_out = config.desktop.compositor.margin.outer;
         }
         {
           workspace = "f[1]s[false]";
-          gaps_out = config.desktop.compositor.margin.inner;
-          gaps_in = 0;
+          gaps_in = config.desktop.compositor.margin.inner;
+          gaps_out = config.desktop.compositor.margin.outer;
         }
       ]
-      ++ (genList (
-        i:
-        let
-          workspace = i + 1;
-        in
-        {
-          workspace = toString workspace;
-          monitor = config.desktop.primaryOutput;
-          default = lib.elem workspace config.desktop.compositor.workspaces.defaults;
-        }
-      ) config.desktop.compositor.workspaces.count);
+       ++ (map (
+         workspace:
+         {
+           workspace = toString workspace;
+           monitor = config.desktop.primaryOutput;
+           default = true;
+         }
+       ) config.desktop.compositor.workspaces.defaults);
 
       window_rule = map mapWindowRule config.desktop.windowRules;
 

@@ -10,7 +10,7 @@ let
       hl.dsp.${fn}
     '';
 
-  mkDspExec = cmd: mkDsp "exec_cmd(\"${cmd}\")";
+  mkDspExec = cmd: mkDsp "exec_cmd(${builtins.toJSON cmd})";
 
   mkLuaFn =
     str:

@@ -53,9 +53,9 @@ in
           description = "Hide the cursor on touch input.";
         };
         noHardwareCursors = mkOption {
-          type = bool;
-          default = true;
-          description = "Disable hardware cursor planes.";
+          type = int;
+          default = 2;
+          description = "Hyprland cursor.no_hardware_cursors: 0 disabled, 1 enabled, 2 auto.";
         };
       };
 

@@ -40,8 +40,15 @@
       keyboard.layout = "us";
 
       output = {
-        name = config.desktop.primaryOutput;
-        scale = config.desktop.primaryScale;
+        scales = "eDP-1:${toString config.desktop.primaryScale}";
+      };
+
+      session = {
+        default = "Hyprland (uwsm-managed)";
+      };
+
+      idle = {
+        timeout = 300;
       };
     };
   };
