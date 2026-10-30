@@ -343,6 +343,12 @@ in
 
       # The r family
       {
+        key = "r";
+        mode = modes.nv;
+        action = "<Nop>";
+        desc = "Operator";
+      }
+      {
         key = "rr";
         mode = modes.nv;
         action = "r";
