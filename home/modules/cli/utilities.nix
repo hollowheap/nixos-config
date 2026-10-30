@@ -7,7 +7,7 @@
     fzf = {
       enable = true;
       tmux = {
-        enableShellIntegration = true;
+        enableShellIntegration = false;
         shellIntegrationOptions = [
           "-w"
           "75%"
@@ -20,6 +20,7 @@
         ];
       };
       defaultOptions = [
+        "--color=base16"
         "--tmux=bottom,40%"
         "--layout=reverse"
         "--border=rounded"
@@ -58,12 +59,12 @@
 
   programs.wallust.settings.templates.delta = {
     template = "delta.gitconfig";
-    target = "${config.home.homeDirectory}/.config/delta/wallust.gitconfig";
+    target = "${config.xdg.configHome}/delta/wallust.gitconfig";
   };
 
   programs.git.includes = [
     {
-      path = "${config.home.homeDirectory}/.config/delta/wallust.gitconfig";
+      path = "${config.xdg.configHome}/delta/wallust.gitconfig";
     }
   ];
 
