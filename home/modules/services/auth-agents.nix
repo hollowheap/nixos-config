@@ -20,7 +20,6 @@
   };
 
   home.packages = [
-    pkgs.gcr_3
     pkgs.pinentry-gnome3
   ];
 }
