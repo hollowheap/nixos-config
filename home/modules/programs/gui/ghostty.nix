@@ -30,6 +30,13 @@
         "ctrl+shift+t=new_tab"
         "ctrl+shift+n=new_window"
         "ctrl+shift+w=close_surface"
+        "ctrl+shift+q=close_tab"
+        "ctrl+shift+alt+right=new_split:right"
+        "ctrl+shift+alt+down=new_split:down"
+        "ctrl+alt+left=goto_split:left"
+        "ctrl+alt+right=goto_split:right"
+        "ctrl+alt+up=goto_split:up"
+        "ctrl+alt+down=goto_split:down"
         "ctrl+shift+backquote=toggle_quick_terminal"
         # Clipboard copy & paste
         "ctrl+shift+c=copy_to_clipboard:mixed"

@@ -11,3 +11,6 @@ data/
 # Python cache
 __pycache__/
 *.pyc
+
+# Private mail accounts
+home/modules/programs/accounts.local.nix

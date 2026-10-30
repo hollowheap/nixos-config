@@ -13,8 +13,8 @@
     enable = true;
     vencord.settings = {
       enabledThemes = [ ];
-      frameless = true;
-      transparent = true;
+      frameless = false;
+      transparent = false;
       plugins = {
         AlwaysAnimated.enabled = true;
         Experimentals.enabled = false;
