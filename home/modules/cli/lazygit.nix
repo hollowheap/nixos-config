@@ -18,6 +18,6 @@
 
   programs.wallust.settings.templates.lazygit = {
     template = "lazygit.yml";
-    target = "${config.home.homeDirectory}/.config/lazygit/theme.yml";
+    target = "${config.xdg.configHome}/lazygit/theme.yml";
   };
 }

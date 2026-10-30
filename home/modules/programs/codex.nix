@@ -100,9 +100,15 @@ in
       model = "gpt-6-luna";
       model_reasoning_effort = "xhigh";
       tui.screen_reader_detection_done = true;
+      tui.theme = "wallust";
       projects."${config.home.homeDirectory}/repos/home-manager".trust_level = "trusted";
       projects."${config.home.homeDirectory}/repos/nixos-config".trust_level = "trusted";
     };
+  };
+
+  programs.wallust.settings.templates.codex = {
+    template = "bat.tmTheme";
+    target = "${config.xdg.configHome}/codex/themes/wallust.tmTheme";
   };
 
   home.file = mkIf config.programs.codex.enable (

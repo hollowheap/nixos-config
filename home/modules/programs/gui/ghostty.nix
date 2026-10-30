@@ -63,7 +63,7 @@
   programs.wallust.settings = {
     templates.ghostty = {
       template = "ghostty";
-      target = "${config.home.homeDirectory}/.config/ghostty/themes/wallust";
+      target = "${config.xdg.configHome}/ghostty/themes/wallust";
     };
     hooks.ghostty = "${pkgs.ghostty-reload}/bin/ghostty-reload";
   };

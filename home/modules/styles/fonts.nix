@@ -133,11 +133,13 @@ in
 
     fonts.fontconfig = {
       enable = true;
+      antialiasing = true;
+      subpixelRendering = "rgb";
       hinting = "slight";
       defaultFonts = {
-        monospace = [ cfg.monospace.name ];
-        sansSerif = [ cfg.sansSerif.name ];
-        serif = [ cfg.serif.name ];
+        monospace = [ cfg.monospace.name "Noto Sans Mono" "Noto Sans CJK SC" cfg.emoji.name ];
+        sansSerif = [ cfg.sansSerif.name "Noto Sans" "Noto Sans CJK SC" cfg.emoji.name ];
+        serif = [ cfg.serif.name "Noto Serif" "Noto Serif CJK SC" cfg.emoji.name ];
         emoji = [ cfg.emoji.name ];
       };
     };

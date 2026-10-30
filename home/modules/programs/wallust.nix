@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -17,7 +18,7 @@
       templates = {
         sequences = {
           template = "sequences";
-          target = "${config.home.homeDirectory}/.cache/wallust/sequences";
+          target = "${config.xdg.cacheHome}/wallust/sequences";
         };
         hyprland = {
           template = "hypr-colors.lua";
@@ -47,4 +48,11 @@
 
   # Maintain ~/.config/wallust/templates for manual CLI invocations
   xdg.configFile."wallust/templates".source = config.xdg.dataFile."templates".source;
+
+  home.activation.wallustRender = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    wp="$(cat "$HOME/.local/state/noctalia/wallpaper" 2>/dev/null || true)"
+    if [ -n "$wp" ] && [ -f "$wp" ]; then
+      ${pkgs.wallust}/bin/wallust run --templates-dir "${config.xdg.dataHome}/templates" "$wp" -s || true
+    fi
+  '';
 }

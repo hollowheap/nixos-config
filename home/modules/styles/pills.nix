@@ -446,7 +446,7 @@ in
               [8]="46;46;46" [9]="238;92;149" [10]="145;71;96" [11]="158;43;75"
               [12]="89;91;214" [13]="238;92;149" [14]="254;43;44" [15]="255;255;255"
             )
-            local seq_file="''${WALLUST_SEQUENCES_FILE:-$HOME/.cache/wallust/sequences}"
+            local seq_file="''${WALLUST_SEQUENCES_FILE:-''${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences}"
             if [[ -f "$seq_file" ]]; then
               while IFS= read -r line; do
                 while [[ "$line" =~ \]4\;([0-9]+)\;\#([0-9a-fA-F]{6}) ]]; do

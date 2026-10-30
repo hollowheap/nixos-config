@@ -73,7 +73,7 @@ in
 
     settings = {
       colors = {
-        _var = mkLuaInline ''require("noctalia")'';
+        _var = mkLuaInline ''(function() local ok, m = pcall(require, "noctalia"); return (ok and type(m) == "table") and m or {} end)()'';
       };
 
       "plugin.hyprgrass.gesture" = lib.mkIf config.desktop.touch (
@@ -179,6 +179,10 @@ in
           resize_on_border = true;
 
           border_size = 0;
+          col = {
+            nogroup_border = mkLuaInline "colors.inactive_border";
+            nogroup_border_active = mkLuaInline "colors.active_border";
+          };
           gaps_in = config.desktop.compositor.margin.inner;
           gaps_out = config.desktop.compositor.margin.outer;
 
@@ -212,6 +216,7 @@ in
             brightness = 0.8;
             vibrancy = 0.17;
             new_optimizations = true;
+            xray = true;
           };
 
           motion_blur = {

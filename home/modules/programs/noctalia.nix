@@ -60,6 +60,11 @@
     };
 
     hooks = {
+      started = "${pkgs.writeShellScript "noctalia-started-hook" ''
+        if [ -n "$NOCTALIA_WALLPAPER_PATH" ] && [ -f "$NOCTALIA_WALLPAPER_PATH" ]; then
+          ${pkgs.wallust}/bin/wallust run --templates-dir "${config.xdg.userDirs.templates}" "$NOCTALIA_WALLPAPER_PATH" -s
+        fi
+      ''}";
       wallpaper_changed = "${pkgs.writeShellScript "noctalia-wallpaper-hook" ''
         if [ -n "$NOCTALIA_WALLPAPER_PATH" ] && [ -f "$NOCTALIA_WALLPAPER_PATH" ]; then
           ${pkgs.wallust}/bin/wallust run --templates-dir "${config.xdg.userDirs.templates}" "$NOCTALIA_WALLPAPER_PATH" -s
@@ -99,6 +104,7 @@
     };
 
     shell = {
+      font_family = config.styles.fonts.sansSerif.name;
       setup_wizard_enabled = false;
       polkit_agent = true;
       launch_apps_custom_command = "uwsm app -- $CMD";

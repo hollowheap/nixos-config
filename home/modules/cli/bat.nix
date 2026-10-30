@@ -20,7 +20,7 @@
   programs.wallust.settings = {
     templates.bat = {
       template = "bat.tmTheme";
-      target = "${config.home.homeDirectory}/.config/bat/themes/wallust.tmTheme";
+      target = "${config.xdg.configHome}/bat/themes/wallust.tmTheme";
     };
     hooks.bat = "${pkgs.bat}/bin/bat cache --build 2>/dev/null || true";
   };

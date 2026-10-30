@@ -7,6 +7,6 @@
 
   programs.wallust.settings.templates.yazi = {
     template = "flavor.toml";
-    target = "${config.home.homeDirectory}/.config/yazi/flavors/wallust.yazi/flavor.toml";
+    target = "${config.xdg.configHome}/yazi/flavors/wallust.yazi/flavor.toml";
   };
 }

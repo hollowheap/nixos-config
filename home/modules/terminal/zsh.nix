@@ -272,8 +272,8 @@
       bindkey -M vicmd '^O' fzf-cd-widget
 
       # Source wallust terminal sequences
-      if [[ -t 1 && -f "$HOME/.cache/wallust/sequences" ]]; then
-        command tr -d '\r\n' < "$HOME/.cache/wallust/sequences"
+      if [[ -t 1 && -f "''${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences" ]]; then
+        command tr -d '\r\n' < "''${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences"
       fi
 
       # Centralized AI API keys from Vaultwarden (rbw folder dev/keys).

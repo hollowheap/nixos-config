@@ -362,7 +362,7 @@ in
   programs.wallust.settings = {
     templates.nvim = {
       template = "nvim-colors.lua";
-      target = "${config.home.homeDirectory}/.config/nvf/lua/wallust.lua";
+      target = "${config.xdg.configHome}/nvf/lua/wallust.lua";
     };
     hooks.nvim = "${pkgs.procps}/bin/pkill -SIGUSR1 nvim || true";
   };

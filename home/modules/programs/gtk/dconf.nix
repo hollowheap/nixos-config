@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, pkgs, ... }:
 {
   dconf = {
     enable = true;
@@ -40,4 +40,14 @@
       };
     };
   };
+
+  home.activation.restoreIconAccent = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    cache="$HOME/.cache/noctalia/dconf-theme.cache"
+    if [ -s "$cache" ]; then
+      read -r hex mode _ < "$cache" || true
+      if [ -n "$hex" ] && [ -n "$mode" ]; then
+        ${pkgs.mactahoe-icon-accent}/bin/mactahoe-icon-accent --apply "$hex" "$mode" >/dev/null 2>&1 || true
+      fi
+    fi
+  '';
 }
