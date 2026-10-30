@@ -32,7 +32,7 @@ pkgs.runCommand "check-layout" {
   test -f nix-on-droid.nix
 
   test -f home/hollowheap.nix
-  test -f home/lib/toolchains.nix
+  test -f home/modules/programs/nvim/lsp.nix
   test -f modules/options/desktop.nix
   test -f home/modules/ai/options.nix
   test -f home/modules/programs/hyprland/hyprland.nix

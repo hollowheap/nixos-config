@@ -21,7 +21,7 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - `roles/<role>/system`: duty composition and vertical service slices.
 - `modules/`: reusable system modules; hardware- and profile-agnostic.
 - `hardware/` and `boot/`: platform capabilities and boot integration.
-- `home/hollowheap.nix` plus `home/modules`: user environment composition; `home/lib/toolchains.nix` owns editor toolchain maps.
+- `home/hollowheap.nix` plus `home/modules`: user environment composition; `home/modules/programs/nvim/lsp.nix` owns editor language and linter wiring.
 - `home/modules/ai/options.nix`: shared AI schema. `home/lib/ai-render.nix`: generic rendering. `home/lib/skill-metadata.nix`: skill metadata. `home/modules/ai/skills.nix`: skill loading and script wiring.
 - `home/modules/ai/hooks.nix`: repomap commands and the git policy gate.
 - `pkgs/artifacts-helper.py`: RDST parsing and trace checks. `pkgs/repomap.nix`: generated symbol map.

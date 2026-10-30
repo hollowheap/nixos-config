@@ -19,7 +19,7 @@
 - `hardware/<trait>.nix`: drivers and capabilities; each host groups its traits in `hardware.nix`.
 - `boot/{kernel,grub,tpm,secure-boot,minegrub,plymouth}.nix`: platform integration.
 - `modules/`: generic system modules scanned recursively; `modules/system/nixpkgs.nix` owns the stable/unstable split and unfree list; `modules/options/desktop.nix` owns shared desktop values and custom desktop options.
-- `home/`: per-user entrypoints are discovered from `home/*.nix`; `home/modules/{ai,cli,core,environment,programs,services,terminal,styles}` are loaded with `import-tree`; `home/lib/toolchains.nix` holds editor toolchain maps.
+- `home/`: per-user entrypoints are discovered from `home/*.nix`; `home/modules/{ai,cli,core,environment,programs,services,terminal,styles}` are loaded with `import-tree`; `home/modules/programs/nvim/lsp.nix` owns editor language and linter wiring.
 - Secrets: `.sops.yaml` creation rules target the `lacuna` age key plus admin PGP; `secrets.yaml` is encrypted.
 - Caddy uses internal TLS for loopback Headscale and Vaultwarden; `tailscaled` trusts the Caddy CA.
 

@@ -471,12 +471,6 @@ in
 
       # Clipboard yank & paste under <leader>
       {
-        key = "<leader>y";
-        mode = modes.nv;
-        action = "\"+y";
-        desc = "Yank to system clipboard";
-      }
-      {
         key = "<leader>yy";
         mode = "n";
         action = "\"+yy";

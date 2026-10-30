@@ -9,7 +9,8 @@ pkgs.runCommand "check-home" {
   cd ${src}
 
   test -f home/hollowheap.nix
-  test -f home/lib/toolchains.nix
+  test -f home/modules/programs/nvim/lsp.nix
+  grep -q "yamllint" home/modules/programs/nvim/lsp.nix
   test -f home/modules/ai/options.nix
   test -f home/modules/ai/agents.nix
   test -f home/modules/programs/thunderbird-accounts.nix

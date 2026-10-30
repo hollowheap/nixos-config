@@ -4,7 +4,6 @@
 }:
 let
   inherit (lib.generators) mkLuaInline;
-  editorToolchains = import ../../../lib/toolchains.nix;
 in
 {
   programs.nvf.settings.vim = {
@@ -51,6 +50,8 @@ in
       ];
     };
 
+    formatter.conform-nvim.setupOpts.formatters_by_ft.markdown = [ ];
+
     lsp = {
       enable = true;
       formatOnSave = true;
@@ -92,7 +93,10 @@ in
       };
       nvim-lint = {
         enable = true;
-        linters_by_ft = editorToolchains.linters;
+        linters_by_ft = {
+          yaml = [ "yamllint" ];
+          zsh = [ "zsh" ];
+        };
       };
     };
 
