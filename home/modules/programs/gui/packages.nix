@@ -18,6 +18,11 @@
     libreoffice
     pear-desktop
     telegram-desktop
-    ungoogled-chromium
+    (chromium.override { enableWideVine = true; })
+    gnome-text-editor
+    mpv
+    loupe
+    pavucontrol
+    qpwgraph
   ];
 }
