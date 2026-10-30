@@ -39,6 +39,9 @@ let
               "github-copilot-cli"
               "kiro-cli"
               "kiro-cli-unwrapped"
+              "chromium"
+              "chromium-unwrapped"
+              "widevine-cdm"
             ];
         };
         overlays = [
