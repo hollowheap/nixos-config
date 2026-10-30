@@ -230,7 +230,6 @@ in
           vrr = 3;
           allow_session_lock_restore = true;
           session_lock_xray = true;
-          focus_on_activate = true;
           font_family = config.desktop.fonts.sansSerif;
         };
 
