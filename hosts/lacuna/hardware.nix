@@ -6,7 +6,6 @@ let
     "cpu"
     "filesystems"
     "graphics"
-    "hdr"
     "rgb"
     "touch"
     "wifi"

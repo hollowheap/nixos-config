@@ -13,7 +13,6 @@
   };
 
   desktop.touch = true;
-  desktop.hdr = true;
 
   programs.home-manager.enable = true;
 }
