@@ -12,14 +12,12 @@
   programs.vesktop = {
     enable = true;
     vencord.settings = {
-      enabledThemes = [
-        "noctalia.theme.css"
-      ];
+      enabledThemes = [ ];
       frameless = true;
       transparent = true;
       plugins = {
         AlwaysAnimated.enabled = true;
-        Experimentals.enabled = true;
+        Experimentals.enabled = false;
         FakeNitro.enabled = true;
         FakeProfileThemes.enabled = true;
       };
@@ -31,6 +29,11 @@
       arRpc = true;
       hardwareAcceleration = true;
       hardwareVideoAcceleration = true;
+      audio = {
+        workaround = false;
+        onlySpeakers = true;
+        ignoreVirtual = true;
+      };
     };
   };
 }

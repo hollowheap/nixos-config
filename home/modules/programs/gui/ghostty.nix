@@ -11,6 +11,7 @@
     settings = {
       theme = "wallust";
       background-opacity = 1.0;
+      notify-on-command-finish = "unfocused";
       font-family = [
         config.styles.fonts.monospace.name
         config.styles.fonts.emoji.name
@@ -26,7 +27,10 @@
       # while explicitly re-enabling essential terminal utilities:
       keybind = [
         "clear"
-
+        "ctrl+shift+t=new_tab"
+        "ctrl+shift+n=new_window"
+        "ctrl+shift+w=close_surface"
+        "ctrl+shift+backquote=toggle_quick_terminal"
         # Clipboard copy & paste
         "ctrl+shift+c=copy_to_clipboard:mixed"
         "ctrl+shift+v=paste_from_clipboard"

@@ -66,6 +66,8 @@ in
       DNSOverHTTPS = {
         Enabled = true;
         Locked = true;
+        Fallback = true;
+        ExcludedDomains = [ "ts.net" "mesh.hollowheap.duckdns.org" "local" "home.arpa" ];
       };
 
       # User and form data
