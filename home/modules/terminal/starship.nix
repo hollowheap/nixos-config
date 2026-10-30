@@ -60,6 +60,7 @@ let
   ];
 
   runtimePillSettings = lib.genAttrs noRuntimeModules (_: {
+    style = "4";
     format = pills.mode { text = "$symbol"; accent = "$style"; } + " ";
   });
 in
@@ -71,6 +72,7 @@ in
       format = lib.concatStrings [
         "$username"
         "$directory"
+        "$fill"
         "$character"
       ];
       right_format = "$git_branch$git_status$nix_shell$cmd_duration$all";
@@ -79,7 +81,6 @@ in
       line_break.disabled = true;
 
       character = {
-        format = "$symbol ";
         success_symbol = "[◎](bold italic fg:11)";
         error_symbol = "[○](italic fg:5)";
         vimcmd_symbol = "[■](italic dimmed fg:2)";
@@ -98,7 +99,6 @@ in
       };
 
       git_branch = {
-        symbol = "";
         format = pills.right {
           icon = "";
           content = "$branch";
@@ -107,11 +107,11 @@ in
       };
 
       git_status = {
-        format = "(" + pills.right {
+        format = "\\(" + pills.right {
           icon = "󰊢";
           content = "$all_status$ahead_behind";
           accent = "11";
-        } + " )";
+        } + " \\)";
         staged = "[+](bg:8 fg:10)";
         modified = "[!](bg:8 fg:11)";
         renamed = "[»](bg:8 fg:12)";
@@ -126,7 +126,6 @@ in
       };
 
       cmd_duration = {
-        min_time = 2000;
         format = pills.right {
           icon = "󱑂";
           content = "$duration";
@@ -135,7 +134,6 @@ in
       };
 
       nix_shell = {
-        symbol = "";
         format = pills.right {
           icon = "";
           content = "$state";
