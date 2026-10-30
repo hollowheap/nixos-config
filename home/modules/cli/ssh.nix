@@ -1,5 +1,5 @@
 { ... }:
 
 {
-  programs.ssh.enable = false;
+  programs.ssh.enable = true;
 }
