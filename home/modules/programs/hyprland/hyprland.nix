@@ -330,7 +330,6 @@ in
          in
          {
            workspace = toString workspace;
-           monitor = config.desktop.primaryOutput;
          }
          // lib.optionalAttrs (
            builtins.elem workspace config.desktop.compositor.workspaces.defaults
