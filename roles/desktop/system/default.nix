@@ -37,7 +37,7 @@
         path = "${pkgs.bibata-cursors}/share/icons";
       };
 
-      keyboard.layout = "us";
+      keyboard.layout = config.desktop.input.layout;
 
       output = {
         scales = "eDP-1:${toString config.desktop.primaryScale}";

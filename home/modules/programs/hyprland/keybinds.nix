@@ -263,12 +263,12 @@ in
           ]
           [
             "switch:on:Lenovo Yoga Tablet Mode Control switch"
-            (mkDspExec "pgrep -x wvkbd-mobintl || uwsm app -- ${pkgs.wvkbd-split}/bin/wvkbd-mobintl --landscape-layers landscape,landscapespecial --bg 00000000 -R 8 -L 280")
+            (mkDspExec "pkill -USR2 wvkbd-mobintl || uwsm app -- ${pkgs.wvkbd-split}/bin/wvkbd-mobintl --landscape-layers landscape,landscapespecial --bg 00000000 -R 8 -L 280")
             { locked = true; }
           ]
           [
             "switch:off:Lenovo Yoga Tablet Mode Control switch"
-            (mkDspExec "pkill -x wvkbd-mobintl || true")
+            (mkDspExec "pkill -USR1 wvkbd-mobintl || true")
             { locked = true; }
           ]
         ]

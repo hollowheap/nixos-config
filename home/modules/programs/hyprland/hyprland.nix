@@ -13,6 +13,8 @@ let
   touchKeyboard = "${pkgs.wvkbd-split}/bin/wvkbd-mobintl --landscape-layers landscape,landscapespecial --bg 00000000 -R 8 -L 280";
   touchCommands = {
     toggle-touch-keyboard = "pkill -SIGRTMIN wvkbd-mobintl || uwsm app -- ${touchKeyboard}";
+    show-touch-keyboard = "pkill -USR2 wvkbd-mobintl || uwsm app -- ${touchKeyboard}";
+    hide-touch-keyboard = "pkill -USR1 wvkbd-mobintl || true";
   };
 
   mapMatch =
@@ -69,7 +71,13 @@ in
       hypr-dynamic-cursors
       hyprglass
     ]
-    ++ lib.optionals config.desktop.touch [ hyprgrass ];
+    ++ (if config.desktop.touch then
+         if pkgs.hyprland.version != "0.56.2" then
+           throw "hyprgrass pin targets Hyprland 0.56.2; update pkgs/hyprland-plugins/hyprgrass.nix"
+         else
+           [ hyprgrass ]
+       else
+         [ ]);
 
     settings = {
       colors = {
@@ -146,6 +154,14 @@ in
         }
       ) config.desktop.touchscreen.devices;
 
+      gesture = lib.mkIf config.desktop.touch [
+        {
+          fingers = 3;
+          direction = "horizontal";
+          action = "workspace";
+        }
+      ];
+
       env = map mkArgs [
         [
           "XDG_CURRENT_DESKTOP"
@@ -169,17 +185,26 @@ in
 
         input = lib.mkMerge [
           {
-            kb_layout = config.desktop.compositor.input.keyboardLayout;
+            kb_layout = config.desktop.input.layout;
+            kb_variant = config.desktop.input.variant;
+            kb_options = config.desktop.input.options;
+            repeat_delay = config.desktop.input.repeatDelay;
+            repeat_rate = config.desktop.input.repeatRate;
+            touchpad.natural_scroll = true;
+            virtualkeyboard.release_pressed_on_close = true;
           }
           (lib.mkIf config.desktop.touch {
             touchdevice.output = config.desktop.touchscreen.output;
+            touchdevice.transform = config.desktop.touchscreen.transform;
             tablet.output = config.desktop.touchscreen.output;
+            tablet.transform = config.desktop.touchscreen.transform;
           })
         ];
 
         gestures = lib.mkIf config.desktop.touch {
           workspace_swipe_touch = true;
           workspace_swipe_cancel_ratio = 0.15;
+          workspace_swipe_invert = false;
         };
 
         general = {

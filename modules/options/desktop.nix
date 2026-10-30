@@ -94,6 +94,34 @@ in
       description = "Scale for the primary output and the login greeter.";
     };
 
+    input = {
+      layout = mkOption {
+        type = str;
+        default = "us";
+        description = "Keyboard layout shared by compositor, greeter, and console.";
+      };
+      variant = mkOption {
+        type = str;
+        default = "";
+        description = "Keyboard variant.";
+      };
+      options = mkOption {
+        type = str;
+        default = "";
+        description = "XKB options, for example ctrl:nocaps.";
+      };
+      repeatDelay = mkOption {
+        type = int;
+        default = 600;
+        description = "Keyboard repeat delay in milliseconds.";
+      };
+      repeatRate = mkOption {
+        type = int;
+        default = 25;
+        description = "Keyboard repeat rate in repeats per second.";
+      };
+    };
+
     monitors = mkOption {
       type = listOf monitorType;
       default = [

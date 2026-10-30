@@ -59,12 +59,6 @@ in
         };
       };
 
-      input.keyboardLayout = mkOption {
-        type = str;
-        default = "us";
-        description = "Keyboard layout for the compositor session.";
-      };
-
       autostart = mkOption {
         type = listOf (
           submodule {

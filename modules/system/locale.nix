@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   time.timeZone = "Asia/Singapore";
@@ -20,7 +20,7 @@
     earlySetup = true;
     packages = [ pkgs.terminus_font ];
     font = "Lat2-Terminus16";
-    keyMap = "us";
+    keyMap = config.desktop.input.layout;
   };
 
   documentation = {

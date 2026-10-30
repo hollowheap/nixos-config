@@ -1,14 +1,20 @@
-{ lib, ... }:
+{ config, lib, ... }:
 let
   inherit (lib) mkOption;
-  inherit (lib.types) listOf nullOr str submodule unspecified;
+  inherit (lib.types) int listOf nullOr str submodule unspecified;
 in
 {
   options.desktop.touchscreen = {
     output = mkOption {
       type = str;
-      default = "eDP-1";
+      default = config.desktop.primaryOutput;
       description = "Touchscreen output name.";
+    };
+
+    transform = mkOption {
+      type = int;
+      default = 0;
+      description = "Touch and tablet coordinate transform (0-6).";
     };
 
     devices = mkOption {
