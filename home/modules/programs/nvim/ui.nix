@@ -307,7 +307,7 @@ in
     };
 
     luaConfigRC.wallustAndLualine = ''
-      package.path = package.path .. ";" .. vim.fn.expand("~/.config/nvf/lua/?.lua")
+      package.path = package.path .. ";" .. vim.fn.expand("${config.xdg.configHome}/nvf/lua/?.lua")
       local ok, wallust = pcall(require, "wallust")
       if ok then
         wallust.setup()

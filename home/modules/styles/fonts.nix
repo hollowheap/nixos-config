@@ -129,6 +129,8 @@ in
       cfg.serif.package
       cfg.emoji.package
       pkgs.noto-fonts
+      pkgs.noto-fonts-cjk-sans
+      pkgs.noto-fonts-cjk-serif
     ];
 
     fonts.fontconfig = {

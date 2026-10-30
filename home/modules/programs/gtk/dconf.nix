@@ -42,7 +42,7 @@
   };
 
   home.activation.restoreIconAccent = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    cache="$HOME/.cache/noctalia/dconf-theme.cache"
+    cache="${config.xdg.cacheHome}/noctalia/dconf-theme.cache"
     if [ -s "$cache" ]; then
       read -r hex mode _ < "$cache" || true
       if [ -n "$hex" ] && [ -n "$mode" ]; then

@@ -21,7 +21,7 @@ declare -A COLORS=(
   [15]="255;255;255"
 )
 
-seq_file="${HOME}/.cache/wallust/sequences"
+seq_file="${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences"
 if [[ -f "$seq_file" ]]; then
   while IFS= read -r line || [[ -n "$line" ]]; do
     while [[ "$line" =~ \]4\;([0-9]+)\;\#([0-9a-fA-F]{6}) ]]; do

@@ -50,7 +50,8 @@
   xdg.configFile."wallust/templates".source = config.xdg.dataFile."templates".source;
 
   home.activation.wallustRender = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    wp="$(cat "$HOME/.local/state/noctalia/wallpaper" 2>/dev/null || true)"
+    settings="$HOME/.local/state/noctalia/settings.toml"
+    wp="$(${pkgs.gawk}/bin/awk -F'"' '/^\[wallpaper\.last\]/{f=1;next} /^\[/{f=0} f&&/^path =/{print $2; exit}' "$settings" 2>/dev/null || true)"
     if [ -n "$wp" ] && [ -f "$wp" ]; then
       ${pkgs.wallust}/bin/wallust run --templates-dir "${config.xdg.dataHome}/templates" "$wp" -s || true
     fi

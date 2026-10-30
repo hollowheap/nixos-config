@@ -73,7 +73,16 @@ in
 
     settings = {
       colors = {
-        _var = mkLuaInline ''(function() local ok, m = pcall(require, "noctalia"); return (ok and type(m) == "table") and m or {} end)()'';
+        _var = mkLuaInline ''(function()
+          local ok, m = pcall(require, "noctalia")
+          if ok and type(m) == "table" then return m end
+          return {
+            active_border = "rgba(ffffffff)",
+            inactive_border = "rgba(ffffff88)",
+            active_shadow = "rgba(000000ee)",
+            inactive_shadow = "rgba(000000aa)",
+          }
+        end)()'';
       };
 
       "plugin.hyprgrass.gesture" = lib.mkIf config.desktop.touch (
