@@ -4,8 +4,8 @@
     enable = true;
     enableSshSupport = true;
     pinentry = {
-      package = pkgs.pinentry-gnome3;
-      program = "pinentry-gnome3";
+      package = pkgs.pinentry-qt;
+      program = "pinentry-qt";
     };
   };
 
@@ -15,11 +15,11 @@
       email = "yuckychong@gmail.com";
       base_url = "https://vault.mesh.hollowheap.duckdns.org";
       lock_timeout = 86400;
-      pinentry = pkgs.pinentry-gnome3;
+      pinentry = pkgs.pinentry-qt;
     };
   };
 
   home.packages = [
-    pkgs.pinentry-gnome3
+    pkgs.pinentry-qt
   ];
 }
