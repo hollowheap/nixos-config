@@ -236,6 +236,8 @@ in
     '';
   };
 
+  home.packages = [ pkgs.xclip ];
+
   home.activation.tmuxReload = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if ${pkgs.tmux}/bin/tmux info >/dev/null 2>&1; then
       ${pkgs.tmux}/bin/tmux source-file ~/.config/tmux/tmux.conf >/dev/null 2>&1 || true

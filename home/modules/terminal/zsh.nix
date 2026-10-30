@@ -117,7 +117,9 @@
       autoload -U compinit
       mkdir -p "$XDG_CACHE_HOME/zsh"
       compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION" -C
-      (zcompile "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION" >/dev/null 2>&1 &)
+      if [[ ! -f "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION.zwc" ]]; then
+        (zcompile "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION" >/dev/null 2>&1 &)
+      fi
     '';
 
     initContent = ''
