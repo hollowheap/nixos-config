@@ -1,11 +1,16 @@
 { pkgs, ... }:
 {
+  services.gnome-keyring = {
+    enable = true;
+    components = [ "secrets" ];
+  };
+
   services.gpg-agent = {
     enable = true;
     enableSshSupport = true;
     pinentry = {
-      package = pkgs.pinentry-qt;
-      program = "pinentry-qt";
+      package = pkgs.pinentry-gnome3;
+      program = "pinentry-gnome3";
     };
   };
 
@@ -15,11 +20,12 @@
       email = "yuckychong@gmail.com";
       base_url = "https://vault.mesh.hollowheap.duckdns.org";
       lock_timeout = 86400;
-      pinentry = pkgs.pinentry-qt;
+      pinentry = pkgs.pinentry-gnome3;
     };
   };
 
   home.packages = [
-    pkgs.pinentry-qt
+    pkgs.gcr_3
+    pkgs.pinentry-gnome3
   ];
 }
