@@ -324,14 +324,19 @@ in
           gaps_out = config.desktop.compositor.margin.outer;
         }
       ]
-       ++ (map (
-         workspace:
+       ++ (genList (
+         index:
+         let
+           workspace = index + 1;
+         in
          {
            workspace = toString workspace;
            monitor = config.desktop.primaryOutput;
-           default = true;
          }
-       ) config.desktop.compositor.workspaces.defaults);
+         // lib.optionalAttrs (
+           builtins.elem workspace config.desktop.compositor.workspaces.defaults
+         ) { default = true; }
+       ) config.desktop.compositor.workspaces.count);
 
       window_rule = map mapWindowRule config.desktop.windowRules;
 
