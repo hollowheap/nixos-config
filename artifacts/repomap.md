@@ -8,28 +8,160 @@
   - [chapter] NixOS System Configuration (L1)
   - [section] Essential Commands (L5)
   - [section] Repository Layout (L14)
-  - [section] Conventions (L26)
+  - [section] Context (L26)
+  - [section] Conventions (L29)
 
 ## README.md
   - [chapter] nixos-config (L1)
 
+## artifacts/architecture.md
+  - [chapter] Architecture (L1)
+  - [section] System Shape (L6)
+  - [section] Module Seams (L16)
+  - [section] Dependency Direction (L30)
+  - [section] Known Debt (L40)
+  - [section] Evidence (L47)
+
 ## artifacts/context.md
   - [chapter] Repository Context (L1)
   - [section] Stack & Entrypoints (L3)
-  - [section] Commands (L12)
-  - [section] Module Seams (L22)
-  - [section] RDST (Requirements, Decisions, Specs, Tasks) Lifecycle (L35)
+  - [section] Module Seams (L13)
+  - [section] RDST (Requirements, Decisions, Specs, Tasks) Lifecycle (L26)
 
 ## artifacts/decisions.md
   - [chapter] Architectural Decisions (L1)
   - [section] Non-Goals (L377)
 
-## artifacts/tasks.md
-  - [chapter] Implementation Plan (L1)
-  - [section] Completed — Restored historical range (L5)
-  - [section] Completed — Current implementation (L175)
-  - [section] Open (L435)
-  - [section] References (L563)
+## artifacts/repomap.md
+  - [chapter] Codebase Outline (.) (L1)
+  - [section] .sops.yaml (L3)
+  - [section] AGENTS.md (L7)
+  - [section] README.md (L13)
+  - [section] artifacts/context.md (L16)
+  - [section] artifacts/decisions.md (L23)
+  - [section] artifacts/tasks.md (L27)
+  - [section] artifacts/requirements.md (L34)
+  - [section] artifacts/research/ai-harnesses.md (L42)
+  - [section] artifacts/research/boot-recovery-updates.md (L64)
+  - [section] artifacts/research/cli-tooling.md (L83)
+  - [section] artifacts/research/compositor-session.md (L103)
+  - [section] artifacts/research/editor-toolchain.md (L129)
+  - [section] artifacts/research/gui-apps.md (L149)
+  - [section] artifacts/research/hardware-power-storage.md (L169)
+  - [section] artifacts/research/input-gestures.md (L189)
+  - [section] artifacts/research/system-services-network.md (L209)
+  - [section] artifacts/research/terminal-shell.md (L230)
+  - [section] artifacts/research/termux-fovea.md (L259)
+  - [section] artifacts/research/theme-hooks.md (L274)
+  - [section] artifacts/research/user-services.md (L295)
+  - [section] artifacts/retro.md (L316)
+  - [section] artifacts/specs.md (L328)
+  - [section] assets/wallust-templates/crush.json (L331)
+  - [section] assets/wallust-templates/nvim-colors.lua (L389)
+  - [section] boot/grub.nix (L392)
+  - [section] boot/kernel.nix (L395)
+  - [section] boot/tpm.nix (L398)
+  - [section] flake.nix (L401)
+  - [section] flake/default.nix (L414)
+  - [section] flake/devshells.nix (L420)
+  - [section] hardware/bluetooth.nix (L425)
+  - [section] hardware/cpu.nix (L431)
+  - [section] hardware/filesystems.nix (L434)
+  - [section] hardware/hybrid-gpu.nix (L437)
+  - [section] hardware/nvidia.nix (L440)
+  - [section] hardware/wifi.nix (L444)
+  - [section] home/hollowheap.nix (L457)
+  - [section] home/lib/toolchains.nix (L460)
+  - [section] home/modules/ai/agents.nix (L466)
+  - [section] home/modules/ai/disciplines.nix (L482)
+  - [section] home/modules/ai/hooks.nix (L496)
+  - [section] home/modules/ai/options.nix (L500)
+  - [section] home/modules/ai/rules.nix (L585)
+  - [section] home/modules/ai/skills.nix (L588)
+  - [section] home/modules/cli/bat.nix (L614)
+  - [section] home/modules/cli/fastfetch.nix (L617)
+  - [section] home/modules/cli/git.nix (L623)
+  - [section] home/modules/cli/lazygit.nix (L636)
+  - [section] home/modules/cli/utilities.nix (L639)
+  - [section] home/modules/environment/actions.nix (L646)
+  - [section] home/modules/environment/compositor.nix (L651)
+  - [section] home/modules/environment/rules.nix (L671)
+  - [section] home/modules/environment/session.nix (L700)
+  - [section] home/modules/environment/shortcuts.nix (L704)
+  - [section] home/modules/environment/touch.nix (L714)
+  - [section] home/modules/programs/antigravity.nix (L734)
+  - [section] home/modules/programs/codex.nix (L740)
+  - [section] home/modules/programs/crush.nix (L744)
+  - [section] home/modules/programs/default-apps-options.nix (L750)
+  - [section] home/modules/programs/default-apps.nix (L761)
+  - [section] home/modules/programs/github-copilot-cli.nix (L764)
+  - [section] home/modules/programs/gtk/dconf.nix (L767)
+  - [section] home/modules/programs/gtk/theme.nix (L771)
+  - [section] home/modules/programs/gui/ghostty.nix (L777)
+  - [section] home/modules/programs/gui/pear-desktop-options.nix (L780)
+  - [section] home/modules/programs/gui/pear-desktop.nix (L823)
+  - [section] home/modules/programs/gui/vesktop.nix (L838)
+  - [section] home/modules/programs/gui/zen-browser.nix (L842)
+  - [section] home/modules/programs/hermes.nix (L872)
+  - [section] home/modules/programs/hyprland/hyprland.nix (L875)
+  - [section] home/modules/programs/hyprland/keybinds.nix (L903)
+  - [section] home/modules/programs/kiro-cli.nix (L917)
+  - [section] home/modules/programs/noctalia.nix (L923)
+  - [section] home/modules/programs/nvim/completion.nix (L946)
+  - [section] home/modules/programs/nvim/core.nix (L969)
+  - [section] home/modules/programs/nvim/debugger.nix (L979)
+  - [section] home/modules/programs/nvim/diagrams.nix (L985)
+  - [section] home/modules/programs/nvim/editing.nix (L995)
+  - [section] home/modules/programs/nvim/keymaps.nix (L1000)
+  - [section] home/modules/programs/nvim/lsp.nix (L1021)
+  - [section] home/modules/programs/nvim/mini.nix (L1036)
+  - [section] home/modules/programs/nvim/preview.nix (L1043)
+  - [section] home/modules/programs/nvim/quickfix.nix (L1047)
+  - [section] home/modules/programs/nvim/snacks.nix (L1052)
+  - [section] home/modules/programs/nvim/ui.nix (L1077)
+  - [section] home/modules/programs/omp.nix (L1136)
+  - [section] home/modules/programs/opencode-ai-hooks.ts (L1146)
+  - [section] home/modules/programs/opencode.nix (L1162)
+  - [section] home/modules/programs/pi-coding-agent.nix (L1169)
+  - [section] home/modules/programs/thunderbird-accounts.nix (L1192)
+  - [section] home/modules/programs/wallust.nix (L1196)
+  - [section] home/modules/services/auth-agents.nix (L1203)
+  - [section] home/modules/services/rclone.nix (L1207)
+  - [section] home/modules/services/store-hygiene.nix (L1226)
+  - [section] home/modules/styles/fonts.nix (L1233)
+  - [section] home/modules/styles/pills.nix (L1255)
+  - [section] home/modules/terminal/starship.nix (L1287)
+  - [section] home/modules/terminal/tmux.nix (L1296)
+  - [section] home/modules/terminal/zsh.nix (L1299)
+  - [section] hosts/acervus/hardware-configuration.nix (L1303)
+  - [section] hosts/lacuna/disko.nix (L1306)
+  - [section] lib/color.nix (L1319)
+  - [section] modules/options/desktop.nix (L1322)
+  - [section] modules/options/unfree.nix (L1347)
+  - [section] modules/options/users.nix (L1350)
+  - [section] modules/programs/programs.nix (L1355)
+  - [section] modules/security/sops.nix (L1358)
+  - [section] modules/services/network-services.nix (L1362)
+  - [section] modules/services/system-services.nix (L1369)
+  - [section] modules/system/locale.nix (L1372)
+  - [section] modules/system/nix.nix (L1376)
+  - [section] modules/system/nixpkgs.nix (L1382)
+  - [section] modules/system/packages.nix (L1387)
+  - [section] modules/system/users.nix (L1390)
+  - [section] pkgs/agy-statusline.sh (L1395)
+  - [section] pkgs/artifacts-helper.py (L1407)
+  - [section] pkgs/bibata-hyprcursor.nix (L1443)
+  - [section] pkgs/double-minegrub-menu.nix (L1446)
+  - [section] pkgs/hyprland-plugins/hypr-dynamic-cursors.nix (L1449)
+  - [section] pkgs/hyprland-plugins/hyprglass.nix (L1452)
+  - [section] pkgs/hyprland-plugins/hyprgrass.nix (L1455)
+  - [section] pkgs/mactahoe-icon-accent.py (L1458)
+  - [section] pkgs/tmux-plugins/smart-splits.nix (L1463)
+  - [section] roles/desktop/system/default.nix (L1466)
+  - [section] roles/desktop/system/services.nix (L1474)
+  - [section] roles/server/system/caddy.nix (L1478)
+  - [section] roles/server/system/headscale.nix (L1482)
+  - [section] roles/server/system/vaultwarden.nix (L1486)
 
 ## artifacts/requirements.md
   - [chapter] Requirements (L1)
@@ -39,7 +171,19 @@
   - [section] Open Requirements (L69)
   - [section] Open Questions (L283)
 
-## artifacts/research/ai-harnesses.md
+## artifacts/retro.md
+  - [chapter] Session Retrospective: Skill Architecture, Hook Modularization, and Prompt Density (L1)
+  - [section] 1. Tool Efficiency & Errors (L3)
+  - [subsection] Metric Summary (L5)
+  - [subsection] Friction Points (L20)
+  - [section] 2. Rule Compliance (L26)
+  - [section] 3. Winning Patterns (L38)
+  - [section] 4. Root Cause Analysis: The `author-hook` Anti-Pattern (L51)
+  - [subsection] The Flaw (L53)
+  - [subsection] Why This Was Broken (L56)
+  - [section] 5. Actionable Improvements (L70)
+
+## artifacts/review/ai-harnesses.md
   - [chapter] AI harnesses robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -61,7 +205,7 @@
   - [section] Rejected defaults (L186)
   - [section] Open questions (L194)
 
-## artifacts/research/boot-recovery-updates.md
+## artifacts/review/boot-recovery-updates.md
   - [chapter] Boot, recovery & updates robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -80,7 +224,7 @@
   - [section] Rejected defaults (L177)
   - [section] Open questions (L189)
 
-## artifacts/research/cli-tooling.md
+## artifacts/review/cli-tooling.md
   - [chapter] CLI tooling robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -100,7 +244,7 @@
   - [section] Rejected defaults (L214)
   - [section] Open questions (L233)
 
-## artifacts/research/compositor-session.md
+## artifacts/review/compositor-session.md
   - [chapter] Compositor & session robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -126,7 +270,7 @@
   - [section] Rejected defaults (L187)
   - [section] Open questions (L204)
 
-## artifacts/research/editor-toolchain.md
+## artifacts/review/editor-toolchain.md
   - [chapter] Editor toolchain robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -146,7 +290,7 @@
   - [section] Rejected defaults (L176)
   - [section] Open questions (L185)
 
-## artifacts/research/gui-apps.md
+## artifacts/review/gui-apps.md
   - [chapter] GUI applications robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -166,7 +310,7 @@
   - [section] Rejected defaults (L211)
   - [section] Open questions (L221)
 
-## artifacts/research/hardware-power-storage.md
+## artifacts/review/hardware-power-storage.md
   - [chapter] Hardware, power & storage robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -186,7 +330,7 @@
   - [section] Rejected defaults (L129)
   - [section] Open questions (L141)
 
-## artifacts/research/input-gestures.md
+## artifacts/review/input-gestures.md
   - [chapter] Input & gestures robustness review (L1)
   - [section] Verdict (L3)
   - [section] Option sweep (pointer/touchpad) (L8)
@@ -206,7 +350,26 @@
   - [section] Rejected defaults (L192)
   - [section] Open questions (L206)
 
-## artifacts/research/system-services-network.md
+## artifacts/review/my-pi-agent-spec-code-audit.md
+  - [chapter] my-pi-agent Spec Code Audit (L1)
+  - [section] Result (L6)
+  - [section] Non-Verified (L12)
+  - [section] Path Corrections (L21)
+  - [section] Note (L26)
+
+## artifacts/review/repos-spec-audit.md
+  - [chapter] Cross-Repo Spec Audit (L1)
+  - [section] Findings (L7)
+  - [subsection] my-pi-agent (L9)
+  - [subsection] pico-car (L17)
+  - [subsection] nixos-config (L23)
+  - [subsection] docmd, lively, md-questioner (L29)
+  - [section] Repaired (L34)
+  - [section] Duplication Repaired (L42)
+  - [section] Code Audit (L48)
+  - [section] Decision (L52)
+
+## artifacts/review/system-services-network.md
   - [chapter] System services & network robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -227,7 +390,7 @@
   - [section] Rejected defaults (L227)
   - [section] Open questions (L240)
 
-## artifacts/research/terminal-shell.md
+## artifacts/review/terminal-shell.md
   - [chapter] Terminal & shell robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -256,7 +419,7 @@
   - [section] Rejected defaults (L292)
   - [section] Open questions (L306)
 
-## artifacts/research/termux-fovea.md
+## artifacts/review/termux-fovea.md
   - [chapter] Termux / fovea robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -271,7 +434,7 @@
   - [section] Rejected defaults (L108)
   - [section] Open questions (L121)
 
-## artifacts/research/theme-hooks.md
+## artifacts/review/theme-hooks.md
   - [chapter] Theme hooks robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -292,7 +455,7 @@
   - [section] Rejected defaults (L246)
   - [section] Open questions (L260)
 
-## artifacts/research/user-services.md
+## artifacts/review/user-services.md
   - [chapter] User services & sync robustness review (L1)
   - [section] Verdict (L3)
   - [section] Findings (L8)
@@ -313,20 +476,205 @@
   - [section] Rejected defaults (L198)
   - [section] Open questions (L211)
 
-## artifacts/retro.md
-  - [chapter] Session Retrospective: Skill Architecture, Hook Modularization, and Prompt Density (L1)
-  - [section] 1. Tool Efficiency & Errors (L3)
-  - [subsection] Metric Summary (L5)
-  - [subsection] Friction Points (L20)
-  - [section] 2. Rule Compliance (L26)
-  - [section] 3. Winning Patterns (L38)
-  - [section] 4. Root Cause Analysis: The `author-hook` Anti-Pattern (L51)
-  - [subsection] The Flaw (L53)
-  - [subsection] Why This Was Broken (L56)
-  - [section] 5. Actionable Improvements (L70)
-
 ## artifacts/specs.md
   - [chapter] Specifications (L1)
+
+## artifacts/tasks.md
+  - [chapter] Tasks (L1)
+  - [section] Completed — Restored historical range (L5)
+  - [section] Completed — Current implementation (L175)
+  - [section] Open (L435)
+  - [section] References (L563)
+
+## assets/skills/author-pr/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L9)
+
+## assets/skills/author-pr/references/examples.md
+  - [chapter] Author-PR Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L8)
+
+## assets/skills/author-pr/references/format.md
+  - [chapter] Pull Request Description (L1)
+  - [section] TLDR (L3)
+  - [section] Motivation (L7)
+  - [section] Key Changes (L11)
+  - [section] Breaking Changes & Migration (L15)
+
+## assets/skills/brainstorm/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L12)
+
+## assets/skills/brainstorm/references/examples.md
+  - [chapter] Brainstorm Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## assets/skills/brainstorm/references/template.md
+  - [chapter] Architectural Exploration: <Topic> (L1)
+  - [section] Destination (L3)
+  - [section] References (L6)
+  - [section] Archetypes (L9)
+  - [section] Trade-offs (L15)
+  - [section] Recommendation (L21)
+  - [section] Open Questions (L24)
+  - [section] Out of scope (L28)
+
+## assets/skills/design/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L10)
+
+## assets/skills/design/references/decision.md
+  - [chapter] Decision Record (L1)
+
+## assets/skills/design/references/examples.md
+  - [chapter] Design Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## assets/skills/deslop/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L10)
+
+## assets/skills/deslop/references/criteria.md
+  - [chapter] Deslop Criteria (L1)
+
+## assets/skills/deslop/references/examples.md
+  - [chapter] Deslop Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L10)
+
+## assets/skills/git-commit/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L9)
+
+## assets/skills/git-commit/references/examples.md
+  - [chapter] Git-Commit Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## assets/skills/implement/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Quick change (L11)
+  - [section] Resume (L20)
+  - [section] Rules (L27)
+
+## assets/skills/implement/references/examples.md
+  - [chapter] Implement Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## assets/skills/init/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L10)
+
+## assets/skills/init/references/examples.md
+  - [chapter] Init Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L8)
+
+## assets/skills/merge-worktree/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L9)
+
+## assets/skills/merge-worktree/references/examples.md
+  - [chapter] Merge Worktree Examples (L1)
+  - [section] Commands (L3)
+  - [section] Bad (L17)
+  - [section] Good (L22)
+
+## assets/skills/modular-design/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L9)
+
+## assets/skills/modular-design/references/principles.md
+  - [chapter] Modular Design & Seam Principles (L1)
+  - [section] Vertical Slice Structure (L3)
+  - [section] Inverted Seam (Port & Adapter) (L19)
+
+## assets/skills/plan/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L10)
+
+## assets/skills/plan/references/examples.md
+  - [chapter] Plan Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L8)
+
+## assets/skills/retro/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L8)
+
+## assets/skills/retro/references/examples.md
+  - [chapter] Retro Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L8)
+
+## assets/skills/review/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L9)
+
+## assets/skills/review/references/architecture.md
+  - [chapter] Review Architecture Lens (L1)
+  - [section] Per-diff seam lens (L3)
+  - [section] Architecture pass (L21)
+
+## assets/skills/review/references/backend.md
+  - [chapter] Backend Review Lens (L1)
+  - [section] Authoring (L5)
+  - [section] Review checks (L13)
+  - [section] Pattern (L22)
+  - [section] Verify (L47)
+
+## assets/skills/review/references/diff.md
+  - [chapter] Diff Review Lens (L1)
+  - [section] Workflow (L5)
+  - [section] Rules (L14)
+
+## assets/skills/review/references/examples.md
+  - [chapter] Review Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## assets/skills/review/references/robust.md
+  - [chapter] Robustness Review Lens (L1)
+  - [section] Gate (L5)
+  - [section] Workflow (L9)
+  - [section] Checks (L21)
+  - [section] Evidence Rules (L31)
+  - [section] Report (L42)
+  - [section] Examples (L72)
+  - [section] Verify (L81)
+
+## assets/skills/review/references/slice.md
+  - [chapter] Slice Review Lens (L1)
+  - [section] Test (L5)
+  - [section] Checks (L15)
+
+## assets/skills/review/references/ui.md
+  - [chapter] UI Review Lens (L1)
+  - [section] Authoring (L5)
+  - [section] Audit (L13)
+  - [section] Rules (L24)
+
+## assets/skills/specify/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L10)
+
+## assets/skills/specify/references/examples.md
+  - [chapter] Specify Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## assets/skills/update/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L12)
+
+## assets/skills/update/references/examples.md
+  - [chapter] Update Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L8)
 
 ## assets/wallust-templates/crush.json
   - [string] base (L2)
@@ -404,18 +752,17 @@
   - [definition] sops-nix (L11)
   - [definition] home-manager (L16)
   - [definition] nvf (L21)
-  - [definition] skills (L28)
-  - [definition] noctalia-greeter (L33)
-  - [definition] minecraft-plymouth-theme (L38)
-  - [definition] nix-on-droid (L43)
-  - [definition] zen-browser (L48)
-  - [definition] omp (L54)
+  - [definition] noctalia-greeter (L28)
+  - [definition] minecraft-plymouth-theme (L33)
+  - [definition] nix-on-droid (L38)
+  - [definition] zen-browser (L43)
+  - [definition] omp (L49)
 
 ## flake/default.nix
   - [definition] networking (L8)
   - [definition] config (L31)
-  - [definition] extraSpecialArgs (L54)
-  - [definition] specialArgs (L68)
+  - [definition] extraSpecialArgs (L48)
+  - [definition] specialArgs (L62)
 
 ## flake/devshells.nix
   - [definition] toolchains (L19)
@@ -458,44 +805,45 @@
   - [definition] home (L8)
 
 ## home/lib/toolchains.nix
-  - [definition] lsp (L10)
-  - [definition] formatters (L22)
-  - [definition] linters (L36)
-  - [definition] debuggers (L51)
+  - [definition] lsp (L9)
+  - [definition] formatters (L25)
+  - [definition] linters (L43)
+  - [definition] debuggers (L61)
 
 ## home/modules/ai/agents.nix
   - [definition] ask (L4)
-  - [definition] capabilities (L9)
-  - [definition] architect (L36)
-  - [definition] capabilities (L41)
-  - [definition] engineer (L68)
-  - [definition] capabilities (L74)
-  - [definition] worker (L109)
-  - [definition] capabilities (L114)
-  - [definition] scout (L143)
-  - [definition] capabilities (L148)
-  - [definition] researcher (L159)
-  - [definition] capabilities (L164)
-  - [definition] code-reviewer (L175)
-  - [definition] capabilities (L180)
+  - [definition] capabilities (L10)
+  - [definition] architect (L37)
+  - [definition] capabilities (L43)
+  - [definition] engineer (L69)
+  - [definition] capabilities (L75)
+  - [definition] worker (L108)
+  - [definition] capabilities (L113)
+  - [definition] scout (L140)
+  - [definition] capabilities (L145)
+  - [definition] researcher (L156)
+  - [definition] capabilities (L161)
+  - [definition] code-reviewer (L172)
+  - [definition] capabilities (L177)
 
 ## home/modules/ai/disciplines.nix
   - [definition] artifacts (L4)
   - [definition] rules (L7)
-  - [definition] lazy (L14)
-  - [definition] rules (L17)
-  - [definition] unslop (L25)
-  - [definition] rules (L28)
-  - [definition] report (L35)
-  - [definition] rules (L38)
-  - [definition] skills (L49)
-  - [definition] rules (L52)
-  - [definition] subagent-io (L59)
-  - [definition] rules (L62)
+  - [definition] lazy (L13)
+  - [definition] rules (L16)
+  - [definition] unslop (L24)
+  - [definition] rules (L27)
+  - [definition] report (L34)
+  - [definition] rules (L37)
+  - [definition] skills (L48)
+  - [definition] rules (L51)
+  - [definition] subagent-io (L58)
+  - [definition] rules (L61)
 
 ## home/modules/ai/hooks.nix
-  - [definition] session-start (L4)
-  - [definition] pre-tool (L10)
+  - [definition] session-start (L119)
+  - [definition] pre-tool (L131)
+  - [definition] post-tool (L137)
 
 ## home/modules/ai/options.nix
   - [definition] harnessDroppedDisciplines (L34)
@@ -539,77 +887,53 @@
   - [definition] text (L208)
   - [definition] options (L216)
   - [definition] description (L217)
-  - [definition] content (L221)
-  - [definition] references (L225)
-  - [definition] default (L227)
-  - [definition] scripts (L236)
-  - [definition] default (L238)
-  - [definition] agents (L241)
-  - [definition] options (L253)
-  - [definition] description (L254)
-  - [definition] target (L258)
-  - [definition] rules (L266)
-  - [definition] default (L268)
-  - [option] ai (L275)
-  - [definition] tiers (L276)
-  - [definition] options (L278)
-  - [definition] provider (L279)
-  - [definition] model (L283)
-  - [definition] effort (L287)
-  - [definition] default (L297)
-  - [definition] high (L298)
-  - [definition] medium (L303)
-  - [definition] low (L308)
-  - [definition] hooks (L317)
-  - [definition] options (L319)
-  - [definition] event (L320)
-  - [definition] command (L332)
-  - [definition] matcher (L336)
-  - [definition] timeout (L341)
-  - [definition] enabled (L346)
-  - [definition] harnesses (L351)
-  - [definition] default (L358)
-  - [definition] guards (L362)
-  - [definition] bashDeny (L363)
-  - [definition] agents (L384)
-  - [definition] default (L386)
-  - [definition] skills (L390)
-  - [definition] default (L392)
-  - [definition] rules (L396)
-  - [definition] disciplines (L402)
-  - [definition] default (L404)
-  - [definition] render (L408)
-  - [config] ai.render (L414)
-  - [config] assertions (L557)
+  - [definition] disableModelInvocation (L221)
+  - [definition] content (L226)
+  - [definition] references (L230)
+  - [definition] default (L232)
+  - [definition] scripts (L241)
+  - [definition] default (L243)
+  - [definition] agents (L246)
+  - [definition] options (L258)
+  - [definition] description (L259)
+  - [definition] target (L263)
+  - [definition] rules (L271)
+  - [definition] default (L273)
+  - [option] ai (L280)
+  - [definition] tiers (L281)
+  - [definition] options (L283)
+  - [definition] provider (L284)
+  - [definition] model (L288)
+  - [definition] effort (L292)
+  - [definition] default (L302)
+  - [definition] high (L303)
+  - [definition] medium (L308)
+  - [definition] low (L313)
+  - [definition] hooks (L322)
+  - [definition] options (L324)
+  - [definition] event (L325)
+  - [definition] command (L337)
+  - [definition] args (L341)
+  - [definition] matcher (L346)
+  - [definition] timeout (L351)
+  - [definition] enabled (L356)
+  - [definition] harnesses (L361)
+  - [definition] default (L368)
+  - [definition] guards (L372)
+  - [definition] bashDeny (L373)
+  - [definition] agents (L394)
+  - [definition] default (L396)
+  - [definition] skills (L400)
+  - [definition] default (L402)
+  - [definition] rules (L406)
+  - [definition] disciplines (L412)
+  - [definition] default (L414)
+  - [definition] render (L418)
+  - [config] ai.render (L424)
+  - [config] assertions (L567)
 
 ## home/modules/ai/rules.nix
   - [definition] requires (L24)
-
-## home/modules/ai/skills.nix
-  - [definition] init (L8)
-  - [definition] update (L52)
-  - [definition] retro (L96)
-  - [definition] corpus-audit (L145)
-  - [definition] brainstorm (L208)
-  - [definition] design (L275)
-  - [definition] specify (L342)
-  - [definition] plan (L385)
-  - [definition] implement (L428)
-  - [definition] author-pr (L479)
-  - [definition] review (L533)
-  - [definition] git-commit (L611)
-  - [definition] author-skill (L649)
-  - [definition] author-hook (L690)
-  - [definition] ui-author (L799)
-  - [definition] ref (L855)
-  - [definition] aria-expanded (L857)
-  - [definition] onClick (L858)
-  - [definition] className (L859)
-  - [definition] ui-audit (L914)
-  - [definition] backend-author (L966)
-  - [definition] modular-design (L1036)
-  - [definition] merge-worktree (L1103)
-  - [definition] robustness-audit (L1152)
 
 ## home/modules/cli/bat.nix
   - [definition] config (L7)
@@ -732,20 +1056,20 @@
   - [definition] action (L110)
 
 ## home/modules/programs/antigravity.nix
-  - [definition] droppedDisciplineRules (L83)
-  - [definition] handler (L110)
-  - [definition] settings (L144)
-  - [definition] statusLine (L153)
+  - [definition] droppedDisciplineRules (L85)
+  - [definition] handler (L112)
+  - [definition] settings (L146)
+  - [definition] statusLine (L155)
 
 ## home/modules/programs/codex.nix
   - [definition] droppedDisciplineRules (L60)
-  - [definition] settings (L95)
+  - [definition] settings (L99)
 
 ## home/modules/programs/crush.nix
-  - [definition] droppedDisciplineRules (L24)
-  - [definition] settings (L39)
-  - [definition] options (L43)
-  - [config] ai.hooks.pre-tool.harnesses (L85)
+  - [definition] droppedDisciplineRules (L27)
+  - [definition] settings (L42)
+  - [definition] options (L46)
+  - [config] ai.hooks.pre-tool.harnesses (L88)
 
 ## home/modules/programs/default-apps-options.nix
   - [definition] options (L7)
@@ -762,7 +1086,7 @@
   - [definition] defaultApplications (L5)
 
 ## home/modules/programs/github-copilot-cli.nix
-  - [definition] droppedDisciplineRules (L55)
+  - [definition] droppedDisciplineRules (L56)
 
 ## home/modules/programs/gtk/dconf.nix
   - [definition] dconf (L3)
@@ -870,7 +1194,9 @@
   - [definition] sine (L482)
 
 ## home/modules/programs/hermes.nix
-  - [definition] skills (L35)
+  - [definition] skills (L38)
+  - [config] ai.hooks.pre-tool.harnesses (L46)
+  - [config] ai.hooks.session-start.harnesses (L66)
 
 ## home/modules/programs/hyprland/hyprland.nix
   - [definition] touchCommands (L14)
@@ -878,27 +1204,27 @@
   - [definition] settings (L74)
   - [definition] colors (L75)
   - [definition] _var (L76)
-  - [definition] config (L146)
-  - [definition] cursor (L147)
-  - [definition] general (L171)
-  - [definition] snap (L180)
-  - [definition] decoration (L186)
-  - [definition] shadow (L193)
-  - [definition] color (L195)
-  - [definition] color_inactive (L196)
-  - [definition] blur (L199)
-  - [definition] motion_blur (L212)
-  - [definition] binds (L217)
-  - [definition] misc (L221)
-  - [definition] ecosystem (L228)
-  - [definition] scrolling (L233)
-  - [definition] plugin (L238)
-  - [definition] dynamic_cursors (L246)
-  - [definition] shake (L250)
-  - [definition] hyprcursor (L254)
-  - [definition] dark (L273)
-  - [definition] light (L277)
-  - [definition] animation (L283)
+  - [definition] config (L151)
+  - [definition] cursor (L152)
+  - [definition] general (L176)
+  - [definition] snap (L185)
+  - [definition] decoration (L191)
+  - [definition] shadow (L198)
+  - [definition] color (L200)
+  - [definition] color_inactive (L201)
+  - [definition] blur (L204)
+  - [definition] motion_blur (L217)
+  - [definition] binds (L222)
+  - [definition] misc (L226)
+  - [definition] ecosystem (L237)
+  - [definition] scrolling (L242)
+  - [definition] plugin (L247)
+  - [definition] dynamic_cursors (L255)
+  - [definition] shake (L259)
+  - [definition] hyprcursor (L263)
+  - [definition] dark (L282)
+  - [definition] light (L286)
+  - [definition] animation (L292)
 
 ## home/modules/programs/hyprland/keybinds.nix
   - [definition] settings (L15)
@@ -915,33 +1241,38 @@
   - [definition] settings (L377)
 
 ## home/modules/programs/kiro-cli.nix
-  - [definition] value (L47)
-  - [definition] droppedDisciplineRules (L54)
-  - [definition] action (L121)
-  - [definition] action (L205)
+  - [definition] value (L48)
+  - [definition] droppedDisciplineRules (L55)
+  - [definition] action (L122)
+  - [definition] action (L206)
 
 ## home/modules/programs/noctalia.nix
-  - [definition] hooks (L60)
-  - [definition] theme (L84)
-  - [definition] templates (L89)
-  - [definition] shell (L99)
-  - [definition] screen_corners (L110)
-  - [definition] panel (L114)
-  - [definition] screenshot (L118)
-  - [definition] dock (L137)
-  - [definition] lock (L190)
-  - [definition] screen-off (L196)
-  - [definition] suspend (L202)
-  - [definition] lockscreen_widgets (L209)
-  - [definition] clock-1 (L212)
-  - [definition] widget (L217)
-  - [definition] media (L218)
-  - [definition] audio_visualizer (L221)
-  - [definition] workspaces (L225)
-  - [definition] weather (L229)
-  - [definition] battery (L233)
-  - [definition] network (L237)
-  - [definition] tray (L240)
+  - [definition] desktop (L9)
+  - [definition] actions (L38)
+  - [definition] nightlight (L58)
+  - [definition] hooks (L62)
+  - [definition] theme (L86)
+  - [definition] templates (L91)
+  - [definition] shell (L101)
+  - [definition] launcher (L115)
+  - [definition] panel (L121)
+  - [definition] screen_corners (L125)
+  - [definition] screenshot (L129)
+  - [definition] dock (L147)
+  - [definition] notification (L197)
+  - [definition] lock (L202)
+  - [definition] screen-off (L208)
+  - [definition] suspend (L214)
+  - [definition] lockscreen_widgets (L221)
+  - [definition] clock-1 (L224)
+  - [definition] widget (L229)
+  - [definition] media (L230)
+  - [definition] audio_visualizer (L233)
+  - [definition] workspaces (L237)
+  - [definition] weather (L240)
+  - [definition] battery (L244)
+  - [definition] network (L248)
+  - [definition] tray (L251)
 
 ## home/modules/programs/nvim/completion.nix
   - [definition] setupOpts (L12)
@@ -968,13 +1299,12 @@
 
 ## home/modules/programs/nvim/core.nix
   - [definition] programs (L10)
-  - [definition] neovim (L11)
-  - [definition] nvf (L16)
-  - [definition] setupOpts (L35)
-  - [definition] setupOpts (L54)
-  - [definition] globals (L63)
-  - [definition] options (L68)
-  - [definition] callback (L134)
+  - [definition] nvf (L11)
+  - [definition] setupOpts (L31)
+  - [definition] setupOpts (L50)
+  - [definition] globals (L61)
+  - [definition] options (L66)
+  - [definition] callback (L143)
 
 ## home/modules/programs/nvim/debugger.nix
   - [definition] debugger (L4)
@@ -1004,41 +1334,42 @@
   - [definition] setupOpts (L24)
   - [definition] filter (L26)
   - [definition] register (L28)
-  - [definition] hardtime-nvim (L82)
-  - [definition] setupOpts (L84)
-  - [definition] disabled_keys (L89)
-  - [definition] hints (L113)
-  - [definition] message (L115)
-  - [definition] message (L119)
-  - [definition] message (L123)
-  - [definition] message (L127)
-  - [definition] message (L131)
-  - [definition] message (L135)
-  - [definition] message (L139)
-  - [definition] message (L143)
-  - [definition] message (L147)
+  - [definition] hardtime-nvim (L80)
+  - [definition] setupOpts (L82)
+  - [definition] disabled_keys (L87)
+  - [definition] hints (L111)
+  - [definition] message (L113)
+  - [definition] message (L117)
+  - [definition] message (L121)
+  - [definition] message (L125)
+  - [definition] message (L129)
+  - [definition] message (L133)
+  - [definition] message (L137)
+  - [definition] message (L141)
+  - [definition] message (L145)
 
 ## home/modules/programs/nvim/lsp.nix
   - [definition] languages (L11)
-  - [definition] lsp (L30)
-  - [definition] mappings (L35)
-  - [definition] servers (L46)
-  - [definition] diagnostics (L54)
-  - [definition] config (L55)
-  - [definition] virtual_text (L56)
-  - [definition] nvim-lint (L66)
-  - [definition] git (L74)
-  - [definition] gitsigns (L75)
-  - [definition] mappings (L77)
-  - [definition] callback (L90)
-  - [definition] callback (L110)
+  - [definition] spellcheck (L34)
+  - [definition] lsp (L54)
+  - [definition] mappings (L60)
+  - [definition] servers (L72)
+  - [definition] diagnostics (L80)
+  - [definition] config (L82)
+  - [definition] virtual_text (L83)
+  - [definition] nvim-lint (L93)
+  - [definition] git (L99)
+  - [definition] gitsigns (L100)
+  - [definition] mappings (L102)
+  - [definition] callback (L116)
+  - [definition] callback (L136)
 
 ## home/modules/programs/nvim/mini.nix
   - [definition] operators (L10)
   - [definition] setupOpts (L12)
-  - [definition] splitjoin (L22)
-  - [definition] setupOpts (L24)
-  - [definition] mappings (L25)
+  - [definition] splitjoin (L23)
+  - [definition] setupOpts (L25)
+  - [definition] mappings (L26)
 
 ## home/modules/programs/nvim/preview.nix
   - [definition] setupOpts (L9)
@@ -1055,24 +1386,24 @@
   - [definition] setupOpts (L16)
   - [definition] dashboard (L17)
   - [definition] enabled (L78)
-  - [definition] explorer (L91)
-  - [definition] indent (L96)
-  - [definition] scope (L98)
-  - [definition] notifier (L102)
-  - [definition] zen (L105)
-  - [definition] dim (L108)
-  - [definition] bigfile (L111)
-  - [definition] quickfile (L114)
-  - [definition] rename (L117)
-  - [definition] input (L120)
-  - [definition] picker (L123)
-  - [definition] statuscolumn (L127)
-  - [definition] scroll (L130)
-  - [definition] notify (L133)
-  - [definition] profiler (L136)
-  - [definition] words (L139)
-  - [definition] callback (L155)
-  - [definition] callback (L169)
+  - [definition] explorer (L94)
+  - [definition] indent (L99)
+  - [definition] scope (L101)
+  - [definition] notifier (L105)
+  - [definition] zen (L108)
+  - [definition] dim (L111)
+  - [definition] bigfile (L114)
+  - [definition] quickfile (L117)
+  - [definition] rename (L120)
+  - [definition] input (L123)
+  - [definition] picker (L126)
+  - [definition] statuscolumn (L130)
+  - [definition] scroll (L133)
+  - [definition] notify (L136)
+  - [definition] profiler (L139)
+  - [definition] words (L142)
+  - [definition] callback (L158)
+  - [definition] callback (L172)
 
 ## home/modules/programs/nvim/ui.nix
   - [definition] theme (L12)
@@ -1134,14 +1465,14 @@
   - [definition] z (L344)
 
 ## home/modules/programs/omp.nix
-  - [definition] droppedDisciplineRules (L13)
-  - [definition] value (L62)
-  - [config] ai.hooks.pre-tool.harnesses (L79)
-  - [config] ai.hooks.session-start.harnesses (L100)
-  - [definition] value (L123)
-  - [definition] opencode (L126)
-  - [definition] opencode-go (L130)
-  - [definition] settings (L157)
+  - [definition] droppedDisciplineRules (L17)
+  - [definition] value (L66)
+  - [config] ai.hooks.pre-tool.harnesses (L83)
+  - [config] ai.hooks.session-start.harnesses (L103)
+  - [definition] value (L122)
+  - [definition] opencode (L125)
+  - [definition] opencode-go (L129)
+  - [definition] settings (L156)
 
 ## home/modules/programs/opencode-ai-hooks.ts
   - [constant] configDir (L7)
@@ -1149,45 +1480,46 @@
   - [constant] manifestPath (L8)
   - [function] loadHooks (L10)
   - [constant] hooks (L18)
-  - [function] run (L20)
-  - [constant] hook (L21)
-  - [constant] name (L21)
-  - [constant] output (L24)
-  - [constant] controller (L39)
-  - [constant] event (L41)
-  - [constant] result (L49)
-  - [variable] decision (L56)
-  - [variable] reason (L56)
+  - [constant] WRITE_TOOLS (L20)
+  - [function] run (L31)
+  - [constant] hook (L32)
+  - [constant] name (L32)
+  - [constant] output (L35)
+  - [constant] controller (L50)
+  - [constant] event (L52)
+  - [constant] result (L60)
+  - [variable] decision (L67)
+  - [variable] reason (L67)
 
 ## home/modules/programs/opencode.nix
-  - [definition] settings (L153)
-  - [definition] provider (L157)
-  - [definition] permission (L168)
-  - [definition] task (L169)
-  - [definition] cli (L177)
+  - [definition] settings (L157)
+  - [definition] provider (L161)
+  - [definition] permission (L172)
+  - [definition] task (L173)
+  - [definition] cli (L181)
 
 ## home/modules/programs/pi-coding-agent.nix
-  - [definition] droppedDisciplineRules (L13)
-  - [definition] options (L66)
-  - [definition] sections (L71)
-  - [definition] component (L81)
-  - [definition] component (L91)
-  - [definition] component (L105)
-  - [definition] component (L117)
-  - [definition] component (L128)
-  - [definition] component (L140)
-  - [definition] component (L148)
-  - [definition] component (L158)
-  - [config] ai.hooks.pre-tool.harnesses (L196)
-  - [config] ai.hooks.session-start.harnesses (L217)
-  - [definition] value (L259)
-  - [definition] value (L270)
-  - [definition] opencode (L273)
-  - [definition] opencode-go (L277)
-  - [definition] value (L289)
-  - [definition] search (L292)
-  - [definition] fetch (L295)
-  - [definition] settings (L329)
+  - [definition] droppedDisciplineRules (L17)
+  - [definition] options (L70)
+  - [definition] sections (L75)
+  - [definition] component (L85)
+  - [definition] component (L95)
+  - [definition] component (L109)
+  - [definition] component (L121)
+  - [definition] component (L132)
+  - [definition] component (L144)
+  - [definition] component (L152)
+  - [definition] component (L162)
+  - [config] ai.hooks.pre-tool.harnesses (L200)
+  - [config] ai.hooks.session-start.harnesses (L220)
+  - [definition] value (L258)
+  - [definition] value (L269)
+  - [definition] opencode (L272)
+  - [definition] opencode-go (L276)
+  - [definition] value (L288)
+  - [definition] search (L291)
+  - [definition] fetch (L294)
+  - [definition] settings (L328)
 
 ## home/modules/programs/thunderbird-accounts.nix
   - [definition] gpg (L18)
@@ -1327,22 +1659,30 @@
   - [definition] scale (L22)
   - [definition] bitdepth (L27)
   - [definition] cm (L32)
-  - [option] desktop (L41)
-  - [definition] touch (L42)
-  - [definition] hdr (L43)
-  - [definition] primaryOutput (L45)
-  - [definition] primaryScale (L51)
-  - [definition] monitors (L57)
-  - [definition] fonts (L70)
-  - [definition] monospace (L71)
-  - [definition] sansSerif (L76)
-  - [definition] serif (L81)
-  - [definition] emoji (L86)
-  - [definition] sizes (L91)
-  - [definition] applications (L92)
-  - [definition] desktop (L97)
-  - [definition] popups (L102)
-  - [definition] terminal (L107)
+  - [definition] vrr (L37)
+  - [definition] transform (L42)
+  - [definition] disabled (L47)
+  - [definition] icc (L52)
+  - [definition] supports_hdr (L57)
+  - [definition] supports_wide_color (L62)
+  - [definition] sdrbrightness (L67)
+  - [definition] sdrsaturation (L72)
+  - [option] desktop (L81)
+  - [definition] touch (L82)
+  - [definition] hdr (L83)
+  - [definition] primaryOutput (L85)
+  - [definition] primaryScale (L91)
+  - [definition] monitors (L97)
+  - [definition] fonts (L110)
+  - [definition] monospace (L111)
+  - [definition] sansSerif (L116)
+  - [definition] serif (L121)
+  - [definition] emoji (L126)
+  - [definition] sizes (L131)
+  - [definition] applications (L132)
+  - [definition] desktop (L137)
+  - [definition] popups (L142)
+  - [definition] terminal (L147)
 
 ## modules/options/unfree.nix
   - [option] unfreePackages (L7)
@@ -1405,40 +1745,43 @@
   - [function] shorten_path (L109)
 
 ## pkgs/artifacts-helper.py
-  - [function] normalize_id (raw: str) (L19)
-  - [class] Node (L34)
-  - [variable] parent_ids (L41)
-  - [variable] blocked_by (L42)
-  - [variable] verify_cmd (L43)
-  - [variable] details (L44)
-  - [variable] file_path (L45)
-  - [variable] line_number (L46)
-  - [variable] parents (L49)
-  - [variable] children (L50)
-  - [member] is_leaf (self) (L52)
-  - [member] is_tree_completed (self) (L55)
-  - [class] ArtifactsRepository (L69)
-  - [member] __init__ (self, artifacts_dir: Optional[Path] = None) (L70)
-  - [member] parse_file (self, file_name: str, kind: str) (L95)
-  - [member] parse_all (self) (L168)
-  - [member] print_block (self, node: Node, show_location: bool = False) (L213)
-  - [member] cmd_status (self) (L221)
-  - [member] cmd_unconverted_reqs (self) (L238)
-  - [member] cmd_unconverted_decs (self) (L246)
-  - [member] cmd_unconverted_specs (self) (L254)
-  - [member] cmd_next_tasks (self) (L262)
-  - [member] cmd_next_id (self, kind_arg: str) (L278)
-  - [member] cmd_context (self, task_id_raw: str) (L306)
-  - [member] cmd_tree (self, target_id: Optional[str] = None) (L359)
-  - [function] print_ancestor (n: Node, indent: str = "") (L375)
-  - [member] _render_subtree (self, node: Node, prefix: str, is_last: bool) (L404)
-  - [member] cmd_trace (self, target_id: str) (L436)
-  - [member] cmd_sync (self) (L460)
-  - [member] cmd_verify_links (self) (L511)
-  - [member] reformat_file (self, path: Path) (L566)
-  - [member] cmd_reformat (self, targets: List[str]) (L604)
-  - [function] print_usage () (L628)
-  - [function] main () (L636)
+  - [function] normalize_id (raw: str) (L20)
+  - [class] Node (L35)
+  - [variable] parent_ids (L42)
+  - [variable] blocked_by (L43)
+  - [variable] verify_cmd (L44)
+  - [variable] details (L45)
+  - [variable] file_path (L46)
+  - [variable] line_number (L47)
+  - [variable] parents (L50)
+  - [variable] children (L51)
+  - [member] is_leaf (self) (L53)
+  - [member] is_tree_completed (self) (L56)
+  - [class] ArtifactsRepository (L70)
+  - [member] __init__ (self, artifacts_dir: Optional[Path] = None) (L71)
+  - [member] parse_file (self, file_name: str, kind: str) (L97)
+  - [member] parse_all (self) (L188)
+  - [member] print_block (self, node: Node, show_location: bool = False) (L233)
+  - [member] cmd_status (self) (L241)
+  - [member] cmd_unconverted_reqs (self) (L258)
+  - [member] cmd_unconverted_decs (self) (L266)
+  - [member] cmd_unconverted_specs (self) (L274)
+  - [member] cmd_frontier (self) (L282)
+  - [member] next_id (self, kind_arg: str) (L298)
+  - [member] cmd_next_task (self) (L326)
+  - [member] cmd_next_id (self, kind_arg: str) (L384)
+  - [member] cmd_decide ( self, req_raw: str, title: str, alternatives: str, consequences: str, verify: str, ) (L387)
+  - [member] cmd_tree (self, target_id: Optional[str] = None) (L421)
+  - [function] print_ancestor (n: Node, indent: str = "") (L437)
+  - [member] _render_subtree (self, node: Node, prefix: str, is_last: bool) (L466)
+  - [member] cmd_trace (self, target_id: str) (L498)
+  - [member] cmd_sync (self) (L522)
+  - [member] cmd_verify_links (self) (L573)
+  - [function] visit (node_id: str, stack: List[str]) (L656)
+  - [member] reformat_file (self, path: Path) (L683)
+  - [member] cmd_reformat (self, targets: List[str]) (L721)
+  - [function] print_usage () (L745)
+  - [function] main () (L753)
 
 ## pkgs/bibata-hyprcursor.nix
   - [definition] meta (L32)
@@ -1470,6 +1813,8 @@
   - [definition] appearance (L30)
   - [definition] cursor (L34)
   - [definition] output (L42)
+  - [definition] session (L46)
+  - [definition] idle (L50)
 
 ## roles/desktop/system/services.nix
   - [definition] services (L4)
@@ -1485,3 +1830,96 @@
 
 ## roles/server/system/vaultwarden.nix
   - [definition] config (L16)
+
+## skills/author-harness/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L9)
+
+## skills/author-harness/references/examples.md
+  - [chapter] Renderer-Author Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## skills/author-harness/references/matrices.md
+  - [chapter] Renderer Author Matrices & Surface References (L1)
+  - [section] Harness Surface Mapping (L3)
+  - [section] Built-In Prompt Overlap Table (L38)
+  - [section] Capability & Rules Matrix (L65)
+  - [section] Model & Effort Matrix (L77)
+  - [section] Hooks Surface Mapping (L124)
+  - [section] Skills Surface Mapping (L157)
+  - [section] Skill Authoring Standard & Anatomy (L184)
+
+## skills/author-skill/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L11)
+
+## skills/author-skill/references/examples.md
+  - [chapter] Author-Skill Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L9)
+
+## skills/author-skill/references/style.md
+  - [chapter] Skill Style (L1)
+
+## skills/corpus-audit/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L10)
+
+## skills/corpus-audit/references/examples.md
+  - [chapter] Corpus-Audit Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L8)
+
+## skills/corpus-audit/references/ingestion.md
+  - [chapter] Corpus Ingestion Points (L1)
+
+## skills/nix-flake-eval/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L13)
+
+## skills/nix-flake-eval/references/examples.md
+  - [chapter] Nix-Flake-Eval Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## skills/overlap-check/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L8)
+
+## skills/overlap-check/references/examples.md
+  - [chapter] Overlap-Check Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## skills/profile-author/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L8)
+
+## skills/profile-author/references/examples.md
+  - [chapter] Profile-Author Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## skills/selfhosted-service/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L9)
+
+## skills/selfhosted-service/references/examples.md
+  - [chapter] Selfhosted-Service Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
+## skills/session-audit/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L13)
+
+## skills/upstream-recon/SKILL.md
+  - [section] Workflow (L1)
+  - [section] Rules (L8)
+
+## skills/upstream-recon/references/examples.md
+  - [chapter] Upstream-Recon Examples (L1)
+  - [section] Bad (L3)
+  - [section] Good (L7)
+
