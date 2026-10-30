@@ -41,6 +41,8 @@
     hm-gc = ''hm expire-generations "-3 days"'';
   };
 
+  home.sessionVariables.PAGER = "less -FRX";
+
   programs.zsh = {
     dotDir = "${config.xdg.configHome}/zsh/";
     enable = true;
@@ -69,15 +71,22 @@
       size = 10000;
     };
 
+    sessionVariables = {
+      LS_COLORS = "di=01;34:ln=01;36:ex=01;32";
+    };
+
     fastSyntaxHighlighting.enable = true;
-    autosuggestion.enable = true;
+    autosuggestion = {
+      enable = true;
+      highlight = "fg=#8a8a8a";
+    };
 
     shellGlobalAliases = {
       NE = "2> /dev/null";
       DN = "> /dev/null";
       NUL = "> /dev/null 2>&1";
       JQ = "| jq";
-      F = "| $FUZZY"; # TODO install fzf
+      F = "| fzf";
       L = "| $PAGER";
       D = "| delta"; # TODO install delta
       C = "| bat";
@@ -129,7 +138,9 @@
       # Common settings
       zstyle ':completion:*' group-name ""
       zstyle ':completion:*' verbose yes
-      zstyle ':completion:*' completer _complete _match _history
+      zstyle ':completion:*' menu no
+      zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+      zstyle ':completion:*' completer _complete _ignored _match
       zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS} # Enable list colors
       zstyle ':completion:*' list-prompt '%S%M matches %s'
 
@@ -173,14 +184,7 @@
       zstyle ':completion:*:manuals' separate-sections true
       zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
-      export FZF_TMUX=1
-      export FZF_TMUX_OPTS="-w 75% -h 40% -x W -y W"
-      export FZF_DEFAULT_OPTS="--tmux=bottom,40% --layout=reverse --border=rounded --prompt='❯ ' --marker='❯' --pointer='❯'"
-      export FZF_CTRL_R_OPTS="--border-label=' History ' --border-label-pos=0 --prompt=' History ❯ '"
-      export FZF_CTRL_T_OPTS="--border-label=' Files ' --border-label-pos=0 --prompt=' Files ❯ ' --preview='if [ -d {} ]; then ${pkgs.eza}/bin/eza --tree --level=2 --color=always {}; else ${pkgs.bat}/bin/bat --color=always --style=numbers --line-range=:300 {}; fi' --preview-window='right:55%,border-rounded'"
-      export FZF_ALT_C_OPTS="--border-label=' Directories ' --border-label-pos=0 --prompt=' Directories ❯ ' --preview='${pkgs.eza}/bin/eza --tree --level=2 --color=always {}' --preview-window='right:50%,border-rounded'"
-
-      zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+      zstyle ':fzf-tab:*' fzf-command ${pkgs.zsh-fzf-tab}/share/fzf-tab/lib/ftb-tmux-popup
       zstyle ':fzf-tab:*' popup-min-size 60 12
       zstyle ':fzf-tab:*' popup-pad 0 0
       zstyle ':fzf-tab:*' fzf-flags \
@@ -211,8 +215,6 @@
         zvm_bindkey vicmd '^R' fzf-history-widget
         zvm_bindkey vicmd '^F' fzf-file-widget
         zvm_bindkey vicmd '^O' fzf-cd-widget
-        zvm_bindkey vicmd 'k' up-line-or-history
-        zvm_bindkey vicmd 'j' down-line-or-history
         bindkey -M viins '^[?' run-help
         bindkey -M viins -r '^D'
         bindkey -M viins -r '^K'
@@ -265,8 +267,6 @@
       bindkey -M vicmd -r "^Q"
 
       # Normal mode history navigation (clean up/down without popup takeovers)
-      bindkey -M vicmd 'k' up-line-or-history
-      bindkey -M vicmd 'j' down-line-or-history
       bindkey -M vicmd '^R' fzf-history-widget
       bindkey -M vicmd '^F' fzf-file-widget
       bindkey -M vicmd '^O' fzf-cd-widget
@@ -291,9 +291,6 @@
           fi
         fi
       }
-
-      # Eager load if vault is already unlocked at shell startup
-      _load_ai_keys
 
       # Dynamic load: before running any AI harness, check and export keys if unlocked
       _ensure_ai_keys_preexec() {
@@ -342,7 +339,13 @@
       bindkey -M viins '\ec' undefined-key
       bindkey -M vicmd '\ec' undefined-key
 
-      (( ''${+commands[fastfetch]} )) && fastfetch
+      if [[ -o login && -z "$TMUX" ]] && (( ''${+commands[fastfetch]} )); then
+        fastfetch
+      fi
+
+      # Set terminal window title to current directory
+      set_win_title() { print -Pn "\\e]2;%~\\a" }
+      precmd_functions+=(set_win_title)
     '';
   };
 }
