@@ -69,6 +69,13 @@
   ];
 
   home.packages = with pkgs; [
+    gh
+    sops
+    age
+    yq-go
+    nix-index
+    comma
+    restic
     harlequin
     tdf
   ];

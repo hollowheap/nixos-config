@@ -3,7 +3,10 @@
   programs.btop = {
     enable = true;
     package = pkgs.btop-cuda;
-    settings.color_theme = "wallust";
+    settings = {
+      color_theme = "wallust";
+      vim_keys = true;
+    };
   };
 
   programs.wallust.settings = {

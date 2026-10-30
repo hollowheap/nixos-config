@@ -9,6 +9,7 @@
           command = "delta --paging=never";
         }
       ];
+      os.editPreset = "nvim";
     };
   };
 

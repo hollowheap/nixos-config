@@ -1,11 +1,14 @@
 { ... }:
-
 {
   programs.ssh = {
     enable = true;
-    extraConfig = ''
-      Host *
-        IdentityAgent "/run/user/%i/rbw/ssh-agent-socket"
-    '';
+    enableDefaultConfig = false;
+    matchBlocks."*" = {
+      serverAliveInterval = 60;
+      controlMaster = "auto";
+      controlPath = "~/.ssh/control-%C";
+      controlPersist = "10m";
+      hashKnownHosts = true;
+    };
   };
 }
