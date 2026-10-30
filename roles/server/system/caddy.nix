@@ -26,7 +26,7 @@ in
     environmentFile = config.sops.templates."caddy_env".path;
     enableReload = false;
     globalConfig = "admin off\ngrace_period 10s";
-    email = "admin@example.com";
+    email = "admin@${domains.base}";
     virtualHosts."${domains.base}" = {
       extraConfig = ''
         tls {

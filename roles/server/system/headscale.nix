@@ -4,10 +4,12 @@ let
   domains = import ./domains.nix;
 in
 {
-  networking.hosts = {
-    "127.0.0.1" = [
-      domains.headscale
-    ];
+  networking = {
+    hosts = {
+      "127.0.0.1" = [
+        domains.headscale
+      ];
+    };
   };
 
   services.headscale = {
