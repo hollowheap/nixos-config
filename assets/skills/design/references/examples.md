@@ -20,12 +20,10 @@
   - Resolution: D01
 ```
 
+### Module Seams
+
 - [x] D01 [R01]: Reuse the desktop tray option.
-  - Category: module
   - Context: Background sync needs a hidden window; the desktop already owns tray state.
   - Alternatives: custom window flag, daemon process.
   - Consequences: inherits the desktop tray toggle and its lifecycle.
-  - Arch: Module Seams
   - Resolves: Q01
-  - Supersedes: none
-  - Verify: close the window and check the tray icon remains.

@@ -23,10 +23,8 @@ pkgs.runCommand "check-artifacts" {
   EOF
 
   cat > "$tmp/artifacts/decisions.md" <<'EOF'
-  ### Module
+  ### Module Seams
   - [x] D01 [R01]: accepted decision
-    - Arch: Module Seams
-    - Verify: true
   EOF
 
   cat > "$tmp/artifacts/specs.md" <<'EOF'
@@ -42,6 +40,14 @@ pkgs.runCommand "check-artifacts" {
 
   ARTIFACTS_DIR="$tmp/artifacts" python3 ${src}/pkgs/artifacts-helper.py verify-links > "$tmp/valid.out" 2>&1
   grep -qx "OK" "$tmp/valid.out"
+
+  sed -i 's|### Module Seams|### architecture.md#module-seams|' "$tmp/artifacts/decisions.md"
+  if ARTIFACTS_DIR="$tmp/artifacts" python3 ${src}/pkgs/artifacts-helper.py verify-links > "$tmp/decision-path.out" 2>&1; then
+    echo "expected a decision H3 path to fail" >&2
+    exit 1
+  fi
+  grep -q "must name an architecture section" "$tmp/decision-path.out"
+  sed -i 's|### architecture.md#module-seams|### Module Seams|' "$tmp/artifacts/decisions.md"
 
   sed -i 's|#### Module Seams|#### architecture.md#module-seams|' "$tmp/artifacts/specs.md"
   if ARTIFACTS_DIR="$tmp/artifacts" python3 ${src}/pkgs/artifacts-helper.py verify-links > "$tmp/path.out" 2>&1; then

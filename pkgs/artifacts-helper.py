@@ -193,7 +193,7 @@ class ArtifactsRepository:
                     blocked_by=blocked_by,
                     verify_cmd=verify_cmd,
                     section=section,
-                    arch_section=arch_heading if kind == "SPEC" else None,
+                    arch_section=arch_heading if kind == "SPEC" else (section if kind == "DEC" else None),
                     file_path=path,
                     line_number=idx,
                 )
@@ -657,7 +657,7 @@ class ArtifactsRepository:
         missing_arch_decs = [d for d in self.decs if not d.arch_section]
         if missing_arch_decs:
             print(
-                f"Missing Arch: {len(missing_arch_decs)} decisions must name an architecture section or none",
+                f"Missing Arch: {len(missing_arch_decs)} decisions must be grouped under an architecture H2 heading",
                 file=sys.stderr,
             )
             errors += len(missing_arch_decs)
