@@ -258,16 +258,15 @@
     "nix-bun": {
       "inputs": {
         "nixpkgs": [
-          "omp",
-          "nixpkgs"
+          "nixpkgs-unstable"
         ]
       },
       "locked": {
-        "lastModified": 1792664215,
-        "narHash": "sha256-89U++Pnz9kb8a5Vdx8xAq9z3V172S7A9Surz8mgjGrM=",
+        "lastModified": 1793527794,
+        "narHash": "sha256-ZCz0zE+Lgb3hBn+u3n39Txegdw3jI/SVkQjR+TjClh4=",
         "owner": "ryoppippi",
         "repo": "nix-bun",
-        "rev": "0db08e3d1db83272822209ab82f34b399080494e",
+        "rev": "4170f2a531122ac75aa45d823bd69e6e9a77563f",
         "type": "github"
       },
       "original": {
@@ -508,7 +507,9 @@
         "bun2nix": "bun2nix",
         "bun2nix-darwin-x64": "bun2nix-darwin-x64",
         "crane": "crane",
-        "nix-bun": "nix-bun",
+        "nix-bun": [
+          "nix-bun"
+        ],
         "nixpkgs": [
           "nixpkgs-unstable"
         ],
@@ -535,6 +536,7 @@
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "minecraft-plymouth-theme": "minecraft-plymouth-theme",
+        "nix-bun": "nix-bun",
         "nix-on-droid": "nix-on-droid",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",

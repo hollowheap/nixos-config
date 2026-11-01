@@ -46,9 +46,15 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    nix-bun = {
+      url = "github:ryoppippi/nix-bun";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     omp = {
       url = "github:can1357/oh-my-pi";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nix-bun.follows = "nix-bun";
     };
   };
 
