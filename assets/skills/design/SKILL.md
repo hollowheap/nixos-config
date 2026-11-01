@@ -1,17 +1,19 @@
 ## Workflow
 
-1. Run `scripts/artifacts.sh status`; if uninitialized, stop.
-2. Read `artifacts/brainstorm.md` if present; carry Destination, Recommendation, `Qxx` questions, and Out of scope as a frontier, not a fixed questionnaire. Ask what and why; scout repo facts. Do not run audits here.
-3. Grill adaptively: treat `Qxx` as an unordered frontier. Ask the next most informative question, add a `Qxx` when a new unknown appears, and resolve or defer after each answer. Cover data shape, boundary, failure modes, verification, and the smallest change. Delegate facts; decisions are the user's.
-4. Record requirements in `artifacts/requirements.md` as observable outcomes with acceptance.
-5. Record decisions in `artifacts/decisions.md` referencing parent `[Rxx]`, using `references/decision.md`.
-6. Leave unresolved questions under `## Open Questions` in `artifacts/requirements.md` with stable `Qxx` IDs.
+1. Run `scripts/artifacts.sh status`; read `artifacts/requirements.md`, `artifacts/questions.md`, `artifacts/architecture.md`, and `artifacts/brainstorm.md` when present.
+2. Convert observable outcomes into requirements using `references/requirements.md`, grouped by vertical-slice H3 headings; reject any requirement that names a framework, module, file, or API.
+3. Grill adaptively with the question tool; register candidate unknowns in `artifacts/questions.md` under an H3 source heading with `references/questions.md`; never create a local question list.
+4. Record accepted decisions with `references/decision.md`, grouped under the H3 architecture category, and cite `Resolves: Qxx` when a decision closes a question.
+5. Update `artifacts/architecture.md` with `references/architecture.md` for accepted design changes; link the decision and keep the current-state view current.
+6. Hand the requirements and design gates to `{{skill:review}}`; require the sections in `artifacts/review/<slice>.md` before specifying.
+7. Close resolved questions with `Resolution: Dxx`; leave unresolved choices open. Stop at accepted design and architecture.
 
 ## Rules
 
-- Any behavior-changing decision made in chat becomes a Dxx before the next action. If it has no parent Rxx, stop and ask for the requirement.
-- Sxx derives from Rxx and Dxx; Txx derives from Sxx. Design stops at D.
-- Record a Dxx when the choice is hard to reverse, surprising without context, or trades off real alternatives. Routine choices belong in Sxx or implementation.
-- Requirements describe observable outcomes and acceptance, never file paths or internal functions.
-- Never dump the `Qxx` list as a batch; IDs preserve traceability, not question order.
-- Verify: `artifacts/requirements.md` has open `- [ ] Rxx` items and `artifacts/decisions.md` has `- [ ] Dxx [Rxx]` items.
+- Requirements describe observable outcomes, acceptance, constraints, and non-goals; never implementation choices.
+- Decisions are accepted only. Unresolved choices remain `Qxx`; an accepted decision may stay `[ ]` until its child specs complete.
+- Design covers system shape, module seams, framework and library choices, data contracts, and operations.
+- A question's H3 heading owns its source; do not repeat `Origin`, `Lens`, or `Slice` per item.
+- Any behavior-changing decision made in chat becomes an accepted `Dxx` before the next action. If it has no parent `Rxx`, stop and ask for the requirement.
+- `Sxx` derives from accepted `Rxx`, `Dxx`, and architecture; `Txx` derives from `Sxx`.
+- Verify: requirements contain no design choices, questions are grouped by source, no orphaned open decisions exist, architecture is current, and the design review section is accepted.

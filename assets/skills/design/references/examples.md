@@ -1,18 +1,31 @@
 # Design Examples
 
 ## Bad
-- Decision without parent requirement: `- [ ] D01: Use options.tray`
-- Restating requirement text inside the decision body.
+- Requirement states a design choice: `- [ ] R01: Add a custom hide flag.`
+- Open decision recorded as `- [ ] D01` instead of an open question.
+- Question repeats its source on every item: `Origin: design`.
 
 ## Good
-- [ ] R01: Closing app keeps it running in system tray.
-  - Verify: close window then check tray icon
-  - Acceptance: Background sync continues without a visible window.
-  - Persistent background operation is required for instant notifications.
+- [ ] R01: Closing the app keeps background sync running while the window is hidden.
+  - Verify: close the window and check the tray process remains active.
+  - Acceptance: Sync continues without a visible window.
+  - Constraints: none.
+  - Non-goals: start at login.
 
-- Q01: Should the tray behavior use the desktop option or a custom window flag?
-- [ ] D01 [R01]: Wire options.tray rather than adding a custom hide flag.
-  - Alternatives: custom window state flag, daemon process
-  - Consequences: inherits existing desktop tray toggle behavior
+```markdown
+### Design — tray behavior
+- [x] Q01: Should tray behavior use the desktop option or a custom window flag?
+  - Scope: feature: tray behavior
+  - Blocks: D01
+  - Resolution: D01
+```
+
+- [x] D01 [R01]: Reuse the desktop tray option.
+  - Category: module
+  - Context: Background sync needs a hidden window; the desktop already owns tray state.
+  - Alternatives: custom window flag, daemon process.
+  - Consequences: inherits the desktop tray toggle and its lifecycle.
+  - Arch: Module Seams
   - Resolves: Q01
-  - Framework option already supports tray minimization.
+  - Supersedes: none
+  - Verify: close the window and check the tray icon remains.

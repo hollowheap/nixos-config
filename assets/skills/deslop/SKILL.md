@@ -9,7 +9,7 @@
 
 ## Rules
 
-- Run only on explicit request; never auto-invoke.
+- Run only on explicit request; never auto-invoke. Review detects simplicity/overengineering; deslop is explicit remediation.
 - Never remove validation, authorization, error handling, observability, accessibility, or safety checks.
 - Preserve behavior; no new helpers, ports, or configuration.
 - One seam at a time; stop on a red test.

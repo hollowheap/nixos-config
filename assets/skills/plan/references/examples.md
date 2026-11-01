@@ -2,10 +2,12 @@
 
 ## Bad
 - Bypassing specs with direct decision conversion: `- [ ] T01 [D01]: ...`
-- Unordered tasks with circular dependencies or missing verification command.
-- Writing `blocked-by: none` on every linear task.
+- Adding requirements, design notes, or review checklists to a task.
+- Unordered tasks with circular dependencies or missing verification commands.
 
 ## Good
+### Tray behavior
+
 - [ ] T01 [S01]: Add tray default option to desktop module
   - Verify: `nix eval .#homeConfigurations.hollowheap.config.desktop.tray`
   - Files: `home/modules/environment/desktop.nix`

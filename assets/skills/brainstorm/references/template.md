@@ -22,8 +22,7 @@ Primary sources and the `artifacts/research/<topic>.md` notes.
 Which archetype fits repository conventions and why.
 
 ## Open Questions
-- Q01: <unknown that still needs an answer>
-- Q02: <another unknown>
+See `artifacts/questions.md#brainstorm-<topic>`. Do not duplicate question entries here.
 
 ## Out of scope
 Explicit exclusions.

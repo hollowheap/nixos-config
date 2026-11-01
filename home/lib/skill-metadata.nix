@@ -12,7 +12,7 @@
     agents = [ "architect" "engineer" ];
   };
   "brainstorm" = {
-    description = "Explore architectural archetypes and seams before decisions.";
+    description = "Explore archetypes and candidate questions.";
     agents = [ "architect" "engineer" ];
   };
   "corpus-audit" = {
@@ -20,7 +20,7 @@
     agents = [ "architect" "engineer" ];
   };
   "design" = {
-    description = "Shape requirements and settle decisions through interview.";
+    description = "Define outcomes, decisions, and architecture.";
     agents = [ "architect" "engineer" ];
   };
   "deslop" = {
@@ -32,11 +32,11 @@
     agents = [ "engineer" "worker" ];
   };
   "implement" = {
-    description = "Implement the next unblocked vertical task.";
+    description = "Implement the next task test-first.";
     agents = [ "engineer" "worker" ];
   };
   "init" = {
-    description = "Bootstrap repo architecture in `AGENTS.md` and `artifacts/context.md`.";
+    description = "Bootstrap AGENTS, context, and architecture.";
     agents = [ "architect" "engineer" ];
   };
   "merge-worktree" = {
@@ -56,7 +56,7 @@
     agents = [ "architect" "engineer" ];
   };
   "plan" = {
-    description = "Turn specs into vertical tasks.";
+    description = "Turn specs into atomic verified tasks.";
     agents = [ "architect" "engineer" ];
   };
   "profile-author" = {
@@ -68,8 +68,8 @@
     agents = [ "architect" "engineer" ];
   };
   "review" = {
-    description = "Review diffs, slices, robustness, UI, and backend changes.";
-    agents = [ "engineer" "worker" ];
+    description = "Review diffs, slices, and robustness.";
+    agents = [ "architect" "engineer" "worker" ];
   };
   "selfhosted-service" = {
     description = "Deploy a host daemon behind Caddy.";
@@ -80,11 +80,11 @@
     agents = [ "architect" "engineer" ];
   };
   "specify" = {
-    description = "Turn requirements and decisions into public specs.";
+    description = "Turn accepted design into verified specs.";
     agents = [ "architect" ];
   };
   "update" = {
-    description = "Reconcile RDST artifacts with codebase reality.";
+    description = "Reconcile RDST artifacts with code and architecture.";
     agents = [ "architect" "engineer" ];
   };
   "upstream-recon" = {
