@@ -1,4 +1,7 @@
 # Hardware, power & storage robustness review
+Review-ID: V07
+Mode: robustness
+Scope: hardware/power/storage
 
 ## Verdict
 - Biggest risk: global firmware enablement lives in the Bluetooth trait, so `acervus` imports Wi-Fi/GPU but never gets `linux-firmware`, `sof-firmware`, or `wireless-regdb`.

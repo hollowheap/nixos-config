@@ -2,7 +2,7 @@
 
 Active tasks, completed history, and verification commands. Requirements live in `artifacts/requirements.md`; decisions in `artifacts/decisions.md`; invariants in `artifacts/specs.md`.
 
-## Completed — Restored historical range
+### Completed — Restored historical range
 
 - [x] T48 [S35] (blocked-by: none): Extract shared module discovery to `lib/default.nix`
   - Verify: grep -q "mkModuleLoader" modules/default.nix
@@ -172,7 +172,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: current equivalent is part of the S01 contract.
   - Risk: stale option or path.
 
-## Completed — Current implementation
+### Completed — Current implementation
 
 - [x] T01 [S01] (blocked-by: none): Merge Home Manager into `home/` and expose NixOS and standalone outputs
   - Verify: nix eval .#homeConfigurations.hollowheap.activationPackage.drvPath >/dev/null && nix eval .#nixosConfigurations.lacuna.config.system.build.toplevel.drvPath >/dev/null
@@ -432,7 +432,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: AI agents/skills content and nvim/nvf remain separate slices.
   - Risk: HM opencode option drift, wallust template path.
 
-## Open
+### Open
 
 - [ ] T22 [S22] (blocked-by: T10): Add DuckDNS DNS-01 for publicly trusted Caddy certificates
   - Verify: grep -q "dns duckdns" roles/server/system/default.nix
@@ -502,7 +502,7 @@ Active tasks, completed history, and verification commands. Requirements live in
 
 - [x] T83 [S52] (blocked-by: none): Declarative dynamic Bitwarden/rbw key delivery for AI harnesses
   - Verify: home-manager switch --flake .#hollowheap
-  - Files: `home/modules/shell/zsh.nix`, `home/modules/programs/opencode.nix`, `home/modules/programs/pi-coding-agent.nix`, `pkgs/ai-hooks.nix`.
+  - Files: `home/modules/terminal/zsh.nix`, `home/modules/programs/opencode.nix`, `home/modules/programs/pi-coding-agent.nix`, `home/modules/ai/hooks.nix`.
   - Notes: Zsh automatically exports `OPENCODE_API_KEY` on shell startup and dynamically in a `preexec` hook before AI harness commands; OpenCode config explicitly searches for `OPENCODE_API_KEY`; Pi natively resolves keys using dynamic `!rbw get` execution via declarative `auth.json`; `ai-hooks.nix` guards session-start against non-git scans with a 5s timeout.
   - Risk: locked vault at invocation, clobbered auth files on activation.
 
@@ -526,8 +526,8 @@ Active tasks, completed history, and verification commands. Requirements live in
 
 - [x] T87 [S56] (blocked-by: none): Author OMP harness module and wire flake inputs and ai.* abstractions
   - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
-  - Files: `flake.nix`, `flake/default.nix`, `home/modules/programs/omp.nix`, `home/modules/ai/options.nix`, `pkgs/ai-hooks.nix`.
-  - Notes: Add `inputs.omp` pointing to `github:can1357/oh-my-pi`; import `inputs.omp.homeManagerModules.default` in `flake/default.nix`; create `home/modules/programs/omp.nix` deploying skills, agents, disciplines, rules, and hooks into `~/.omp/agent/`; update `pkgs/ai-hooks.nix` and `home/modules/ai/options.nix`.
+  - Files: `flake.nix`, `flake/default.nix`, `home/modules/programs/omp.nix`, `home/modules/ai/options.nix`, `home/modules/ai/hooks.nix`.
+  - Notes: Add `inputs.omp` pointing to `github:can1357/oh-my-pi`; import `inputs.omp.homeManagerModules.default` in `flake/default.nix`; create `home/modules/programs/omp.nix` deploying skills, agents, disciplines, rules, and hooks into `~/.omp/agent/`; update `home/modules/ai/hooks.nix` and `home/modules/ai/options.nix`.
   - Risk: flake lock resolution time, bun/rust dependency mismatches.
 
 - [x] T88 [S57] (blocked-by: none): Configure Pi settings to exclude tool-search, mcp, and llama.cpp built-ins
@@ -537,9 +537,9 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Risk: none.
 
 - [x] T89 [S58] (blocked-by: none): Wire Noctalia wallpaper hook directly to Wallust and icon/GTK accent dispatchers
-  - Verify: nix eval .#homeConfigurations.hollowheap.config.programs.noctalia.settings.hooks.wallpaper_changed | grep -q "mactahoe-icon-accent" && nix build .#checks.x86_64-linux.home
-  - Files: `home/modules/programs/noctalia.nix`, `home/modules/programs/wallust.nix`, `home/modules/programs/hyprland/hyprland.nix`, `assets/wallust-templates/hypr-colors.lua`, `pkgs/mactahoe-icon-accent.py`, `pkgs/mactahoe-icon-accent.nix`.
-  - Notes: Replace Noctalia stub user templates with direct wallpaper_changed hook execution of Wallust, GTK accent, icon accent, and OpenRGB; migrate Hyprland border template to Wallust; update mactahoe-icon-accent to sync dconf, gsettings, and GTK settings.ini.
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.noctalia.settings.theme.templates.builtin_ids | grep -q '"hyprland"' && grep -q wallust "$(nix eval --raw .#homeConfigurations.hollowheap.config.programs.noctalia.settings.hooks.wallpaper_changed)" && nix build .#checks.x86_64-linux.home
+  - Files: `home/modules/programs/noctalia.nix`, `home/modules/programs/wallust.nix`, `home/modules/programs/hyprland/hyprland.nix`, `pkgs/mactahoe-icon-accent.py`, `pkgs/mactahoe-icon-accent.nix`.
+  - Notes: Replace Noctalia stub user templates with direct wallpaper_changed hook execution of Wallust, GTK accent, icon accent, and OpenRGB; use Noctalia builtin `hyprland` template for Hyprland colors; update mactahoe-icon-accent to sync dconf, gsettings, and GTK settings.ini.
   - Risk: none.
 
 - [x] T90 [S59] (blocked-by: none): Integrate diagram.nvim and image.nvim with CLI renderers in Neovim
@@ -560,7 +560,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Define `corpus-audit` skill ingesting multi-session logs across past runs and SQLite logs, auditing workspace blind spots, cognitive traps, and tool waste into `artifacts/audit.md`.
   - Risk: none.
 
-## References
+### References
 - Requirements: [artifacts/requirements.md](file:///home/hollowheap/repos/nixos-config/artifacts/requirements.md)
 - Decisions: [artifacts/decisions.md](file:///home/hollowheap/repos/nixos-config/artifacts/decisions.md)
 - Specifications: [artifacts/specs.md](file:///home/hollowheap/repos/nixos-config/artifacts/specs.md)

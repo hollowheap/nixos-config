@@ -1,4 +1,7 @@
 # Input & gestures robustness review
+Review-ID: V08
+Mode: robustness
+Scope: input/gestures
 
 ## Verdict
 - Biggest risk: pointer policy is entirely implicit; Hyprland 0.56.2 writes its compiled `natural_scroll=false` to the touchpad at device init, so two-finger scrolling runs opposite the touch-native direction the user expects (`home/modules/programs/hyprland/hyprland.nix:156`).

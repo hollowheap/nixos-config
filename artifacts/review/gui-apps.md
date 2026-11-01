@@ -1,4 +1,7 @@
 # GUI applications robustness review
+Review-ID: V06
+Mode: robustness
+Scope: GUI applications
 
 ## Verdict
 - Biggest risk: the default MIME map routes common files to the wrong tool (`text/plain` to LibreOffice Writer, images to the Satty annotation UI, local audio to the YouTube Music web wrapper) and leaves video unhandled (`home/modules/programs/default-apps.nix:35,49-61`).

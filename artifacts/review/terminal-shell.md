@@ -1,4 +1,7 @@
 # Terminal & shell robustness review
+Review-ID: V10
+Mode: robustness
+Scope: terminal/shell
 
 ## Verdict
 - Biggest risk: `zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup` names a script nixpkgs never puts on `PATH`; fuzzy Tab completion fails. `nix flake check` is also red.

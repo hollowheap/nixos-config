@@ -1,4 +1,7 @@
 # AI harnesses robustness review
+Review-ID: V01
+Mode: robustness
+Scope: AI harnesses
 
 ## Verdict
 - Biggest risk: OpenCode permission blocks put `"*": "deny"` last, but OpenCode resolves the last matching rule; architect, scout, worker, and ask lose edit, bash, and delegation. The known child-session tool stripping is this ordering bug, not missing agent definitions (`home/modules/programs/opencode.nix:71-126`).

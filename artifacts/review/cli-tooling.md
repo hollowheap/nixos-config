@@ -1,4 +1,7 @@
 # CLI tooling robustness review
+Review-ID: V03
+Mode: robustness
+Scope: CLI tooling
 
 ## Verdict
 - Biggest risk: commit/push correctness depends on three partially configured agents (gpg-agent, rbw, none) with no explicit signing key; commits and tag pushes fail after reboot, over SSH, or when the pinned key is not first.

@@ -1,4 +1,7 @@
 # Editor toolchain robustness review
+Review-ID: V05
+Mode: robustness
+Scope: editor toolchain
 
 ## Verdict
 - Biggest risk: `programs.neovim` and `programs.nvf` both install `bin/nvim`; `home.path` is a collision-checking `buildEnv`, so the Home Manager build can abort or shadow the nvf config entirely.

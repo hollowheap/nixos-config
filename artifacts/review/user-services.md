@@ -1,4 +1,7 @@
 # User services & sync robustness review
+Review-ID: V13
+Mode: robustness
+Scope: user services/sync
 
 ## Verdict
 - **Biggest risk:** no backup or restore path exists anywhere in the repo; rclone `sync` mirrors remote deletions to local (`rclone.nix:55`), so a cloud-side wipe or disk loss is unrecoverable.

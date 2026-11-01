@@ -1,4 +1,7 @@
 # Cross-Repo Spec Audit
+Review-ID: V15
+Mode: audit
+Scope: cross-repo specs
 
 Scope: `~/repos/{docmd,lively,md-questioner,my-pi-agent,nixos-config,pico-car}`.
 `home-manager` is migrated and excluded from this audit.

@@ -1,6 +1,6 @@
 # Architecture
 
-Last verified: 2026-10-30.
+Last verified: 2026-11-01.
 Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `hollowheap`, and the `fovea` nix-on-droid output.
 
 ## System Shape
@@ -11,7 +11,9 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - `hardware/` holds driver and capability traits. `boot/` holds kernel, bootloader, TPM, secure-boot, and plymouth integration.
 - Home Manager is standalone: `home/<user>.nix` imports `home/modules` through `import-tree`; domains are `ai`, `cli`, `core`, `environment`, `programs`, `services`, `terminal`, and `styles`.
 - AI harness data flows from `ai.agents`, `ai.skills`, `ai.rules`, `ai.disciplines`, and `ai.hooks` through `home/lib/ai-render.nix` into each harness renderer.
-- RDST artifacts live in `artifacts/`: requirements, decisions, specs, tasks, context, architecture, review evidence, logs, and errors.
+- RDST artifacts live in `artifacts/`: questions, requirements, decisions, specs, tasks, context, architecture, review evidence, logs, and errors.
+- RDST gates live in `artifacts/review/<slice>.md`: requirements, design, specification, plan, code, and acceptance. RDST is the traceability spine; review still runs by diff, slice, or robustness with optional UI/backend lenses.
+- Persistent review registry and skill-authoring notes: `artifacts/reviews.md` maps `Vxx` to review files; `artifacts/notes/` holds reference-framework, review-model, skill-design, skill-inventory, verification, and author-harness matrix notes.
 
 ## Module Seams
 
@@ -37,12 +39,36 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - Skills → Nix-owned metadata and references; skill bodies stay harness-neutral.
 - Artifacts describe implementation; implementation never depends on artifact state at runtime.
 
+## Framework & Library Choices
+
+- Flake composition uses `flake.nix` plus `import-tree`; Home Manager is standalone and NixOS remains separately applied.
+- Desktop composition uses Hyprland, UWSM, Noctalia, and Wallust with shared `desktop.*` options.
+- AI harnesses use Home Manager renderers over one `ai.*` schema; OpenCode, Pi, OMP, Codex, Kiro, Crush, Copilot, Antigravity, and Hermes are adapters, not sources of shared policy.
+- Neovim uses `nvf` with domain modules under `home/modules/programs/nvim`.
+- Skills are Markdown bodies plus Nix-owned metadata; no harness owns a private skill schema.
+
+## Data & Contracts
+
+- `ai.*` is the contract for agents, skills, rules, disciplines, hooks, models, and capabilities; harness files are derived.
+- `desktop.*` and `modules/options/desktop.nix` own monitors, scale, fonts, compositor geometry, and shared input policy.
+- RDST artifacts own traceability only: `Qxx` → accepted `Dxx` → `Sxx` → `Txx`; architecture is the current design view.
+- Secrets are encrypted in `secrets.yaml`; runtime material arrives through sops activation, rbw, GNOME Keyring, and gpg-agent.
+- Caddy terminates internal TLS for loopback Headscale and Vaultwarden; tailscaled trusts its CA.
+
+## Operations & Security
+
+- Home Manager activation and NixOS switch are separate; verify a dry-build or activation build before applying.
+- Internal services bind loopback or mesh addresses; Caddy is the traffic boundary.
+- Commit and tag signing stay enabled; merge commits and signing bypasses are blocked by policy.
+- Backups, certificate expiry, alerting, and recovery are reviewed as operational contracts, not implementation details.
+- Generated `repomap.md`, logs, and errors are evidence; canonical state lives in the RDST artifacts.
+
 ## Known Debt
 
 - `my-pi-agent` specs have 4 stale and 1 false entry, left to that repo.
 - Historical `retro.md` and generated `repomap.md` may mention removed skills; they are historical or generated.
-- `review/references/robust.md` needs explicit diff, slice, and robust lens definitions.
-- `artifacts/architecture.md` is newly established and must be updated only by a full workspace review or a boundary-changing decision.
+- `artifacts-helper` validates Arch sections, IDs, Verify presence, question links, and H3 grouping warnings; review document sections are not yet enforced.
+- `artifacts/architecture.md` is updated by `design`, `update`, or a workspace robustness review; a boundary-changing decision updates the affected view.
 
 ## Evidence
 
@@ -50,4 +76,4 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - `AGENTS.md`: repository conventions and essential commands.
 - `tests/`: flake checks for layout, policy, hardware, home, services, and users.
 - `artifacts/review/`: cross-repo spec audit and code-audit evidence.
-- Last boundary update: skill consolidation, review absorption, tasks index, and Nix-owned skill metadata.
+- Last boundary update: RDST gate sections, canonical questions with H3 sources, accepted-decision design records, and architecture categories.

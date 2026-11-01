@@ -1,4 +1,7 @@
 # Boot, recovery & updates robustness review
+Review-ID: V02
+Mode: robustness
+Scope: boot, recovery, updates
 
 ## Verdict
 - Biggest risk: TPM2 auto-unlock trusts an initrd that Secure Boot never verifies; anyone with ESP write access can replace the initrd and capture the LUKS key while the TPM still unseals.

@@ -1,4 +1,7 @@
 # Compositor & session robustness review
+Review-ID: V04
+Mode: robustness
+Scope: compositor/session
 
 ## Verdict
 - Biggest risk: the greeter is pinned to `eDP-1` and the session default is unpinned; a docked, lid-closed login can show nothing, and a plain-Hyprland session starts with no shell or lock.

@@ -1,4 +1,7 @@
 # Termux / fovea robustness review
+Review-ID: V11
+Mode: robustness
+Scope: Termux/fovea
 
 ## Verdict
 - Biggest risk: `fovea` is a six-package stub with no user configuration and no activation-level check; its first repo commit would be unsigned and fail the repo's own push policy.

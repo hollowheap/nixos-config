@@ -1,4 +1,7 @@
 # System services & network robustness review
+Review-ID: V09
+Mode: robustness
+Scope: system services/network
 
 ## Verdict
 - Biggest risk: Vaultwarden and Headscale state (`/var/lib/{vaultwarden,headscale}`) has no backup of any kind, while the same disk holds the only age-decryptable secrets.

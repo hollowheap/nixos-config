@@ -17,7 +17,7 @@ NixOS flake for `lacuna` and `acervus`, plus a `fovea` nix-on-droid output. The 
 - `profiles/`: chassis policy only.
 - `roles/`: duty composition (`system/`).
 - `hardware/`, `boot/`: drivers, capabilities, and platform integration.
-- `home/`: per-user entrypoints discovered from `home/*.nix`; `home/modules` is loaded with `import-tree`; domains are `{ai,cli,core,environment,programs,services,terminal,styles}`; `home/lib/toolchains.nix` holds editor toolchain maps.
+- `home/`: per-user entrypoints discovered from `home/*.nix`; `home/modules` is loaded with `import-tree`; domains are `{ai,cli,core,environment,programs,services,terminal,styles}`; `home/modules/programs/nvim/lsp.nix` owns editor language and toolchain wiring.
 - `modules/`: NixOS modules scanned recursively; `modules/options/desktop.nix` holds shared desktop fonts, monitors, and scale.
 - `pkgs/`, `assets/`: local packages and theme templates.
 - `tests/`: domain flake checks loaded by `tests/default.nix`.

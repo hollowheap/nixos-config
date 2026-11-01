@@ -1,4 +1,7 @@
 # Theme hooks robustness review
+Review-ID: V12
+Mode: robustness
+Scope: theme hooks
 
 ## Verdict
 - Biggest risk: two independent palette authorities run on every wallpaper change — Wallust `salience` for Hyprland/terminal/Nvim, and Noctalia Material 3 `faithful` for GTK/icons/OpenRGB.

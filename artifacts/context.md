@@ -23,11 +23,13 @@
 - Secrets: `.sops.yaml` creation rules target the `lacuna` age key plus admin PGP; `secrets.yaml` is encrypted.
 - Caddy uses internal TLS for loopback Headscale and Vaultwarden; `tailscaled` trusts the Caddy CA.
 
-## RDST (Requirements, Decisions, Specs, Tasks) Lifecycle
-- Requirements (`artifacts/requirements.md` / `Rxx`): user-observable outcomes and acceptance criteria.
-- Decisions (`artifacts/decisions.md` / `Dxx [Rxx]`): architectural choices referencing parent requirement.
-- Specs (`artifacts/specs.md` / `Sxx [Rxx] [Dxx]` with indented `  - Verify: <cmd>`): public seams, invariants, and verify command.
-- Tasks (`artifacts/tasks.md` / `Txx [Sxx] [Tyy, ...]` with indented `  - Verify: <cmd>`): atomic vertical tasks; omit the blocker bracket when unblocked.
-- Open questions use stable `Qxx` IDs in `artifacts/brainstorm.md` and `artifacts/requirements.md`; design carries them forward.
-- Architecture (`artifacts/architecture.md`): living system shape, ownership, dependency direction, invariants, and debt; only full review/workspace audit or a boundary-changing Dxx updates it. Keep this context under 60 lines.
-- Reconcile: `update` uses `sed -i` to flip `- [ ]` to `- [x]` in-place once verified.
+## RDST Traceability & RDST Gates
+- Traceability spine: Requirements (`Rxx`), Design (`Dxx` + architecture), Specs (`Sxx`), Tasks (`Txx`). RDST is not a phase sequence.
+- Questions (`artifacts/questions.md` / `Qxx`) are canonical and grouped under meaningful H3 source headings; the heading owns origin, lens, slice, and shared scope. Do not repeat source metadata per item.
+- Requirements (`artifacts/requirements.md`): user-observable outcomes, acceptance, constraints, and non-goals only. Design choices belong in `Dxx`.
+- Design (`artifacts/decisions.md` + `artifacts/architecture.md`): accepted decisions only, grouped under H3 architecture categories; unresolved choices stay `Qxx`, while accepted decisions may remain `[ ]` until child specs complete. Decisions carry `Resolves`, `Supersedes`, and an `Arch` section. Architecture covers system, modules, frameworks/libraries, data/contracts, operations/security, debt, and evidence.
+- Specs (`artifacts/specs.md` / `Sxx [Rxx] [Dxx]` with `Verify` and `Arch`): public seams and invariants; they inherit accepted design, never resolve an open question.
+- Tasks (`artifacts/tasks.md` / `Txx [Sxx] [Tyy, ...]`): atomic verified work only; no design/spec/plan breakdown.
+- Review (`artifacts/review/<slice>.md`): one record per slice with Requirements, Design, Specification, Plan, Code, and Acceptance sections. Review still runs by diff, slice, or robustness; UI/backend are optional lenses. A rejected RDST section blocks the next phase.
+- Persistent review registry and skill-authoring notes: `artifacts/reviews.md` maps `Vxx` to review files; `artifacts/notes/` holds reference-framework, review-model, skill-design, skill-inventory, verification, and author-harness matrix notes.
+- Reconcile: `update` refreshes architecture, questions, decisions, specs, tasks, and review gates after verification.

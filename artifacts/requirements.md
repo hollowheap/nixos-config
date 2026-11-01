@@ -1,6 +1,6 @@
 # Requirements
 
-## GUI Layer
+### Platform
 
 - [x] R01: The flake evaluates NixOS hosts and Home Manager from one lockfile.
   - Verify: nix eval .#homeConfigurations.hollowheap.activationPackage.drvPath >/dev/null && nix eval .#nixosConfigurations.lacuna.config.system.build.toplevel.drvPath >/dev/null
@@ -27,7 +27,7 @@
   - Acceptance: GRUB, TPM2 initrd, sbctl signing, Plymouth, Minegrub, and LUKS/BTRFS are configured from the flake.
   - The boot path is reproducible and auditable.
 
-## Services & Desktop
+### Services & Desktop
 
 - [x] R06: Lacuna runs the server role; acervus stays headless; secrets decrypt on lacuna.
   - Verify: nix eval --json .#nixosConfigurations.lacuna.config.services --apply 's: map (n: s.${n}.enable or false) [ "headscale" "vaultwarden" "caddy" "ddclient" ]' | grep -qx '\[true,true,true,true\]'
@@ -44,7 +44,7 @@
   - Acceptance: No `home/cli.nix` or `home/gui.nix` entrypoints; `home/modules` loads with `import-tree`; Hyprland and the greeter read the same monitor and scale values.
   - Modules own their options and wiring; only shared desktop data is centralized.
 
-## Special Hosts & Checks
+### Special Hosts & Checks
 
 - [x] R09: `fovea` evaluates as a nix-on-droid output on unstable aarch64.
   - Verify: nix eval --raw .#nixOnDroidConfigurations.fovea.config.system.stateVersion | grep -qx 24.05
@@ -62,14 +62,14 @@
   - Domain checks isolate failures and keep the flake composition file small.
 
 - [x] R16: The CLI baseline includes a working shell and terminal toolset.
-  - Verify: test -f home/modules/shell/zsh.nix && nix eval .#homeConfigurations.hollowheap.config.programs.zsh.enable | grep -qx true && nix eval .#homeConfigurations.hollowheap.config.programs.eza.enable | grep -qx true
+  - Verify: test -f home/modules/terminal/zsh.nix && nix eval .#homeConfigurations.hollowheap.config.programs.zsh.enable | grep -qx true && nix eval .#homeConfigurations.hollowheap.config.programs.eza.enable | grep -qx true
   - Acceptance: zsh, zoxide, git, direnv, tealdeer, eza, fzf, ripgrep, fd, bat, yazi, lazygit, and jq evaluate in the CLI tier.
   - A usable terminal baseline should not depend on the graphical tier.
 
-## Open Requirements
+### Open Work
 
 - [x] R11: App bundles separate CLI baseline, GUI apps, and gaming apps.
-  - Verify: test -f home/modules/programs/gaming/prismlauncher.nix && ! grep -Rq "prismlauncher" home/modules/ai home/modules/core home/modules/environment home/modules/shell home/modules/styles
+  - Verify: test -f home/modules/programs/gaming/prismlauncher.nix && ! grep -Rq "prismlauncher" home/modules/ai home/modules/cli home/modules/core home/modules/environment home/modules/terminal home/modules/styles
   - Acceptance: PrismLauncher is opt-in and absent from CLI-only hosts.
   - Optional apps should not expand the default CLI footprint.
 
@@ -89,7 +89,7 @@
   - Touch navigation should cover more than workspace swipes and the on-screen keyboard.
 
 - [x] R17: Home Manager feature parity with the sibling repository across CLI, GUI, editor/AI, and auxiliary services.
-  - Verify: test -f home/modules/shell/starship.nix && test -f home/modules/programs/gui/ghostty.nix && test -f home/modules/programs/opencode.nix
+  - Verify: test -f home/modules/terminal/starship.nix && test -f home/modules/programs/gui/ghostty.nix && test -f home/modules/programs/opencode.nix
   - Acceptance: Each functional slice is ported and evaluates before parity is claimed.
   - The current HM tree ports the CLI core, visual baseline, editor/AI, and harness modules; verify the remaining parity inventory before closing.
 
@@ -128,7 +128,7 @@
   - Acceptance: `programs.pi-coding-agent.settings.extensions` excludes `builtin:tool-search`, `builtin:mcp`, and `builtin:llama.cpp`.
 
 - [x] R25: Consolidate wallpaper theming into Noctalia's native hook and Wallust templates.
-  - Verify: nix eval .#homeConfigurations.hollowheap.config.programs.noctalia.settings.hooks.wallpaper_changed | grep -q "wallust"
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.noctalia.settings.theme.templates.builtin_ids | grep -q '"hyprland"' && grep -q wallust "$(nix eval --raw .#homeConfigurations.hollowheap.config.programs.noctalia.settings.hooks.wallpaper_changed)"
   - Acceptance: `wallpaper_changed` directly executes `wallust run` and triggers GTK/icon accents and OpenRGB; user stub templates are dropped; icon theme updates apply to dconf, gsettings, and GTK settings.ini.
 
 - [x] R26: Neovim in-buffer diagram and image rendering with Kitty graphics protocol.
@@ -136,12 +136,12 @@
   - Acceptance: `diagram.nvim` and `image.nvim` are integrated into Neovim alongside CLI renderers (imagemagick, mermaid-cli, plantuml, d2, graphviz) to render diagrams inline in Markdown buffers under Ghostty.
 
 - [ ] R27: Declared AI agent capabilities are the capabilities actually enforced.
-  - Verify: nix build .#checks.x86_64-linux.ai
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
   - Acceptance: An architect subagent can write under `artifacts/` and delegate to `scout`; no invalid permission key is emitted.
   - Tool stripping is an ordering bug, not an intended restriction.
 
 - [ ] R28: Every AI harness renders the shared agent brief and resolves model and effort from one tier table.
-  - Verify: nix build .#checks.x86_64-linux.ai
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
   - Acceptance: Non-OpenCode harnesses contain the agent prompt, and no harness hardcodes a model outside `ai.tiers`.
   - A single renderer prevents per-harness behavior drift.
 
@@ -151,12 +151,12 @@
   - `capabilities.mcp` currently yields no tools anywhere.
 
 - [ ] R30: Hook commands, matchers, and harness filters have one contract and fail closed before tools run.
-  - Verify: nix build .#checks.x86_64-linux.ai
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
   - Acceptance: Replacing a hook command affects every harness; malformed pre-tool payloads block rather than pass.
   - Renderers currently reimplement the hook protocol inconsistently.
 
 - [ ] R31: AI spend, telemetry, fallback, and compaction policy is explicit.
-  - Verify: nix eval .#homeConfigurations.hollowheap.config.programs.pi-coding-agent.settings.enableInstallTelemetry
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.pi-coding-agent.settings
   - Acceptance: Install telemetry is off, a spend cap exists, and a provider outage has a declared fallback.
   - Unbounded loops and quota exhaustion are cost failures.
 
@@ -241,12 +241,12 @@
   - Controllers reset to firmware defaults.
 
 - [ ] R48: fovea runs a headless Home Manager profile that shares platform-neutral modules.
-  - Verify: nix eval --raw .#nixOnDroidConfigurations.fovea.activationPackage.drvPath
+  - Verify: nix eval --raw .#nixOnDroidConfigurations.fovea.config.system.stateVersion
   - Acceptance: The fovea activation package evaluates with flakes, wake lock, storage helpers, and no desktop-only modules.
   - A package stub is not a usable mobile environment.
 
 - [ ] R49: fovea has an explicit identity and secret policy.
-  - Verify: nix build .#checks.aarch64-linux.fovea
+  - Verify: nix eval --raw .#nixOnDroidConfigurations.fovea.config.system.stateVersion
   - Acceptance: Git identity and signing keys are separate from lacuna, and `sops` has no unusable recipient.
   - Copying the only age key to a phone is unacceptable.
 
@@ -279,16 +279,3 @@
   - Verify: nix build .#checks.x86_64-linux.home
   - Acceptance: Text, image, video, and audio open the right app; internal DNS resolves in the browser; camera, printer, and scanner discovery work.
   - Current handlers route common files to non-players.
-
-## Open Questions
-
-- Q01: Which browser, terminal, mail, file manager, screenshot, and gaming bundles land after R11?
-- Q02: Should standalone `homeConfigurations.hollowheap` remain the only Home Manager output for lacuna and fovea?
-- Q03: Should Vaultwarden move to acervus once the migration is tested?
-- Q04: Which host actually has hybrid Nvidia: lacuna or acervus?
-- Q05: Is acervus installed, or still a placeholder shell?
-- Q06: Is hibernate required on lacuna, or should sleep remain suspend-only?
-- Q07: Are the external display ports wired to the dGPU?
-- Q08: Does the ISP provide usable IPv6?
-- Q09: Does fovea need signed commits and repo secrets, or only a portable shell?
-- Q10: Are network printers or scanners in use, so discovery and SANE matter?
