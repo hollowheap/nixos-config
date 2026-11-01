@@ -83,7 +83,15 @@ in
       colors = {
         _var = mkLuaInline ''(function()
           local ok, m = pcall(require, "noctalia")
-          if ok and type(m) == "table" then return m end
+          if ok and type(m) == "table" and type(m.colors) == "table" then
+            if type(m.apply_theme) == "function" then m.apply_theme() end
+            return {
+              active_border = m.colors.primary,
+              inactive_border = m.colors.surface,
+              active_shadow = m.colors.surface,
+              inactive_shadow = m.colors.surface,
+            }
+          end
           return {
             active_border = "rgba(ffffffff)",
             inactive_border = "rgba(ffffff88)",

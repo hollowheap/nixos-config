@@ -20,10 +20,6 @@
           template = "sequences";
           target = "${config.xdg.cacheHome}/wallust/sequences";
         };
-        hyprland = {
-          template = "hypr-colors.lua";
-          target = "${config.xdg.configHome}/hypr/noctalia.lua";
-        };
       };
 
       hooks = {

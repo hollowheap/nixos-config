@@ -94,7 +94,7 @@
       wallpaper_scheme = "faithful";
       pure_black_dark = true;
       templates = {
-        builtin_ids = [];
+        builtin_ids = [ "hyprland" ];
         community_ids = [
           "discord"
           "steam"
