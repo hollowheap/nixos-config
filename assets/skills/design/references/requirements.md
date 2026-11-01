@@ -9,6 +9,7 @@ Group requirements by vertical slice under meaningful H3 headings. Use `### Cros
   - Acceptance: <observable result>
   - Constraints: <non-negotiable constraint or none>
   - Non-goals: <excluded outcome or none>
+  - Rationale: <why this outcome matters>
 
 ## Rules
 

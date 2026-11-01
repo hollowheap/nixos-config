@@ -13,7 +13,7 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - AI harness data flows from `ai.agents`, `ai.skills`, `ai.rules`, `ai.disciplines`, and `ai.hooks` through `home/lib/ai-render.nix` into each harness renderer.
 - RDST artifacts live in `artifacts/`: questions, requirements, decisions, specs, tasks, context, architecture, review evidence, logs, and errors.
 - RDST gates live in `artifacts/review/<slice>.md`: requirements, design, specification, plan, code, and acceptance. RDST is the traceability spine; review still runs by diff, slice, or robustness with optional UI/backend lenses.
-- Persistent review registry and skill-authoring notes: `artifacts/reviews.md` maps `Vxx` to review files; `artifacts/notes/` holds reference-framework, review-model, skill-design, skill-inventory, verification, and author-harness matrix notes.
+- Persistent review registry and skill-authoring notes: `artifacts/reviews.md` maps `Vxx` to review files; `artifacts/notes/` holds reference-frameworks, review-model, skill-principles, skill-inventory, and author-harness-matrices notes.
 
 ## Module Seams
 

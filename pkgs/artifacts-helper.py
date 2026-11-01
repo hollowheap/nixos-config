@@ -120,15 +120,22 @@ class ArtifactsRepository:
         nodes: List[Node] = []
         current: Optional[Node] = None
         section = ""
+        arch_heading = ""
 
         lines = path.read_text(encoding="utf-8").splitlines()
         for idx, line in enumerate(lines, start=1):
             if line.startswith("### "):
                 section = line[4:].strip()
+                arch_heading = ""
+                current = None
+                continue
+            if line.startswith("#### "):
+                arch_heading = line[5:].strip()
                 current = None
                 continue
             if line.startswith("## ") or line.startswith("# "):
                 section = ""
+                arch_heading = ""
                 current = None
                 continue
 
@@ -186,6 +193,7 @@ class ArtifactsRepository:
                     blocked_by=blocked_by,
                     verify_cmd=verify_cmd,
                     section=section,
+                    arch_section=arch_heading if kind == "SPEC" else None,
                     file_path=path,
                     line_number=idx,
                 )

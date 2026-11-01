@@ -3,7 +3,7 @@ Review-ID: V14
 Mode: audit
 Scope: my-pi-agent specs
 
-Scope: `/home/hollowheap/repos/my-pi-agent/artifacts/specs.md`, S01-S137.
+Paths: `/home/hollowheap/repos/my-pi-agent/artifacts/specs.md`, S01-S137.
 Method: two read-only scout passes; verified the disputed `S130` and corrected stale path names.
 
 ## Result

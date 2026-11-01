@@ -3,7 +3,7 @@ Review-ID: V15
 Mode: audit
 Scope: cross-repo specs
 
-Scope: `~/repos/{docmd,lively,md-questioner,my-pi-agent,nixos-config,pico-car}`.
+Paths: `~/repos/{docmd,lively,md-questioner,my-pi-agent,nixos-config,pico-car}`.
 `home-manager` is migrated and excluded from this audit.
 Method: parsed `artifacts/specs.md` and `artifacts/tasks.md` (or legacy `artifacts/plan.md`); compared spec titles; counted spec parents per task.
 

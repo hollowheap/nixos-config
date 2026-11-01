@@ -8,9 +8,10 @@
 ## Good
 ### Configuration merge
 
+#### Module Seams
+
 - [ ] S01 [R01] [D01]: Config merge preserves existing runtime keys
   - Verify: `nix eval .#homeConfigurations.hollowheap.config.services.app`
-  - Arch: Module Seams
   - Seam: config.services.app.settings
   - Behavior: Merging user options retains preexisting defaults unless explicitly overridden.
   - Failures: Colliding keys raise evaluation error instead of silent overwrite.

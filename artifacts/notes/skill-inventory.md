@@ -8,7 +8,7 @@ Persistent inventory and distillation map for every skill in the repo. Coverage:
 |---|---|---|---|---|---|
 | `brainstorm` | Discovery | Problem, repo seams, primary sources | `brainstorm.md`, candidate Qs | Compare archetypes; no implementation | keep as optional discovery mode |
 | `design` | Requirements + design | Brainstorm, questions, architecture | `requirements.md`, accepted `Dxx`, architecture, design review | Outcomes before design; Q -> accepted D | keep |
-| `specify` | Specification | Accepted `R/D`, architecture | `specs.md` with verify and `Arch` | Public invariants; no open Q | merge candidate with `plan` |
+| `specify` | Specification | Accepted `R/D`, architecture | `specs.md` with verify and H4 architecture groups | Public invariants; no open Q | merge candidate with `plan` |
 | `plan` | Delivery planning | Specs, review gate | `tasks.md` atomic tasks | One spec per task; no breakdown in tasks | merge candidate with `specify` |
 | `implement` | Construction | Next task, spec, decision, architecture | Code, tests, task completion, code review | Test-first for non-trivial work; minimal vertical implementation | keep |
 | `review` | Review | Diff/slice/robust scope, RDST, architecture | Findings, `Vxx` when persistent, optional Q | Diff/slice/robust profiles; simplicity always on; security/performance optional lenses | keep |

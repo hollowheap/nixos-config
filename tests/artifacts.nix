@@ -31,9 +31,9 @@ pkgs.runCommand "check-artifacts" {
 
   cat > "$tmp/artifacts/specs.md" <<'EOF'
   ### Slice
+  #### Module Seams
   - [x] S01 [R01] [D01]: invariant
     - Verify: true
-    - Arch: Module Seams
   EOF
 
   cat > "$tmp/artifacts/tasks.md" <<'EOF'
@@ -43,14 +43,14 @@ pkgs.runCommand "check-artifacts" {
   ARTIFACTS_DIR="$tmp/artifacts" python3 ${src}/pkgs/artifacts-helper.py verify-links > "$tmp/valid.out" 2>&1
   grep -qx "OK" "$tmp/valid.out"
 
-  sed -i 's|Arch: Module Seams|Arch: architecture.md#module-seams|' "$tmp/artifacts/specs.md"
+  sed -i 's|#### Module Seams|#### architecture.md#module-seams|' "$tmp/artifacts/specs.md"
   if ARTIFACTS_DIR="$tmp/artifacts" python3 ${src}/pkgs/artifacts-helper.py verify-links > "$tmp/path.out" 2>&1; then
     echo "expected an Arch path to fail" >&2
     exit 1
   fi
   grep -q "must name an architecture section" "$tmp/path.out"
 
-  sed -i 's|Arch: architecture.md#module-seams|Arch: Missing Section|' "$tmp/artifacts/specs.md"
+  sed -i 's|#### architecture.md#module-seams|#### Missing Section|' "$tmp/artifacts/specs.md"
   if ARTIFACTS_DIR="$tmp/artifacts" python3 ${src}/pkgs/artifacts-helper.py verify-links > "$tmp/invalid.out" 2>&1; then
     echo "expected an unknown Arch section to fail" >&2
     exit 1
