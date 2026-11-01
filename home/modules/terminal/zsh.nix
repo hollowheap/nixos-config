@@ -140,9 +140,7 @@
       # Common settings
       zstyle ':completion:*' group-name ""
       zstyle ':completion:*' verbose yes
-      zstyle ':completion:*' menu no
-      zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
-      zstyle ':completion:*' completer _complete _ignored _match
+      zstyle ':completion:*' completer _complete _match _history
       zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS} # Enable list colors
       zstyle ':completion:*' list-prompt '%S%M matches %s'
 
@@ -186,7 +184,7 @@
       zstyle ':completion:*:manuals' separate-sections true
       zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
-      zstyle ':fzf-tab:*' fzf-command ${pkgs.zsh-fzf-tab}/share/fzf-tab/lib/ftb-tmux-popup
+      zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
       zstyle ':fzf-tab:*' popup-min-size 60 12
       zstyle ':fzf-tab:*' popup-pad 0 0
       zstyle ':fzf-tab:*' fzf-flags \
