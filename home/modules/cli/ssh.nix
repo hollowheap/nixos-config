@@ -3,13 +3,13 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks."*" = {
-      identityAgent = "/run/user/%i/rbw/ssh-agent-socket";
-      serverAliveInterval = 60;
-      controlMaster = "auto";
-      controlPath = "~/.ssh/control-%C";
-      controlPersist = "10m";
-      hashKnownHosts = true;
+    settings."*" = {
+      IdentityAgent = "/run/user/%i/rbw/ssh-agent-socket";
+      ServerAliveInterval = 60;
+      ControlMaster = "auto";
+      ControlPath = "~/.ssh/control-%C";
+      ControlPersist = "10m";
+      HashKnownHosts = true;
     };
   };
 }
