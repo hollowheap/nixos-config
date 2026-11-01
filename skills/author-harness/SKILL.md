@@ -3,7 +3,7 @@
 1. Confirm nixpkgs attr first; beware near-miss names like codex vs codex-cli.
 2. Use `upstream-recon` for upstream module and option shapes; never guess.
 3. Wire package, skills, agents, disciplines, rules, hooks, and drop lists into harness-native targets.
-4. Consult references/matrices.md for renderer, hook, prompt overlap, and capability mapping.
+4. Consult `artifacts/notes/author-harness-matrices.md` for renderer, hook, prompt overlap, and capability mapping.
 5. Stage new files with git add and verify with nix flake check --no-build.
 
 ## Rules
