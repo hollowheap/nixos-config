@@ -7,6 +7,7 @@
       subagent = false;
       tier = "medium";
       models.opencode = "opencode-go/beam-free";
+      models.antigravity = "inherit";
       capabilities = {
         read = true;
         write = false;
@@ -40,6 +41,7 @@
       subagent = false;
       tier = "high";
       models.opencode = "opencode-go/deepseek-v4.1-flash#max";
+      models.antigravity = "pro";
       capabilities = {
         read = true;
         write = true;
@@ -72,6 +74,7 @@
       subagent = false;
       tier = "medium";
       models.opencode = "opencode-go/deepseek-v4.1-flash#max";
+      models.antigravity = "inherit";
       capabilities = {
         read = true;
         write = true;
@@ -110,6 +113,7 @@
       role = "subagent";
       tier = "medium";
       models.opencode = "opencode-go/beam-free";
+      models.antigravity = "flash";
       capabilities = {
         read = true;
         write = true;
@@ -142,6 +146,7 @@
       role = "subagent";
       tier = "low";
       models.opencode = "opencode-go/beam-free";
+      models.antigravity = "flash";
       capabilities = {
         read = true;
         write = false;
@@ -158,6 +163,7 @@
       role = "subagent";
       tier = "low";
       models.opencode = "opencode-go/beam-free";
+      models.antigravity = "flash";
       capabilities = {
         read = false;
         write = false;
@@ -174,6 +180,7 @@
       role = "subagent";
       tier = "medium";
       models.opencode = "opencode-go/beam-free";
+      models.antigravity = "flash";
       capabilities = {
         read = true;
         write = false;
