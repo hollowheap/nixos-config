@@ -197,33 +197,26 @@
   - Non-goals: none
   - Rationale: Tool stripping is an ordering bug, not an intended restriction.
 
-- [ ] R28: Every AI harness renders the shared agent brief and resolves model and effort from one tier table.
+- [ ] R28: Every AI harness gives each agent the same role brief and consistent model and effort policy.
   - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
-  - Acceptance: Non-OpenCode harnesses contain the agent prompt, and no harness hardcodes a model outside `ai.tiers`.
+  - Acceptance: Non-OpenCode harnesses render the same agent brief as OpenCode; changing a shared tier changes every harness, and no harness hardcodes a model outside its adapter override.
   - Constraints: none
   - Non-goals: none
   - Rationale: A single renderer prevents per-harness behavior drift.
 
-- [ ] R29: One MCP server registry feeds every harness that supports MCP.
-  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.mcp.servers
-  - Acceptance: Enabling `capabilities.mcp` yields the same servers in OpenCode, Codex, Crush, and Copilot.
+- [ ] R29: MCP-capable agents receive the same server set in every harness that supports MCP.
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Acceptance: Every MCP-capable harness exposes the same enabled servers, and harnesses without MCP support ignore them cleanly.
   - Constraints: none
   - Non-goals: none
   - Rationale: `capabilities.mcp` currently yields no tools anywhere.
 
-- [ ] R30: Hook commands, matchers, and harness filters have one contract and fail closed before tools run.
+- [ ] R30: A hook definition behaves consistently across harnesses and malformed pre-tool input blocks the tool.
   - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
-  - Acceptance: Replacing a hook command affects every harness; malformed pre-tool payloads block rather than pass.
+  - Acceptance: Changing one hook command or matcher affects every supporting harness; malformed pre-tool payloads fail closed.
   - Constraints: none
   - Non-goals: none
   - Rationale: Renderers currently reimplement the hook protocol inconsistently.
-
-- [ ] R31: AI spend, telemetry, fallback, and compaction policy is explicit.
-  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.pi-coding-agent.settings
-  - Acceptance: Install telemetry is off, a spend cap exists, and a provider outage has a declared fallback.
-  - Constraints: none
-  - Non-goals: none
-  - Rationale: Unbounded loops and quota exhaustion are cost failures.
 
 - [ ] R32: Pointer, gesture, keyboard, and touch policy is explicit and shared across compositor, greeter, and console.
   - Verify: nix eval --raw .#nixosConfigurations.lacuna.config.programs.hyprland.settings.input.touchpad.natural_scroll | grep -qx true

@@ -75,7 +75,7 @@ Shared commands live in `home/modules/ai/hooks.nix`. Renderers map events and na
 
 ## Authoring standard
 
-- Description sets positive and negative trigger bounds; do not omit the trigger.
+- Description states one trigger and scope; no anti-trigger list. Follow `skills/author-skill/references/style.md`.
 - Body uses `## Workflow` with numbered active-verb steps and `## Rules` with imperative invariants.
 - Final rule is `- Verify: <exit condition>`.
 - Static formats/tables belong in `references/*.md`; contrast pairs in `examples.md`; executable tools in `scripts/`.

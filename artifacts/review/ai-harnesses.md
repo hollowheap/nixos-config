@@ -1,12 +1,68 @@
 # AI harnesses robustness review
 Review-ID: V01
-Mode: robustness
+Mode: robustness; design
 Scope: AI harnesses
+
+## Requirements Review
+- R27–R30 (`artifacts/requirements.md:193-219`) are observable outcomes and no longer name design APIs.
+- R27 covers permission enforcement; R28 covers agent body plus model/effort consistency; R29 covers MCP server parity; R30 covers hook consistency and fail-closed behavior.
+- R31 was dropped: no harness exposes an enforceable spend cap, and only one provider is configured.
+- Verdict: accepted.
+
+## Design Review
+- D65–D68 (`artifacts/decisions.md:254,287,344,350`) cover permissions, agent-body/tier rendering, MCP registration, and hook contract.
+- D67 explicitly defers remote MCP transport; stdio-only coverage is a non-goal for this slice.
+- D66 requires adapter branches for every harness; the current `modelFor` coverage gap is an implementation/spec concern, not a design gap.
+- Verdict: accepted.
+
+## Gate Findings
+- G1 (resolved): D65 originally claimed every renderer emits permission rules; only OpenCode has a native permission block. D65 now scopes that behavior to OpenCode and maps other harnesses to native tool lists.
+- G2 (resolved): R28–R30 encoded `ai.tiers`, a registry, and a contract as requirement text. They now state observable outcomes.
+- G3 (out of scope): V01 F12 remains review evidence; R31 was dropped and has no decision or spec.
+
+## Gate Verdict
+- Requirements: accepted.
+- Design: accepted.
+- Specs/tasks: not reviewed.
+
+## Specification Review
+- S62–S65 cite their `Rxx`/`Dxx` parents, use exact architecture H4 groups, declare explicit verification commands, and leave no open questions.
+- SR1 (low): S62 (`artifacts/specs.md:345`) and S65 (`artifacts/specs.md:367`) use build-only verification; implementation should add rendered-output assertions for agent bodies and permission order.
+- Verdict: accepted; SR1 is a low-depth follow-up, not a gate blocker.
+
+## Plan Review
+- T93–T98 cite their parent specs, have explicit verification commands, name files and risks, and use only the T93→T94 and T97→T98 blockers.
+- Frontier is correct: T93, T95, T96, and T97 are ready; T94 and T98 wait on their predecessors.
+- PR1 (low): T93, T94, T96, and T98 span multiple harnesses; keep each to one observable outcome and split only if implementation stalls.
+- PR2 (low): T95, T96, and T98 verify input configuration or build success rather than every emitted adapter; add rendered-output assertions during implementation.
+- Verdict: accepted; PR1/PR2 are follow-ups, not gate blockers.
+
+## Code Review
+- CR1 (high, resolved): `opencode-ai-hooks.ts` post-tool read `output.args`; the after-hook payload uses `input.args`. Fixed at `home/modules/programs/opencode-ai-hooks.ts:81`.
+- CR2 (medium, accepted): `programs.mcp` integration is enabled, but no default server is installed; the registry stays empty until configured.
+- CR3 (medium, intentional): Pi/OMP dead hook files were removed; those harnesses have no native hook surface. Documented in T96 notes.
+- CR4 (medium, accepted): Crush uses `agentBodyFor` per agent in its single shared file; duplication across agent sections is accepted because Crush has no per-agent surface.
+- CR5 (low, resolved): a malformed hook manifest now fails closed for pre-tool hooks.
+- CR6 (T94): per-tier harness models/efforts now drive Codex, Kiro, Antigravity, Crush, and OpenCode; global tier overrides fall back to the base tier model/effort. Build passes.
+- CR7 (T98): no native per-agent tool-list surface exists in Codex, Pi, OMP, or Crush; Kiro, Antigravity, and Copilot already map capability flags. No code change.
+- Gate: accepted for T94/T98.
 
 ## Verdict
 - Biggest risk: OpenCode permission blocks put `"*": "deny"` last, but OpenCode resolves the last matching rule; architect, scout, worker, and ask lose edit, bash, and delegation. The known child-session tool stripping is this ordering bug, not missing agent definitions (`home/modules/programs/opencode.nix:71-126`).
 - Biggest missing option: one `programs.mcp.servers` registry wired into every renderer. `capabilities.mcp` exists, but no harness writes a server; only Copilot flips `enableMcpIntegration` against an empty registry (`github-copilot-cli.nix:68`).
 - Seam worth changing: six harnesses render `agent.instructions` (default `""`) while only OpenCode renders `agent.prompt`; route all through `aiRender.agentBodyFor` and one model table.
+
+## Reconciliation (2026-11-04)
+
+The findings below are the original review snapshot. Current status:
+
+- F1, F2, F3, F5: resolved. OpenCode permission blocks deny first; all renderers use `agentBodyFor`; the plugin uses the documented API; hook commands use `hookCommandLine`.
+- F4: OMP was removed. Pi hook/statusline surfaces remain UNVERIFIED.
+- F6, F8, F10, F11: resolved. Crush uses `models.large`/`models.small`; Kiro writes skill frontmatter and `skill://.kiro/skills/<name>/SKILL.md` resources; API-key preexec covers `agy`, `antigravity`, `hermes`, and `copilot`.
+- F7: accepted; the MCP registry is intentionally empty (CR2).
+- F9: `features.hooks = true`; the custom Codex `worker` name collision remains UNVERIFIED.
+- F12: partially addressed; Pi install telemetry and Copilot auto-update are disabled. Budgets, provider fallback, and session export remain open.
+- OMP-specific matrix, failure-mode, seam, and open-question rows are historical.
 
 ## Findings
 

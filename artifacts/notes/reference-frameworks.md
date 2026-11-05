@@ -1,6 +1,6 @@
 # Reference Framework Analysis
 
-Persistent skill-authoring note. Simplicity is one axis; the reference frameworks contribute separate principles, and only some fit this stack. This note is the single equal-depth analysis of the four frameworks. It replaces the narrower simplicity note.
+Persistent skill-authoring note. Simplicity is one axis; the reference frameworks contribute separate principles, and only some fit this stack. This note is the single equal-depth analysis of the four frameworks.
 
 ## Scope and attribution rules
 

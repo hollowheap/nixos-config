@@ -342,6 +342,34 @@
   - Behavior: OpenCode, Pi, and Crush resolve `OPENCODE_API_KEY` and `OPENCODE_GO_API_KEY` dynamically via `rbw`; `pi` natively evaluates `!rbw get --folder dev/keys opencode` from `~/.pi/agent/auth.json`; Zsh injects keys on startup and preexec before `opencode*`, `pi*`, `crush*`, `kiro*`, or `codex*`.
   - Failures: missing key in harness runtime, hardcoded secrets in dotfiles, hung repomap in bare `$HOME`.
 
+- [ ] S62 [R28] [D66]: Every harness renders a non-empty agent body and one tier-consistent model and effort
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Seam: `home/lib/ai-render.nix`, `home/modules/ai/options.nix`, `home/modules/programs/*.nix`.
+  - Behavior: each harness renders the shared agent body; changing an `ai.tiers` entry changes every renderer; no harness-local model table overrides a tier except `models.<harness>`.
+  - Failures: empty agent body, prompt drift, hardcoded model or effort, missing adapter branch.
+
+#### Data & Contracts
+
+- [ ] S63 [R29] [D67]: MCP-capable agents see the same enabled stdio servers in every supporting harness
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.mcp.servers
+  - Seam: `home/modules/ai/options.nix`, `home/modules/programs/{opencode,codex,crush,github-copilot-cli}.nix`.
+  - Behavior: one server definition controls command, args, environment, and enablement in every supporting harness; agents without MCP capability receive no server access.
+  - Failures: server present in only one harness, divergent arguments, capability bypass.
+
+- [ ] S64 [R30] [D68]: One hook definition renders consistently and malformed pre-tool input blocks the tool
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.ai.hooks
+  - Seam: `home/modules/ai/hooks.nix`, `home/modules/ai/options.nix`, `home/modules/programs/*.nix`.
+  - Behavior: event, command, args, matcher, timeout, enablement, and harness filters produce equivalent native adapters; unsupported event/harness pairs fail evaluation; malformed pre-tool payloads exit nonzero.
+  - Failures: ignored command, divergent matcher, fail-open pre-tool hook.
+
+#### Operations & Security
+
+- [ ] S65 [R27] [D65]: Declared capabilities produce enforceable permissions and no invalid `write` key
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Seam: `home/modules/programs/opencode.nix`, `home/modules/ai/options.nix`, `home/modules/programs/*.nix`.
+  - Behavior: deny-all precedes specific allows; architect can edit artifacts and delegate to scout; task allows derive from `availableAgents`; non-OpenCode harnesses map capabilities to native tool lists.
+  - Failures: deny-last ordering, `write` permission key, denied delegation, capability tool mismatch.
+
 ### Desktop and Theme
 
 #### Framework & Library Choices

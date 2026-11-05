@@ -24,6 +24,7 @@ services.gpg-agent = { defaultCacheTtl = 28800; maxCacheTtl = 86400; };
 - Source: https://nix-community.github.io/home-manager/options.xhtml#opt-programs.git.signing.key, https://www.gnupg.org/documentation/manuals/gnupg/Agent-Options.html, https://nix-community.github.io/home-manager/options.xhtml#opt-services.gpg-agent.pinentry.package
 - Default check: HM leaves `signing.key` null by design; GnuPG 2.4 defaults are 600/7200 seconds. `gcr_3` is in `home.packages` (`auth-agents.nix:23`) but no system DBus registration exists.
 - Confidence: verified (config); the pinentry failure is conditional on the session lacking a prompter.
+- Status: Resolved: explicit signing key, gpg default-key, 8h/24h agent TTL, and GUI/TTY pinentry fallback are set.
 
 ### F2: Pre-push hook verifies tag objects as commits and only checks tips
 - Current: `home/modules/cli/git.nix:20-28`
@@ -40,6 +41,7 @@ esac
 - Source: https://git-scm.com/docs/git-verify-commit, https://git-scm.com/docs/git-verify-tag, https://git-scm.com/docs/githooks#_pre_push
 - Default check: no default hook; this is custom.
 - Confidence: verified.
+- Status: Resolved: tags use verify-tag and every pushed commit is verified.
 
 ### F3: Global `core.hooksPath` silently disables repository hooks
 - Current: `home/modules/cli/git.nix:5-29`; HM writes `core.hooksPath` globally (https://github.com/nix-community/home-manager/blob/master/modules/programs/git.nix#L475-L483)
@@ -56,6 +58,7 @@ pre-commit = pkgs.writeShellScript "git-pre-commit-hook" ''
 - Source: https://git-scm.com/docs/githooks, https://git-scm.com/docs/git-config#Documentation/git-config.txt-corehooksPath
 - Default check: Git default is `$GIT_DIR/hooks`; HM overrides globally when `hooks` is non-empty.
 - Confidence: verified.
+- Status: Resolved: global pre-commit and pre-push hooks invoke repository-local hooks.
 
 ### F4: SSH agent policy is split; plain SSH gets an empty gpg-agent socket
 - Current: `home/modules/cli/ssh.nix:4` (`enable = false`, also the HM default); `auth-agents.nix:5` (`enableSshSupport = true`, `sshKeys` unset); `git.nix:62` (git only uses rbw)
@@ -80,6 +83,7 @@ programs.ssh = { enable = true; enableDefaultConfig = false;
 - Source: https://github.com/doy/rbw#ssh-agent, https://man.openbsd.org/ssh_config#IdentityAgent, https://nix-community.github.io/home-manager/options.xhtml#opt-services.gpg-agent.sshKeys
 - Default check: `sshKeys` defaults null; `programs.ssh.enable` defaults false; HM rbw module creates no service.
 - Confidence: verified (config); runtime failure depends on whether any keys are in `sshcontrol`.
+- Status: Resolved: SSH uses the rbw agent with keepalive, multiplexing, and hashed hosts.
 
 ### F5: bat theme cache is only rebuilt on wallpaper change
 - Current: `home/modules/cli/bat.nix:5-9,20-26`
@@ -94,6 +98,7 @@ home.activation.batCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
 - Source: https://github.com/sharkdp/bat/blob/master/src/assets/assets_metadata.rs, https://github.com/sharkdp/bat#adding-new-themes
 - Default check: bat's stock theme auto-selection is replaced by `theme = "wallust"`; default auto light/dark is intentionally lost.
 - Confidence: verified.
+- Status: Resolved: bat cache is rebuilt by the Wallust hook.
 
 ### F6: btop generates a wallust theme but never selects it
 - Current: `home/modules/cli/btop.nix:3-14`
@@ -110,6 +115,7 @@ programs.btop.settings = {
 - Source: https://github.com/aristocratos/btop#configurability, https://github.com/aristocratos/btop/blob/main/src/btop.cpp#L1121-L1130
 - Default check: btop defaults are `color_theme = "Default"`, `vim_keys = false`, `shown_boxes = "cpu mem net proc"`.
 - Confidence: verified.
+- Status: Resolved: btop color_theme selects the Wallust theme.
 
 ### F7: yazi flavor uses an obsolete key and lacks `tmtheme.xml`
 - Current: `home/modules/cli/yazi.nix:5` and `:8-11`
@@ -127,6 +133,7 @@ home.packages = [ pkgs.ffmpeg pkgs.poppler_utils ];
 - Source: https://yazi-rs.github.io/docs/configuration/theme#flavor, https://yazi-rs.github.io/docs/flavors/overview#structure
 - Default check: no flavor by default; built-in previews handle images, but external decoders are optional dependencies.
 - Confidence: verified.
+- Status: Resolved: yazi renders both flavor.toml and tmtheme.xml.
 
 ### F8: `EDITOR`/`VISUAL` are unset; `git commit` falls back to missing `vi`
 - Current: no `EDITOR` in the repo; `home/modules/cli/git.nix` sets no `core.editor`; `lazygit.nix` sets no `os.editPreset`
@@ -140,6 +147,7 @@ programs.lazygit.settings.os.editPreset = "nvim";
 - Source: https://git-scm.com/docs/git-var#Documentation/git-var.txt-GIT_EDITOR, https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
 - Default check: Git's default editor is `vi`; lazygit guesses the editor from the environment when no preset is set.
 - Confidence: verified.
+- Status: Resolved: EDITOR and VISUAL are set to nvim.
 
 ### F9: No git maintenance, rerere, prune, or stacked-rebase ref updates
 - Current: `home/modules/cli/git.nix:61-81`
@@ -162,6 +170,7 @@ systemd.user.services.git-maintenance = { Service.Type = "oneshot";
 - Source: https://git-scm.com/docs/git-maintenance, https://git-scm.com/docs/git-rerere, https://git-scm.com/docs/git-config#Documentation/git-config.txt-fetchprune
 - Default check: maintenance, rerere, prune, and `rebase.updateRefs` are all off by default.
 - Confidence: verified.
+- Status: Resolved: maintenance runs for every git repo under ~/repos.
 
 ### F10: `credential.helper = cache` stores secrets and goes stale
 - Current: `home/modules/cli/git.nix:98-103`
@@ -174,6 +183,7 @@ programs.git.settings.credential.helper = [ "${pkgs.rbw}/bin/git-credential-rbw"
 - Source: https://git-scm.com/docs/gitcredentials, https://github.com/doy/rbw
 - Default check: no helper by default; rbw alone is already fast because `rbw-agent` caches the vault.
 - Confidence: verified.
+- Status: Resolved: git uses the rbw credential helper, not the cache helper.
 
 ### F11: Missing high-value CLI tools
 - Current: `home/modules/cli/utilities.nix:3-57` covers eza, ripgrep, fd, fzf, jq, delta; `home/modules/core/packages.nix:3-16` adds a compiler/debug toolchain only.
@@ -186,6 +196,7 @@ home.packages = with pkgs; [ gh sops age yq-go nix-index comma restic ];
 - Source: https://cli.github.com/, https://github.com/getsops/sops, https://github.com/nix-community/comma, https://restic.net/
 - Default check: none of these are pulled by current modules; `direnv` and `fwupd` are already covered elsewhere.
 - Confidence: verified.
+- Status: Accepted: optional CLI tools are intentionally removed in favor of `nix run`.
 
 ## Failure modes
 - Reboot → `git commit` → gpg-agent has no key/TTL and may prompt via unavailable pinentry → F1.

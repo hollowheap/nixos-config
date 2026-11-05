@@ -8,6 +8,17 @@ Scope: system services/network
 - Biggest missing option: `services.vaultwarden.backupDir` exists in the module and is unset; `services.headscale.settings.policy.path` is also unset, so the tailnet is allow-all.
 - Seam worth changing: ingress ownership is split across `caddy.nix`, `headscale.nix`, `vaultwarden.nix` with domains imported by value (`domains.nix`), and firewall ports are declared in three files with no interface scoping.
 
+## Reconciliation (2026-11-05)
+
+- F1: partially resolved. Vaultwarden has a local backup directory; `backup.nix` now snapshots Headscale and Caddy state daily under `/var/backup/server`. Off-host copy and tested restore remain open.
+- F2, F3, F7, F11: resolved.
+- F4: partially resolved. Caddy uses `tls internal`; committed cert files and `caddy_ca_key` are still dead material.
+- F5: partially resolved. Proxy trust, expiry, and DERP are set; ACL destinations are now explicit, but all tailnet nodes still reach both vhosts because no tags exist.
+- F6: resolved in code with explicit A/AAAA extra records for the vault name. The address is static and must be updated if the node IP changes.
+- F8: resolved in code. `LoadCredential` uses the correct separator and IPv6 lookup is disabled on the IPv4-only link; apply with the next NixOS switch.
+- F9: partially resolved. A daily user timer checks Caddy, Headscale, Vaultwarden, ddclient, and `/var` headroom; failures raise a desktop notification. Certificate-expiry and dead-man alerting remain open.
+- F10: open. No second age recipient yet.
+
 ## Findings
 ### F1: No backup or restore path for vault, coordination DB, or CA state
 - Current: `roles/server/system/vaultwarden.nix:13`, `roles/server/system/headscale.nix:13`; no `services.vaultwarden.backupDir`, no restic/borg anywhere.

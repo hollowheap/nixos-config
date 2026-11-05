@@ -1,6 +1,6 @@
 # Architecture
 
-Last verified: 2026-11-01.
+Last verified: 2026-11-02.
 Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `hollowheap`, and the `fovea` nix-on-droid output.
 
 ## System Shape
@@ -10,7 +10,7 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - `profiles/<class>` is chassis policy only. `roles/<role>/system` composes services. `modules/` holds reusable NixOS capability modules.
 - `hardware/` holds driver and capability traits. `boot/` holds kernel, bootloader, TPM, secure-boot, and plymouth integration.
 - Home Manager is standalone: `home/<user>.nix` imports `home/modules` through `import-tree`; domains are `ai`, `cli`, `core`, `environment`, `programs`, `services`, `terminal`, and `styles`.
-- AI harness data flows from `ai.agents`, `ai.skills`, `ai.rules`, `ai.disciplines`, and `ai.hooks` through `home/lib/ai-render.nix` into each harness renderer.
+- AI harness data flows from `ai.agents`, `ai.skills`, `ai.rules`, `ai.disciplines`, `ai.hooks`, and `programs.mcp.servers` through `home/lib/ai-render.nix` into each harness renderer.
 - RDST artifacts live in `artifacts/`: questions, requirements, decisions, specs, tasks, context, architecture, review evidence, logs, and errors.
 - RDST gates live in `artifacts/review/<slice>.md`: requirements, design, specification, plan, code, and acceptance. RDST is the traceability spine; review still runs by diff, slice, or robustness with optional UI/backend lenses.
 - Persistent review registry and skill-authoring notes: `artifacts/reviews.md` maps `Vxx` to review files; `artifacts/notes/` holds reference-frameworks, review-model, skill-principles, skill-inventory, and author-harness-matrices notes.
@@ -24,8 +24,8 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - `modules/`: reusable system modules; hardware- and profile-agnostic.
 - `hardware/` and `boot/`: platform capabilities and boot integration.
 - `home/hollowheap.nix` plus `home/modules`: user environment composition; `home/modules/programs/nvim/lsp.nix` owns editor language and linter wiring.
-- `home/modules/ai/options.nix`: shared AI schema. `home/lib/ai-render.nix`: generic rendering. `home/lib/skill-metadata.nix`: skill metadata. `home/modules/ai/skills.nix`: skill loading and script wiring.
-- `home/modules/ai/hooks.nix`: repomap commands and the git policy gate.
+- `home/modules/ai/options.nix`: shared AI schema, including `programs.mcp.servers`. `home/lib/ai-render.nix`: generic rendering, agent-body normalization, and tier lookup. `home/lib/skill-metadata.nix`: skill metadata. `home/modules/ai/skills.nix`: skill loading and script wiring.
+- `home/modules/ai/hooks.nix`: repomap commands and the git policy gate; harness renderers adapt `ai.hooks` without redefining command or matcher semantics.
 - `pkgs/artifacts-helper.py`: RDST parsing and trace checks. `pkgs/repomap.nix`: generated symbol map.
 - `modules/options/desktop.nix`: shared desktop monitors, scale, and fonts; feature modules consume it.
 
@@ -43,13 +43,13 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 
 - Flake composition uses `flake.nix` plus `import-tree`; Home Manager is standalone and NixOS remains separately applied.
 - Desktop composition uses Hyprland, UWSM, Noctalia, and Wallust with shared `desktop.*` options.
-- AI harnesses use Home Manager renderers over one `ai.*` schema; OpenCode, Pi, OMP, Codex, Kiro, Crush, Copilot, Antigravity, and Hermes are adapters, not sources of shared policy.
+- AI harnesses use Home Manager renderers over one `ai.*` schema; every renderer uses `aiRender.agentBodyFor` and the `ai.tiers` model/effort table. OpenCode, Pi, Codex, Kiro, Crush, Copilot, Antigravity, and Hermes are adapters, not sources of shared policy.
 - Neovim uses `nvf` with domain modules under `home/modules/programs/nvim`.
 - Skills are Markdown bodies plus Nix-owned metadata; no harness owns a private skill schema.
 
 ## Data & Contracts
 
-- `ai.*` is the contract for agents, skills, rules, disciplines, hooks, models, and capabilities; harness files are derived.
+- `ai.*` is the contract for agents, skills, rules, disciplines, hooks, models, capabilities, and tier routing; harness files are derived. `programs.mcp.servers` is the single MCP registry, and `ai.hooks` owns the command/matcher/harness filter contract.
 - `desktop.*` and `modules/options/desktop.nix` own monitors, scale, fonts, compositor geometry, and shared input policy.
 - RDST artifacts own traceability only: `Qxx` → accepted `Dxx` → `Sxx` → `Txx`; architecture is the current design view.
 - Secrets are encrypted in `secrets.yaml`; runtime material arrives through sops activation, rbw, GNOME Keyring, and gpg-agent.
@@ -57,6 +57,7 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 
 ## Operations & Security
 
+- OpenCode permissions put the deny-all rule first and derive allows from declared capabilities; other harnesses map the same capabilities to native tool lists. Pre-tool hooks fail closed on malformed input.
 - Home Manager activation and NixOS switch are separate; verify a dry-build or activation build before applying.
 - Internal services bind loopback or mesh addresses; Caddy is the traffic boundary.
 - Commit and tag signing stay enabled; merge commits and signing bypasses are blocked by policy.

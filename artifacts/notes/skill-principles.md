@@ -31,10 +31,10 @@ Stop on unresolved design questions, two consecutive failures, or a rejected rev
 Preserve working code and unrelated dirty edits. Prefer the smallest diff that satisfies the task. No unrequested refactoring, cleanup, abstractions, or dependencies.
 
 ### 6. Simplicity is always on
-Every review checks for overengineering: single-adapter abstractions, one-use helpers, speculative config, duplicate seams, unnecessary frameworks, and tests that restate implementation. Lens changes depth and breadth, not whether the check exists.
+Every review checks for overengineering; the checklist is `assets/skills/review/references/simplicity.md`. Lens changes depth and breadth, not whether the check exists.
 
 ### 7. Deslop is remediation
-`deslop` detects nothing by itself. It runs on explicit request after review evidence, removes the minimum, and preserves security, validation, accessibility, and error handling.
+`deslop` runs only on explicit request after review evidence; see `assets/skills/deslop/SKILL.md`.
 
 ### 8. Vertical slices over layers
 Implementation and planning use one thin user-visible outcome with its requirements, decisions, specs, tasks, verification, and review. Avoid horizontal phases that produce unused layers.
@@ -43,7 +43,7 @@ Implementation and planning use one thin user-visible outcome with its requireme
 Requirements state user-visible outcomes, acceptance, constraints, and non-goals. Design choices, frameworks, modules, files, and APIs belong to decisions and architecture.
 
 ### 10. Review breadth is explicit
-Diff review is ephemeral and narrow. Slice review covers the vertical slice and seams. Robustness review covers failure modes and workspace evidence. UI, backend, security, and performance are optional lenses when scope reaches rendered interfaces, transport boundaries, trust boundaries, or measured performance-sensitive paths.
+Choose diff, slice, or robust from `assets/skills/review/references/profiles.md`; optional UI, backend, security, and performance lenses never relax the always-on checks.
 
 ### 11. Delegation has boundaries
 Primary agents do not spawn primary agents. Recon goes to Scout, research to Researcher, execution to Worker, and review to Code Reviewer. Code Reviewer is read-only. Cap concurrency and stop after two subagent failures or aborts.

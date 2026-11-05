@@ -560,6 +560,42 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Define `corpus-audit` skill ingesting multi-session logs across past runs and SQLite logs, auditing workspace blind spots, cognitive traps, and tool waste into `artifacts/audit.md`.
   - Risk: none.
 
+- [x] T93 [S62]: Render every harness from the shared agent body
+  - Verify: nix eval --raw .#homeConfigurations.hollowheap.config.home.file.'".omp/agent/agents/engineer.md"'.text | grep -q 'Read target slices' && nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Files: `home/modules/programs/{pi-coding-agent,omp,codex,kiro-cli,antigravity,github-copilot-cli,crush}.nix`.
+  - Notes: Replace `agent.instructions` interpolation with `config.ai.render.agentBodyFor`; keep harness-specific wrappers.
+  - Risk: duplicate discipline blocks, empty body, renderer option mismatch.
+
+- [x] T94 [S62] [T93]: Resolve model and effort through per-harness tier adapters
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.opencode.agents.engineer | grep -q 'opencode-go' && nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Files: `home/modules/ai/options.nix`, `home/modules/programs/{opencode,pi-coding-agent,omp,codex,kiro-cli,antigravity,github-copilot-cli,crush}.nix`.
+  - Notes: Add `modelFor` and `effortFor` branches for every harness; preserve `models.<harness>` overrides; remove hardcoded model tables.
+  - Risk: provider/model IDs diverge, effort vocabulary mismatch, invalid generated TOML/JSON.
+
+- [x] T95 [S63]: Add one MCP stdio registry and render it across supporting harnesses
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.mcp.servers && nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Files: `home/modules/ai/options.nix`, `home/modules/programs/{opencode,codex,crush,github-copilot-cli}.nix`.
+  - Notes: Define `programs.mcp.servers` with command, args, env, and enabled; gate access through `capabilities.mcp`; render the same enabled set in each supporting harness. No default server is installed; the registry is empty until configured.
+  - Risk: differing server schemas, capability bypass, remote transport accidentally accepted.
+
+- [x] T96 [S64]: Route all harness hooks through `ai.hooks` and fail closed
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.ai.hooks && nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Files: `home/modules/ai/hooks.nix`, `home/modules/ai/options.nix`, `home/modules/programs/{opencode,pi-coding-agent,omp,codex,kiro-cli,antigravity,github-copilot-cli,crush,hermes}.nix`.
+  - Notes: Preserve event, command, args, matcher, timeout, enabled, and harness filters; remove dead hook files; make malformed pre-tool payloads exit nonzero. Pi and OMP have no native hook surface, so their dead hook files were removed rather than retained.
+  - Risk: fail-open regression, matcher mismatch, harness-specific event loss.
+
+- [x] T97 [S65]: Fix OpenCode permission ordering and remove the invalid `write` key
+  - Verify: nix eval --raw .#homeConfigurations.hollowheap.config.programs.opencode.agents.architect | grep -q 'permission:' && ! nix eval --raw .#homeConfigurations.hollowheap.config.programs.opencode.agents.architect | sed -n '/^permission:/,/^---/p' | grep -q '^  write:' && nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Files: `home/modules/programs/opencode.nix`.
+  - Notes: Emit deny-all before specific allows; derive task allows from `availableAgents`; keep architect artifact edits and scout delegation.
+  - Risk: deny-last ordering, invalid permission key, denied delegation.
+
+- [x] T98 [S65] [T97]: Map capability flags to native tool lists for non-OpenCode harnesses
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Files: `home/modules/programs/{codex,kiro-cli,antigravity,github-copilot-cli,crush}.nix`, `home/modules/ai/options.nix`.
+  - Notes: Remove tools not declared by `capabilities.read`, `write`, `execute`, `delegate`, `mcp`, or `web`; keep harness-native tool names.
+  - Risk: over-restricting a harness, tool-name drift, hidden delegation.
+
 ### References
 - Requirements: [artifacts/requirements.md](file:///home/hollowheap/repos/nixos-config/artifacts/requirements.md)
 - Decisions: [artifacts/decisions.md](file:///home/hollowheap/repos/nixos-config/artifacts/decisions.md)

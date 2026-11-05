@@ -251,6 +251,12 @@
   - Alternatives: ASCII diagramming (venn.nvim) or external browser preview extensions.
   - Consequences: `diagram.nvim` renders Mermaid, PlantUML, D2, and Graphviz inline; `image.nvim` renders images via Ghostty's Kitty graphics protocol with `magick_cli`; CLI packages (`imagemagick`, `mermaid-cli`, `plantuml`, `d2`, `graphviz`) are provided in `programs.nvf.settings.vim.extraPackages`; `"diagram.nvim"` added to `allowUnfreePredicate`.
 
+- [ ] D66 [R28]: Render every harness through `agentBodyFor` and `ai.tiers`.
+  - Context: Seven renderers send empty instructions, and four hardcode models or effort values.
+  - Alternatives: maintain per-harness prompts and model maps.
+  - Consequences: `config.ai.render.agentBodyFor` is the only agent-body path; `modelFor` and `effortFor` gain adapter branches for every harness, with `models.<harness>` overrides; hardcoded model tables are removed.
+  - Resolves: Q12
+
 ### Data & Contracts
 
 - [x] D53 [R19]: Universal harness rules with eager/lazy skill partitioning.
@@ -277,6 +283,11 @@
   - Context: none
   - Alternatives: store plaintext API keys in dotfiles, or require manual shell exports.
   - Consequences: `zsh.nix` exports `OPENCODE_API_KEY` and `OPENCODE_GO_API_KEY` on startup and via `preexec` hook before AI harness executions; `opencode.nix` explicitly queries environment variables; `pi-coding-agent.nix` declares `auth.json` with dynamic `!rbw get` execution; `ai-hooks.nix` guards `session-start` against non-git home directory scans.
+
+- [ ] D67 [R29]: Make `programs.mcp.servers` the single MCP registry.
+  - Context: `capabilities.mcp` gates nothing because no server registry exists.
+  - Alternatives: configure MCP separately in each harness or leave the capability inert.
+  - Consequences: named stdio servers define command, args, env, and enabled; remote MCP transport is deferred; OpenCode, Codex, Crush, and Copilot render the same registry; agents with `capabilities.mcp` receive access.
 
 ### Operations & Security
 
@@ -329,6 +340,17 @@
   - Context: Regular scrubs detect bitrot while zram reduces swap pressure.
   - Alternatives: no scrub and default mount flags.
   - Consequences: `hardware/filesystems.nix` owns scrub, zram, and mount policy.
+
+- [ ] D65 [R27]: Order permission rules deny-first and enforce capabilities without a `write` key.
+  - Context: OpenCode accepts the last matching permission; the current deny-last blocks edits and delegation, and `write` is not a permission key.
+  - Alternatives: keep per-agent permission blocks or bypass native permissions with a wrapper.
+  - Consequences: OpenCode's permission renderer emits one deny-all rule first, then capability-derived allows; other harnesses map capabilities to native tool lists; `task` allows come from `availableAgents`; architect can edit artifacts and delegate to scout.
+  - Resolves: Q11
+
+- [ ] D68 [R30]: Make `ai.hooks` the single hook contract and fail closed.
+  - Context: Harness hook files reimplement command, matcher, and harness filtering; some are dead and pre-tool failures pass.
+  - Alternatives: keep per-harness hook files or fail open for compatibility.
+  - Consequences: renderers consume `ai.hooks` event/command/args/matcher/timeout/enabled/harnesses; unsupported event/harness pairs fail at evaluation; malformed pre-tool payloads block the tool.
 
 ## Non-Goals
 - Automated backup and restore for Vaultwarden, Headscale, Caddy state, or home data; rclone safety is the only sync change in this backlog.

@@ -19,8 +19,10 @@ Group by meaningful H3 source headings. The heading owns origin, lens, slice, an
 
 ### Review — robustness backlog
 
-- [ ] Q11: Should every permission block put deny-all first and remove the invalid `write` key?
-- [ ] Q12: Should every harness render from `agentBodyFor` and resolve model and effort from `ai.tiers`?
+- [x] Q11: Should every permission block put deny-all first and remove the invalid `write` key?
+  - Resolution: D65
+- [x] Q12: Should every harness render from `agentBodyFor` and resolve model and effort from `ai.tiers`?
+  - Resolution: D66
 - [ ] Q13: Should pointer, gesture, keyboard, and touch policy move into shared desktop options?
 - [ ] Q14: Should lid close use suspend-then-hibernate with a bounded delay and firmware charge threshold?
 - [ ] Q15: Should internal services bind loopback or mesh, turn Caddy admin off, and disable SSH password authentication?
@@ -31,3 +33,13 @@ Group by meaningful H3 source headings. The heading owns origin, lens, slice, an
 - [ ] Q20: Should theme consumers share one registry for template, target, reload, order, and mode?
 - [ ] Q21: Should firmware enablement move into a base hardware trait imported by every host?
 - [ ] Q22: Should SMART monitoring and a Nix free-space floor be enabled?
+
+### Brainstorm tmux
+
+- [x] Q23: Which tmux workflow is slowest today: switching sessions, switching windows, moving panes, or restoring a session?
+  - Answer: keyboard copying is the priority.
+- [x] Q24: Should root `C-p`/`C-n` keep owning window navigation even though they steal shell history and next-line editing?
+  - Answer: no. This conflicts with the earlier request to move window navigation to `C-p`; choose the replacement binding before editing.
+- [x] Q25: Should pane titles show the command, path, or index, or stay hidden?
+  - Answer: no; do not add pane titles.
+- [ ] Q26: If root `C-p`/`C-n` no longer navigate windows, should window navigation use `M-p`/`M-n`, prefix bindings, or nothing?

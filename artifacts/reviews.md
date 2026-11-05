@@ -4,7 +4,7 @@ Maps stable review IDs (`Vxx`) to review files, modes, and scopes. See `artifact
 
 | ID | File | Mode | Scope |
 |---|---|---|---|
-| V01 | `artifacts/review/ai-harnesses.md` | robustness | AI harnesses |
+| V01 | `artifacts/review/ai-harnesses.md` | robustness; design; specification; plan; code | AI harnesses |
 | V02 | `artifacts/review/boot-recovery-updates.md` | robustness | boot, recovery, updates |
 | V03 | `artifacts/review/cli-tooling.md` | robustness | CLI tooling |
 | V04 | `artifacts/review/compositor-session.md` | robustness | compositor/session |

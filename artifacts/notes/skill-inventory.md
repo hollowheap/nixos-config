@@ -51,7 +51,7 @@ Persistent inventory and distillation map for every skill in the repo. Coverage:
 
 ### Do not add
 
-The remaining reference-framework gaps—shared glossary and verification-skill maintenance—should become steps or references in existing skills, not new micro-skills. Global definition of done, multi-model interrogation, model routing, and a separate reproduce/fix/prove loop are rejected; testing and reproduction are part of `implement` test-first.
+See `artifacts/notes/reference-frameworks.md` for remaining gaps and rejected ideas. Do not create a micro-skill for any of them without a design decision.
 
 ## Coverage checks
 
@@ -59,6 +59,6 @@ The remaining reference-framework gaps—shared glossary and verification-skill 
 - Every row names inputs, outputs, and a core principle.
 - Distillation marks are `keep`, `merge`, `fold`, or `do not add`; none are implicit.
 - All skills remain explicit and metadata-owned.
-- `review` profiles, `Vxx` IDs, and `Qxx` writes are recorded in `review-model.md`.
+- `review` profiles, `Vxx` IDs, and `Qxx` writes are recorded in `assets/skills/review/references/profiles.md`.
 - Cross-skill principles are recorded in `skill-principles.md`.
 - External source distinctions are recorded in `reference-frameworks.md`.
