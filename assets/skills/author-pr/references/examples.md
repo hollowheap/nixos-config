@@ -2,12 +2,15 @@
 
 ## Bad
 - Leaking internal tracking IDs into the PR body.
+- Using `Pull Request Description` instead of the actual PR title as the H1.
 - Fluffy boilerplate: "I hope you enjoy these awesome changes, everything was tested thoroughly and all tests passed!"
 - Dumping 400 lines of raw compiler output into the PR description.
 
 ## Good
 
 ```markdown
+# Add floating LSP definition previews
+
 ### Motivation
 
 Support floating LSP definition and implementation previews without disrupting editor buffer layout.

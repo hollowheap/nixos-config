@@ -1,4 +1,6 @@
-# Pull Request Description
+# <PR title>
+
+Use the actual pull request title as the H1; do not use a generic heading.
 
 ## TLDR
 

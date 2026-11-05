@@ -22,8 +22,6 @@ let
     ++ (optionals caps.web [ "web" ])
     ++ (optionals (builtins.elem "plan" agent.skills) [ "todo" ]);
 
-  rulesText = aiRender.rulesText config.ai.rules;
-
   mkAgent =
     _name: agent:
     # Copilot CLI currently exposes only `auto`; leave model and effort unset.
@@ -38,7 +36,7 @@ let
       ${lib.removeSuffix "\n" frontmatter}
       ---
 
-      ${agent.instructions}${rulesText agent}
+      ${aiRender.agentBodyFor "copilot" agent}
     '';
 
   mkSkill =
@@ -53,23 +51,15 @@ let
     '';
 
   # Copilot CLI built-ins are closed: no drops. Add rule names here once verified.
-  droppedDisciplineRules = { };
-
-  renderDiscipline = aiRender.renderDiscipline {
-    dropped = droppedDisciplineRules;
-    separator = "\n";
-  };
-
-  disciplineBlocks = mapAttrsToList renderDiscipline config.ai.disciplines;
 in
 {
   programs.github-copilot-cli = {
     enable = true;
     mutableSettings = true;
     enableMcpIntegration = true;
+    settings.autoUpdate = false;
 
     agents = mapAttrs mkAgent config.ai.agents;
     skills = mapAttrs mkSkill config.ai.skills;
-    context = concatStringsSep "\n" disciplineBlocks;
   };
 }

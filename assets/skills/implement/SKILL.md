@@ -1,11 +1,11 @@
 ## Workflow
 
 1. Run `scripts/artifacts.sh next-task`; if NONE, stop immediately.
-2. Read the task, spec, decision, architecture, and accepted plan review; do not read unrelated files.
+2. Read the task, spec, decision, architecture, and plan; do not read unrelated files.
 3. Reproduce an existing failure or write the smallest failing test/check at the seam using `references/test-first.md`; confirm the red result.
 4. Implement the minimum production code required to satisfy the invariant using targeted hunk edits.
-5. Rerun the same check until green, then run the task verify and broader suite; hand the code gate to `{{skill:review}}`.
-6. Apply minimal review fixes; mark the task complete only after the test/verify and code review are accepted.
+5. Rerun the same check until green, then run the task verify and broader suite; hand the final review to `{{skill:review}}`.
+6. Apply minimal review fixes; mark the task complete only after the test/verify and final review are accepted.
 7. Stop; parent specs and decisions are derived from references.
 
 ## Quick change
@@ -26,6 +26,6 @@ Use only when the change is one file or a small reversible edit with a clear ver
 - Respect accepted seam invariants; change internal implementation without breaking public boundaries.
 - Apply minimal hunk edits; avoid unsolicited refactoring or premature abstractions.
 - Never add design, spec, plan, or review breakdowns to a task.
-- Do not start a task whose plan review is rejected; do not mark it complete without code review acceptance.
+- Do not start a task whose plan is blocked; do not mark it complete without final review acceptance.
 - Never mark parent specs or decisions complete.
-- Verify: failing check went green, task verify passes, code review is accepted, and `artifacts/tasks.md` reflects `- [x] Txx`.
+- Verify: failing check went green, task verify passes, final review is accepted, and `artifacts/tasks.md` reflects `- [x] Txx`.

@@ -21,13 +21,37 @@
       };
     };
 
+    search = {
+      description = "Compact, bounded retrieval.";
+      target = "primary";
+      rules = {
+        narrow = "Start from the narrowest known path; use `rg -n --smart-case` with a glob or file type. Never search `/` or `$HOME`.";
+        compact = "Return file:line plus the shortest decisive snippet; cap matches. Put large output in artifacts/logs/ and cite the path.";
+        stop = "Stop on the first decisive match; widen scope only after a miss.";
+      };
+    };
+
     unslop = {
       description = "High-density, fluff-free communication with safety break-glass.";
       target = "primary";
       rules = {
-        density = "Answer first, then reason, then next step. One idea per sentence, <=20 words. Drop articles when readable; keep negations verbatim. No filler (just/really/basically/actually/simply). Code, paths, commands, numbers, errors stay verbatim.";
+        density = "Answer first, then reason, then next step. One idea per sentence, <=20 words. Keep negations, subjects, and articles explicit. No filler (just/really/basically/actually/simply). Code, paths, commands, numbers, errors stay verbatim.";
         break-glass = "Full sentences for: warnings, irreversible actions, order-sensitive steps, user repeats, persisted artifacts/code, status lines, and user questions.";
+        tables = "Keep Markdown table cells short. Wrap long cells with `<br>` or move detail below the table; never force horizontal scrolling. Wrap paths and commands in backticks.";
         pre-send = "Pre-send check: delete announcement and recap sentences; verify negations and verbatim payloads; split ambiguous sentences.";
+      };
+    };
+
+    ste100 = {
+      description = "ASD-STE100 Simplified Technical English for technical prose.";
+      target = "primary";
+      rules = {
+        vocabulary = "Use plain, approved ASD-STE100 words in their approved meanings. Use one term for one item. Define technical nouns, verbs, and abbreviations at first use.";
+        sentences = "Use simple sentences. Put one instruction in each sentence. Use active voice, imperative steps, and simple present facts. Keep procedure sentences <=20 words and descriptive sentences <=25.";
+        structure = "Put steps in execution order. Use a vertical list for three or more steps or conditions. Keep one topic per paragraph and <=6 sentences.";
+        requirements = "Use `must` for mandatory requirements and `can` for capability. Do not use `should` for a requirement. Keep the subject and articles explicit.";
+        ambiguity = "Avoid stacked nouns, ambiguous pronouns, synonyms, and unexplained abbreviations. Split a sentence when its meaning is unclear.";
+        scope = "Apply to specs, PR descriptions, commit messages, runbooks, and user-facing docs. Keep code, paths, commands, numbers, and errors verbatim.";
       };
     };
 

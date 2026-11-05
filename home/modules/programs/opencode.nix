@@ -26,7 +26,7 @@ let
       webfetch = caps.web;
     };
 
-  opencodeModel = "opencode-go/deepseek-v4.1-flash";
+  opencodeModel = config.ai.tiers.high.models.opencode or config.ai.tiers.high.model;
 
   modeFor =
     agent:
@@ -83,6 +83,7 @@ permission:
 ${taskPermSection}
   skill: "deny"
   bash:
+    "*": "deny"
     "repomap*": "allow"
     "rg*": "allow"
     "fd*": "allow"
@@ -91,7 +92,6 @@ ${taskPermSection}
     "git status*": "allow"
     "git log*": "allow"
     "git diff*": "allow"
-    "*": "deny"
 '' else if name == "worker" then ''
 permission:
 ${taskPermSection}
@@ -107,15 +107,12 @@ ${bashPermSection}
 permission:
 ${taskPermSection}
   edit:
-    "artifacts/*.md": "allow"
     "*": "deny"
-  write:
     "artifacts/*.md": "allow"
-    "*": "deny"
   bash:
+    "*": "deny"
     "artifacts*": "allow"
     "repomap*": "allow"
-    "*": "deny"
 ${skillPermSection}
 '' else if name == "ask" then ''
 permission:
@@ -153,6 +150,7 @@ in
 {
   programs.opencode = {
     enable = true;
+    enableMcpIntegration = true;
     mutableSettings = false;
     settings = {
       "$schema" = "https://opencode.ai/config.json";

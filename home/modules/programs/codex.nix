@@ -57,12 +57,6 @@ let
   );
 
   # Codex base prompt unverified for overlap: no drops. Add rule names here once verified.
-  droppedDisciplineRules = { };
-
-  renderDiscipline = aiRender.renderDiscipline { dropped = droppedDisciplineRules; };
-
-  disciplines = concatStringsSep "\n\n" (mapAttrsToList renderDiscipline config.ai.disciplines);
-
   mkSkillDir = aiRender.mkSkillDir {
     prefix = "codex";
     skills = config.ai.skills;
@@ -71,34 +65,29 @@ let
 
   tomlFormat = pkgs.formats.toml { };
 
-  rulesText = aiRender.rulesText config.ai.rules;
-
   mkAgentFile =
     name: agent: {
       name = ".codex/agents/${name}.toml";
       value.source = tomlFormat.generate "${name}.toml" {
         inherit name;
         inherit (agent) description;
-        developer_instructions = agent.instructions + rulesText agent;
-        model = "gpt-6-luna";
-        model_reasoning_effort = "xhigh";
+        developer_instructions = aiRender.agentBodyFor "codex" agent;
+        model = aiRender.modelFor "codex" agent;
+        model_reasoning_effort = aiRender.effortFor "codex" agent;
       };
     };
 in
 {
   programs.codex = {
     enable = true;
+    enableMcpIntegration = true;
     package = pkgs.codex;
-    context = ''
-      # Shared disciplines
-
-      ${disciplines}
-    '';
     skills = mapAttrs mkSkillDir config.ai.skills;
     mutableSettings = true;
     settings = {
-      model = "gpt-6-luna";
-      model_reasoning_effort = "xhigh";
+      features.hooks = true;
+      model = config.ai.tiers.high.models.codex or config.ai.tiers.high.model;
+      model_reasoning_effort = config.ai.tiers.high.efforts.codex or config.ai.tiers.high.effort;
       tui.screen_reader_detection_done = true;
       tui.theme = "wallust";
       projects."${config.home.homeDirectory}/repos/home-manager".trust_level = "trusted";

@@ -19,30 +19,26 @@ let
       ## Agent: ${name}
       ${agent.description}
 
-      ${agent.instructions}
+      ${aiRender.agentBodyFor "crush" agent}
     '') config.ai.agents
   );
-
-  # Discipline lines the crush coder prompt covers. Add rule names here once verified.
-  droppedDisciplineRules = { };
-
-  renderDiscipline = aiRender.renderDiscipline {
-    dropped = droppedDisciplineRules;
-    heading = "##";
-  };
-
-  # Crush has no per-agent surface: render the union over all agents.
-  allRules = concatStringsSep "\n\n" (map (rule: rule.text) config.ai.rules);
-
-  disciplines = concatStringsSep "\n\n" (mapAttrsToList renderDiscipline config.ai.disciplines);
 in
 {
   programs.crush = {
     enable = true;
+    enableMcpIntegration = true;
     settings = {
-      default_provider = "opencode-go";
-      default_model = "deepseek-v4.1-flash";
-      reasoning_effort = aiRender.effortFor "crush" (config.ai.agents.engineer or { effort = "high"; });
+      models = {
+        large = {
+          provider = "opencode-go";
+          model = config.ai.tiers.high.models.crush or config.ai.tiers.high.model;
+          reasoning_effort = aiRender.effortFor "crush" (config.ai.agents.engineer or { effort = "high"; });
+        };
+        small = {
+          provider = "opencode-go";
+          model = config.ai.tiers.low.models.crush or config.ai.tiers.low.model;
+        };
+      };
       options = {
         tui.active_theme = "wallust";
         global_context_paths = [
@@ -59,27 +55,11 @@ in
       # Shared agent instructions
 
       ${instructions}
-
-      # Shared disciplines
-
-      ${disciplines}
-
-      # Shared rules
-
-      ${allRules}
     '';
     "crush/AGENTS.md".text = ''
       # Shared agent instructions
 
       ${instructions}
-
-      # Shared disciplines
-
-      ${disciplines}
-
-      # Shared rules
-
-      ${allRules}
     '';
     "crush/crushrc".text = lib.optionalString (
       builtins.hasAttr "pre-tool" config.ai.hooks

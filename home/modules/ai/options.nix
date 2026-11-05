@@ -297,6 +297,16 @@ in
             ];
             description = "Reasoning effort level.";
           };
+          models = mkOption {
+            type = attrsOf str;
+            default = { };
+            description = "Harness-specific model overrides for this tier.";
+          };
+          efforts = mkOption {
+            type = attrsOf str;
+            default = { };
+            description = "Harness-specific effort overrides for this tier.";
+          };
         };
       });
       default = {
@@ -304,16 +314,52 @@ in
           provider = "opencode-go";
           model = "deepseek-v4.1-flash";
           effort = "high";
+          models = {
+            opencode = "opencode-go/deepseek-v4.1-flash";
+            codex = "gpt-6-luna";
+            kiro = "claude-sonnet-5.5";
+            antigravity = "Gemini 3.8 Flash (High)";
+            crush = "deepseek-v4.1-flash";
+          };
+          efforts = {
+            codex = "xhigh";
+            kiro = "low";
+            crush = "high";
+          };
         };
         medium = {
           provider = "opencode-go";
           model = "deepseek-v4.1-flash";
           effort = "medium";
+          models = {
+            opencode = "opencode-go/deepseek-v4.1-flash";
+            codex = "gpt-6-luna";
+            kiro = "claude-haiku-5.5";
+            antigravity = "Gemini 3.8 Flash (High)";
+            crush = "deepseek-v4.1-flash";
+          };
+          efforts = {
+            codex = "xhigh";
+            kiro = "xhigh";
+            crush = "medium";
+          };
         };
         low = {
           provider = "opencode-go";
           model = "beam-free";
           effort = "low";
+          models = {
+            opencode = "opencode-go/beam-free";
+            codex = "gpt-6-luna";
+            kiro = "claude-haiku-5.5";
+            antigravity = "Gemini 3.8 Flash (High)";
+            crush = "beam-free";
+          };
+          efforts = {
+            codex = "xhigh";
+            kiro = "xhigh";
+            crush = "low";
+          };
         };
       };
       description = "3-tier model and effort routing table.";
@@ -421,6 +467,7 @@ in
     };
   };
 
+  config.programs.mcp.enable = true;
   config.ai.render = rec {
     inherit (aiRenderBase) hookCommandLine mkSkillDir opencodeGoModelFor renderSkillInvocation;
 
@@ -501,32 +548,27 @@ in
     modelFor =
       harness: agent:
       let
-        rawModel = agent.models.${harness} or agent.model;
+        tier = cfg.tiers.${agent.tier};
+        harnessModel = agent.models.${harness} or tier.models.${harness} or null;
+        rawModel = if harnessModel != null then harnessModel else agent.model;
         piModel = agent.models.pi or agent.tier;
       in
-      if harness == "pi" || harness == "pi-coding-agent" || harness == "omp" then
+      if harness == "pi" || harness == "pi-coding-agent" then
         opencodeGoModelFor { } piModel
-      else if harness == "opencode" then
-        if rawModel == null || rawModel == "" then
-          "opencode-go/deepseek-v4.1-flash"
-        else
-          rawModel
       else
         rawModel;
 
     effortFor =
-      _harness: agent:
+      harness: agent:
       let
-        eff = agent.effort;
+        tier = cfg.tiers.${agent.tier};
+        harnessEffort = agent.models.${harness + "Effort"} or tier.efforts.${harness} or null;
+        eff = if harnessEffort != null then harnessEffort else agent.effort;
       in
       if eff == null then
         null
-      else if eff == "low" then
-        "low"
-      else if eff == "medium" then
-        "medium"
       else
-        "high";
+        eff;
 
     agentBodyFor =
       harness: agent:

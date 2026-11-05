@@ -5,8 +5,7 @@
 3. Grill adaptively with the question tool; register candidate unknowns in `artifacts/questions.md` under an H3 source heading with `references/questions.md`; never create a local question list.
 4. Record accepted decisions with `references/decision.md`, grouped under the exact architecture H2 heading; add `Resolves: Qxx` only when the decision closes a question, and omit `Arch` and `Verify` because the H3 and child specs carry them.
 5. Update `artifacts/architecture.md` with `references/architecture.md` for accepted design changes; link the decision and keep the current-state view current.
-6. Hand the requirements and design gates to `{{skill:review}}`; require the sections in `artifacts/review/<slice>.md` before specifying.
-7. Close resolved questions with `Resolution: Dxx`; leave unresolved choices open. Stop at accepted design and architecture.
+6. Close resolved questions with `Resolution: Dxx`; leave unresolved choices open. Stop at accepted design and architecture.
 
 ## Rules
 
@@ -16,4 +15,4 @@
 - A question's H3 heading owns its source; do not repeat `Origin`, `Lens`, or `Slice` per item.
 - Any behavior-changing decision made in chat becomes an accepted `Dxx` before the next action. If it has no parent `Rxx`, stop and ask for the requirement.
 - `Sxx` derives from accepted `Rxx`, `Dxx`, and architecture; `Txx` derives from `Sxx`.
-- Verify: requirements contain no design choices, questions are grouped by source, no orphaned open decisions exist, architecture is current, and the design review section is accepted.
+- Verify: requirements contain no design choices, questions are grouped by source, no orphaned open decisions exist, and architecture is current.

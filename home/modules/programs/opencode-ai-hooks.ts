@@ -1,4 +1,4 @@
-import { Plugin } from "@opencode/plugin";
+import type { Plugin } from "@opencode-ai/plugin";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -7,10 +7,15 @@ import { join } from "node:path";
 const configDir = process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
 const manifestPath = join(configDir, "opencode", "ai-hooks.json");
 
-function loadHooks(): Record<string, { command: string; timeout: number }> {
+type Hook = { command: string; timeout: number };
+
+let manifestError: string | null = null;
+
+function loadHooks(): Record<string, Hook> {
   try {
-    return JSON.parse(readFileSync(manifestPath, "utf8"));
-  } catch {
+    return JSON.parse(readFileSync(manifestPath, "utf8")) as Record<string, Hook>;
+  } catch (error) {
+    manifestError = String(error);
     return {};
   }
 }
@@ -29,8 +34,13 @@ const WRITE_TOOLS = new Set([
 ]);
 
 function run(name: string, payload: unknown): string | null {
+  if (manifestError && name === "pre-tool") {
+    throw new Error(`ai-hooks manifest is malformed: ${manifestError}`);
+  }
+
   const hook = hooks[name];
   if (!hook) return null;
+
   try {
     const output = execFileSync(hook.command, {
       shell: true,
@@ -39,51 +49,46 @@ function run(name: string, payload: unknown): string | null {
       timeout: hook.timeout * 1000,
     });
     return output.trim() || null;
-  } catch {
+  } catch (error) {
+    if (name === "pre-tool") {
+      throw new Error(`ai-hooks ${name} failed: ${String(error)}`);
+    }
     return null;
   }
 }
 
-export default Plugin.define({
-  id: "ai-hooks",
-  async setup(ctx) {
-    const controller = new AbortController();
-    void (async () => {
-      for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
-        if (event.type === "session.created") {
-          run("session-start", { event: event.type, cwd: ctx.location.directory });
-        }
-      }
-    })().catch(() => {});
-
-    await ctx.tool.hook("execute.before", (event) => {
-      const result = run("pre-tool", {
-        tool_name: event.tool,
-        tool_input: event.input,
-        cwd: ctx.location.directory,
-      });
-      if (!result) return;
-
-      let decision: { decision?: string; reason?: string };
-      try {
-        decision = JSON.parse(result);
-      } catch {
-        return;
-      }
-      if (decision.decision === "deny") {
-        throw new Error(decision.reason ?? "blocked by ai-hooks");
-      }
+const plugin: Plugin = async ({ directory }) => ({
+  event: async ({ event }) => {
+    if (event.type === "session.created") {
+      run("session-start", { event: event.type, cwd: directory });
+    }
+  },
+  "tool.execute.before": async (input, output) => {
+    const result = run("pre-tool", {
+      tool_name: input.tool,
+      tool_input: output.args,
+      cwd: directory,
     });
+    if (!result) return;
 
-    await ctx.tool.hook("execute.after", (event) => {
-      if (event.status !== "completed" || !WRITE_TOOLS.has(event.tool)) return;
-      run("post-tool", {
-        tool_name: event.tool,
-        tool_input: event.input,
-        cwd: ctx.location.directory,
-      });
+    let decision: { decision?: string; reason?: string };
+    try {
+      decision = JSON.parse(result);
+    } catch {
+      throw new Error("ai-hooks pre-tool returned malformed JSON");
+    }
+    if (decision.decision === "deny" || decision.decision === "block") {
+      throw new Error(decision.reason ?? "blocked by ai-hooks");
+    }
+  },
+  "tool.execute.after": async (input, output) => {
+    if (!WRITE_TOOLS.has(input.tool)) return;
+    run("post-tool", {
+      tool_name: input.tool,
+      tool_input: input.args,
+      cwd: directory,
     });
-
-    return () => controller.abort();
   },
 });
+
+export default plugin;

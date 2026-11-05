@@ -3,12 +3,13 @@
 1. Inspect branch changes against the base branch:
    - `git log --oneline main..HEAD`
    - `git diff --stat main..HEAD`
-2. Draft the PR description using `references/format.md`.
+2. Draft the PR description using `references/format.md`; use the actual PR title as the H1.
 3. Write it to `artifacts/pr/<branch>.md`; present the path to the user.
 
 ## Rules
 
 - Target human engineers.
+- Start with the actual PR title; never use `Pull Request Description` as the heading.
 - PR descriptions never mention internal RDST IDs, artifact paths, or harness machinery.
 - TLDR first; Key Changes lists behavior and risk, not every touched file.
 - No Verification section; tests are already covered by the task.

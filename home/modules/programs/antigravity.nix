@@ -36,8 +36,6 @@ let
       "ask_question"
     ]);
 
-  rulesText = aiRender.rulesText config.ai.rules;
-
   mkAgent =
     name: agent:
     let
@@ -51,7 +49,7 @@ let
             subagent
             skills
             ;
-          model = "flash";
+          model = aiRender.modelFor "antigravity" agent;
           tools = agToolsFor agent;
         }
         // lib.optionalAttrs caps.execute { commandExecutionPolicy = "auto"; }
@@ -68,7 +66,7 @@ let
         ---
 
         # Instructions
-        ${agent.instructions}${rulesText agent}
+        ${aiRender.agentBodyFor "antigravity" agent}
       '';
     };
 
@@ -82,20 +80,6 @@ let
   };
 
   # Antigravity built-ins are closed: no drops. Add rule names here once verified.
-  droppedDisciplineRules = { };
-
-  renderDiscipline = aiRender.renderDiscipline { dropped = droppedDisciplineRules; };
-
-  mkRule =
-    name: d: {
-      name = ".gemini/config/rules/${name}.md";
-      value.text = ''
-        ---
-        trigger: always_on
-        description: "${d.description}"
-        ---
-        ${renderDiscipline name d}'';
-    };
   antigravityHookEvent =
     event:
     {
@@ -146,7 +130,7 @@ in
     settings = {
       allowNonWorkspaceAccess = true;
       editorMode = "vim";
-      model = "Gemini 3.8 Flash (High)";
+      model = config.ai.tiers.high.models.antigravity or config.ai.tiers.high.model;
       notifications = true;
       pickerGrouping = "grouped";
       runningLightSpeed = "fast";
@@ -176,7 +160,6 @@ in
   home.file = mkIf config.programs.antigravity-cli.enable (
     builtins.listToAttrs (
       (mapAttrsToList mkAgent config.ai.agents)
-      ++ (mapAttrsToList mkRule config.ai.disciplines)
     )
     // {
       ".gemini/antigravity-cli/bin/agy-statusline".source = "${pkgs.agy-statusline}/bin/agy-statusline";

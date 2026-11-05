@@ -6,7 +6,7 @@
 4. Reconcile `artifacts/architecture.md` with accepted decisions; refresh system, module, framework/library, data/contract, and operations/security views.
 5. Reconcile questions and decisions: unresolved choices stay in `artifacts/questions.md`; accepted decisions carry `Resolves` and `Resolution`; no orphaned `Dxx` remains.
 6. Reconcile requirements, specs, and tasks in place after executing their verification commands; keep task records minimal.
-7. Run `scripts/artifacts.sh verify-links` and refresh review gate verdicts for changed slices.
+7. Run `scripts/artifacts.sh verify-links` and refresh persistent review records for changed slices.
 
 ## Rules
 
@@ -16,4 +16,4 @@
 - Keep requirement, decision, spec, and task IDs immutable; never renumber existing IDs.
 - Keep `AGENTS.md` verified and scannable; keep `artifacts/context.md` under 60 lines.
 - Commands belong in `AGENTS.md` `## Essential Commands`; `artifacts/context.md` must not have a `## Commands` section.
-- Verify: `scripts/artifacts.sh verify-links` outputs OK, architecture is current, no orphaned open decisions remain, and review gates reflect the changed slices.
+- Verify: `scripts/artifacts.sh verify-links` outputs OK, architecture is current, no orphaned open decisions remain, and persistent review records reflect the changed slices.

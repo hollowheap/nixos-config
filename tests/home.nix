@@ -68,7 +68,7 @@ pkgs.runCommand "check-home" {
   grep -q -- "-builtin:llama.cpp" home/modules/programs/pi-coding-agent.nix
   grep -q "bind C-g send-keys C-g" home/modules/terminal/tmux.nix
   grep -q "bind l send-keys l" home/modules/terminal/tmux.nix
-  grep -q "@continuum-save-interval '15'" home/modules/terminal/tmux.nix
+  grep -q "@continuum-save-interval '5'" home/modules/terminal/tmux.nix
   grep -q "@resurrect-strategy-nvim 'session'" home/modules/terminal/tmux.nix
   grep -q "continuum_save.sh" home/modules/terminal/tmux.nix
   grep -q 'List all key bindings' home/modules/terminal/tmux.nix
@@ -82,7 +82,7 @@ pkgs.runCommand "check-home" {
   ! grep -q "bind y display-popup" home/modules/terminal/tmux.nix
   ! grep -q "bind b display-popup" home/modules/terminal/tmux.nix
   ! grep -q "bind t display-popup" home/modules/terminal/tmux.nix
-  ! grep -q "bind -n C-p" home/modules/terminal/tmux.nix
+  grep -q "bind -n C-p previous-window" home/modules/terminal/tmux.nix
   grep -q ']4;7;#e0e0e0' assets/wallust-templates/sequences
   grep -q ']4;8;#2e2e2e' assets/wallust-templates/sequences
   grep -q "detectContrast" lib/color.nix

@@ -32,8 +32,10 @@ let
       {
         name = ".kiro/skills/${name}/SKILL.md";
         value.text = ''
-          # ${name}
-          ${skill.description}
+          ---
+          name: ${name}
+          description: ${skill.description}
+          ---
 
           ${renderSkill skill.content}
         '';
@@ -52,15 +54,6 @@ let
     }) skill.scripts);
 
   # Kiro built-ins are closed: no drops. Add rule names here once verified.
-  droppedDisciplineRules = { };
-
-  renderDiscipline = aiRender.renderDiscipline { dropped = droppedDisciplineRules; };
-
-  mkDiscipline = name: d: {
-    name = ".kiro/steering/${name}.md";
-    value.text = renderDiscipline name d;
-  };
-
   kiroToolsFor =
     agent:
     let
@@ -139,22 +132,6 @@ let
     exit 0
   '';
 
-  kiroModelFor =
-    tier:
-    if tier == "high" then
-      "claude-sonnet-5.5"
-    else
-      "claude-haiku-5.5";
-
-  kiroEffortFor =
-    tier:
-    if tier == "high" then
-      "low"
-    else
-      "xhigh";
-
-  rulesText = aiRender.rulesText config.ai.rules;
-
   mkKiroAgent =
     name: agent:
     let
@@ -163,8 +140,7 @@ let
       skillResources = map (s: "skill://.kiro/skills/${s}/SKILL.md") agent.skills;
       repomapResource = optionals readOnly [ "file://artifacts/repomap.md" ];
       rules = kiroRulesFor name agent;
-      kiroModel = agent.models.kiro or (kiroModelFor agent.tier);
-      kiroEffort = agent.models.kiroEffort or (kiroEffortFor agent.tier);
+      kiroModel = aiRender.modelFor "kiro" agent;
     in
     {
       name = ".kiro/agents/${name}.json";
@@ -172,12 +148,11 @@ let
         {
           name = slugToTitle name;
           inherit (agent) description;
-          prompt = agent.instructions + rulesText agent;
+          prompt = aiRender.agentBodyFor "kiro" agent;
           tools = kiroToolsFor agent;
           resources = skillResources ++ repomapResource;
           includeMcpJson = caps.mcp;
           model = kiroModel;
-          effort = kiroEffort;
         }
         // (lib.optionalAttrs (rules != [ ]) { permissions.rules = rules; })
       );
@@ -193,7 +168,6 @@ in
     builtins.listToAttrs (
       (builtins.concatLists (mapAttrsToList mkSkillFiles config.ai.skills))
       ++ (mapAttrsToList mkKiroAgent config.ai.agents)
-      ++ (mapAttrsToList mkDiscipline config.ai.disciplines)
     )
     // {
       ".kiro/hooks/prevent-overwrite.json".text = lib.generators.toJSON { } {

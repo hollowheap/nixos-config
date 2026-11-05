@@ -13,20 +13,11 @@ let
     invocation = name: "/skill:${name}";
   };
 
-  # Pi built-in prompt is unverified for overlap: no drops. Add rule names here once verified.
-  droppedDisciplineRules = { };
-
-  renderDiscipline = aiRender.renderDiscipline { dropped = droppedDisciplineRules; };
-
-  disciplines = concatStringsSep "\n\n" (mapAttrsToList renderDiscipline config.ai.disciplines);
+  configDir = config.programs.pi-coding-agent.configDir;
 
   roster = concatStringsSep "\n" (
     mapAttrsToList (name: agent: "- ${name}: ${agent.description}") config.ai.agents
   );
-
-  configDir = config.programs.pi-coding-agent.configDir;
-
-  rulesText = aiRender.rulesText config.ai.rules;
 
   agentFiles = mapAttrsToList (name: agent: {
     name = "${configDir}/agents/${name}.md";
@@ -39,7 +30,7 @@ let
       mode: ${if agent.capabilities.write then "ask" else "plan"}
       ---
 
-      ${agent.instructions}${rulesText agent}
+      ${aiRender.agentBodyFor "pi" agent}
     '';
   }) config.ai.agents;
 
@@ -181,58 +172,6 @@ let
     }
   ];
 
-  # Pi Lifecycle Hooks Protocol:
-  # - Target Files: User-global (${configDir}/hooks.json) or project-local (<project>/.pi/hooks.json in trusted workspaces).
-  # - Execution: Direct binary execution { command: string, args: string[], timeoutMs?: number }. No shell expansion.
-  # - Events:
-  #   * sessionStart: Stdin {"event": "session_start", "cwd", "mode"}. Non-zero exit warns without crashing.
-  #   * preTool: Stdin {"event": "pre_tool", "toolName", "toolCallId", "input", "cwd", "mode"}. Exit 2 or {"decision": "block"} aborts tool call.
-  #   * postTool: Stdin {"event": "post_tool", ...}. Stdout appends directly to tool output.
-  hookFiles = [
-    {
-      name = "${configDir}/hooks.json";
-      value.text = builtins.toJSON {
-        hooks =
-          lib.optionalAttrs (
-            builtins.hasAttr "pre-tool" config.ai.hooks
-            && config.ai.hooks.pre-tool.enabled
-            && (
-              config.ai.hooks.pre-tool.harnesses == [ ]
-              || builtins.elem "pi" config.ai.hooks.pre-tool.harnesses
-            )
-          ) {
-            preTool = [
-              {
-                matcher = if config.ai.hooks.pre-tool.matcher != null then config.ai.hooks.pre-tool.matcher else "bash";
-                command = config.ai.hooks.pre-tool.command;
-                args = config.ai.hooks.pre-tool.args ++ [
-                  "--format"
-                  "block"
-                ];
-                timeoutMs = config.ai.hooks.pre-tool.timeout * 1000;
-              }
-            ];
-          }
-          // lib.optionalAttrs (
-            builtins.hasAttr "session-start" config.ai.hooks
-            && config.ai.hooks.session-start.enabled
-            && (
-              config.ai.hooks.session-start.harnesses == [ ]
-              || builtins.elem "pi" config.ai.hooks.session-start.harnesses
-            )
-          ) {
-            sessionStart = [
-              {
-                command = config.ai.hooks.session-start.command;
-                args = config.ai.hooks.session-start.args;
-                timeoutMs = config.ai.hooks.session-start.timeout * 1000;
-              }
-            ];
-          };
-      };
-    }
-  ];
-
   skills = builtins.concatLists (
     mapAttrsToList (
       name: skill:
@@ -282,30 +221,27 @@ let
     }
   ];
 
-  webConfigFile = [
+  # pi-memory observer uses the low tier: opencode-go/beam-free, the cheapest
+  # 64k+ route. Resolved through ai.tiers, not a separate model map.
+  memoryFile = [
     {
-      name = "${configDir}/web.json";
+      name = "${configDir}/memory.json";
       value = {
         force = true;
         text = builtins.toJSON {
-          search = {
-            order = [ "exa" ];
-          };
-          fetch = {
-            order = [
-              "exa"
-              "raw"
-            ];
-          };
+          enabled = true;
+          model = "${config.ai.tiers.low.provider}/${config.ai.tiers.low.model}";
+          observeAfterTokens = 20000;
+          maxObservations = 40;
+          injectionTokens = 2000;
+          redactSecrets = true;
+          notifyErrors = true;
         };
       };
     }
   ];
 
   piWrapper = pkgs.writeShellScriptBin "pi" ''
-    if [ -z "$EXA_API_KEY" ] && command -v ${pkgs.rbw}/bin/rbw >/dev/null && ${pkgs.rbw}/bin/rbw unlocked >/dev/null 2>&1; then
-      export EXA_API_KEY="$(${pkgs.rbw}/bin/rbw get --folder dev/keys exa 2>/dev/null || ${pkgs.rbw}/bin/rbw get exa 2>/dev/null || true)"
-    fi
     if [ -z "$OPENCODE_API_KEY" ] && command -v ${pkgs.rbw}/bin/rbw >/dev/null && ${pkgs.rbw}/bin/rbw unlocked >/dev/null 2>&1; then
       _k="$(${pkgs.rbw}/bin/rbw get --folder dev/keys opencode 2>/dev/null || true)"
       if [ -n "$_k" ]; then
@@ -326,9 +262,11 @@ in
       pkgs.nodejs
     ];
     settings = {
+      enableInstallTelemetry = false;
+      defaultTools = [ "+codemode" ];
       defaultThinkingLevel = aiRender.effortFor "pi" (config.ai.agents.engineer or { effort = "high"; });
       packages = [
-        "git:github.com/hollowheap/pi-extensions"
+        "git:github.com/hollowheap/pi-extensions@main"
       ];
       extensions = [
         "-builtin:tool-search"
@@ -341,16 +279,11 @@ in
 
       ${roster}
     '';
-    appendSystem = ''
-      # Shared disciplines
-
-      ${disciplines}
-    '';
   };
 
   home.file = lib.mkIf config.programs.pi-coding-agent.enable (
     builtins.listToAttrs (
-      hookFiles ++ skills ++ agentFiles ++ dashboardFile ++ statuslineFile ++ authFile ++ webConfigFile
+      skills ++ agentFiles ++ dashboardFile ++ statuslineFile ++ authFile ++ memoryFile
     )
   );
 }
