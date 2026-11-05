@@ -1,4 +1,12 @@
 { pkgs, ... }:
+let
+  pinentry = pkgs.writeShellScriptBin "pinentry-fallback" ''
+    if [ -n "''${WAYLAND_DISPLAY:-}" ] || [ -n "''${DISPLAY:-}" ]; then
+      exec ${pkgs.pinentry-gnome3}/bin/pinentry-gnome3 "$@"
+    fi
+    exec ${pkgs.pinentry-curses}/bin/pinentry-curses "$@"
+  '';
+in
 {
   services.gnome-keyring = {
     enable = true;
@@ -12,8 +20,8 @@
     maxCacheTtl = 86400;
     extraConfig = "allow-loopback-pinentry";
     pinentry = {
-      package = pkgs.pinentry-gnome3;
-      program = "pinentry-gnome3";
+      package = pinentry;
+      program = "pinentry-fallback";
     };
   };
 

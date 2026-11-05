@@ -184,9 +184,8 @@
       zstyle ':completion:*:manuals' separate-sections true
       zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
-      zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
-      zstyle ':fzf-tab:*' popup-min-size 60 12
-      zstyle ':fzf-tab:*' popup-pad 0 0
+      # Use the same centered tmux popup as standalone fzf widgets.
+      zstyle ':fzf-tab:*' fzf-command 'fzf-tmux -p 75%,40% --'
       zstyle ':fzf-tab:*' fzf-flags \
         --layout=reverse \
         --border=rounded \
@@ -296,7 +295,7 @@
       _ensure_ai_keys_preexec() {
         if [[ -z "$OPENCODE_API_KEY" || -z "$EXA_API_KEY" ]]; then
           case "$1" in
-            opencode*|pi*|crush*|kiro*|codex*)
+            opencode*|pi*|crush*|kiro*|codex*|agy*|antigravity*|hermes*|copilot*)
               _load_ai_keys
               ;;
           esac

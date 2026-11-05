@@ -52,7 +52,6 @@ let
       modules = [
         inputs.zen-browser.homeModules.twilight
         inputs.nvf.homeManagerModules.default
-        inputs.omp.homeManagerModules.default
         (../home + "/${name}.nix")
       ];
     }

@@ -3,11 +3,10 @@
   lib,
   pkgs,
   ...
-}:
-let
+}: let
   inherit (builtins) concatLists genList;
   inherit (lib.generators) mkLuaInline;
-  hypr = import ../../../lib/hyprland.nix { inherit config lib; };
+  hypr = import ../../../lib/hyprland.nix {inherit config lib;};
   inherit (hypr) mkArgs mkDsp mkDspExec mkLuaFn;
 
   touchKeyboard = "${pkgs.wvkbd-split}/bin/wvkbd-mobintl --landscape-layers landscape,landscapespecial --bg 00000000 -R 8 -L 280";
@@ -17,8 +16,7 @@ let
     hide-touch-keyboard = "pkill -USR1 wvkbd-mobintl || true";
   };
 
-  mapMatch =
-    match:
+  mapMatch = match:
     lib.filterAttrs (_: value: value != null) {
       class = match.appId;
       title = match.title;
@@ -26,8 +24,7 @@ let
       xwayland = match.xwayland;
     };
 
-  mapWindowRule =
-    rule:
+  mapWindowRule = rule:
     {
       inherit (rule) name;
       match = mapMatch rule.match;
@@ -39,128 +36,133 @@ let
       pin = rule.pin;
       persistent_size = rule.persistentSize;
     }
-    // lib.optionalAttrs (rule.size != [ ]) { inherit (rule) size; }
-    // lib.optionalAttrs (rule.content != null) { inherit (rule) content; }
+    // lib.optionalAttrs (rule.size != []) {inherit (rule) size;}
+    // lib.optionalAttrs (rule.content != null) {inherit (rule) content;}
     // lib.optionalAttrs (rule.suppressEvent != null) {
       suppress_event = rule.suppressEvent;
     };
 
-  mapLayerRule =
-    rule:
+  mapLayerRule = rule:
     {
       inherit (rule) name;
       match = {
         namespace = rule.namespace;
       };
     }
-    // lib.optionalAttrs rule.noAnim { no_anim = true; }
-    // lib.optionalAttrs rule.blur { blur = true; }
-    // lib.optionalAttrs rule.blurPopups { blur_popups = true; }
+    // lib.optionalAttrs rule.noAnim {no_anim = true;}
+    // lib.optionalAttrs rule.blur {blur = true;}
+    // lib.optionalAttrs rule.blurPopups {blur_popups = true;}
     // lib.optionalAttrs (rule.ignoreAlpha != null) {
       ignore_alpha = rule.ignoreAlpha;
     };
-in
-{
+in {
   wayland.windowManager.hyprland = {
     enable = true;
     package = null;
     portalPackage = null;
     systemd.enable = false;
 
-    plugins = with pkgs.hyprlandPlugins; [
-      hypr-dynamic-cursors
-      hyprglass
-    ]
-    ++ (if config.desktop.touch then
-         if pkgs.hyprland.version != "0.56.2" then
-           throw "hyprgrass pin targets Hyprland 0.56.2; update pkgs/hyprland-plugins/hyprgrass.nix"
-         else
-           [ hyprgrass ]
-       else
-         [ ]);
+    plugins =
+      [
+        pkgs.hyprlandPlugins.hypr-dynamic-cursors
+        pkgs.hyprlandPlugins.hyprglass
+      ]
+      ++ (
+        if config.desktop.touch
+        then
+          if pkgs.hyprland.version != "0.57.0"
+          then throw "hyprgrass pin targets Hyprland 0.57.0; update pkgs/hyprland-plugins/hyprgrass.nix"
+          else [pkgs.hyprlandPlugins.hyprgrass]
+        else []
+      );
 
     settings = {
       colors = {
-        _var = mkLuaInline ''(function()
-          local ok, m = pcall(require, "noctalia")
-          if ok and type(m) == "table" and type(m.colors) == "table" then
-            if type(m.apply_theme) == "function" then m.apply_theme() end
-            return {
-              active_border = m.colors.primary,
-              inactive_border = m.colors.surface,
-              active_shadow = m.colors.surface,
-              inactive_shadow = m.colors.surface,
-            }
-          end
-          return {
-            active_border = "rgba(ffffffff)",
-            inactive_border = "rgba(ffffff88)",
-            active_shadow = "rgba(000000ee)",
-            inactive_shadow = "rgba(000000aa)",
-          }
-        end)()'';
+        _var = mkLuaInline ''          (function()
+                    local ok, m = pcall(require, "noctalia")
+                    if ok and type(m) == "table" and type(m.colors) == "table" then
+                      if type(m.apply_theme) == "function" then m.apply_theme() end
+                      return {
+                        active_border = m.colors.primary,
+                        inactive_border = m.colors.surface,
+                        active_shadow = m.colors.surface,
+                        inactive_shadow = m.colors.surface,
+                      }
+                    end
+                    return {
+                      active_border = "rgba(ffffffff)",
+                      inactive_border = "rgba(ffffff88)",
+                      active_shadow = "rgba(000000ee)",
+                      inactive_shadow = "rgba(000000aa)",
+                    }
+                  end)()'';
       };
 
       "plugin.hyprgrass.gesture" = lib.mkIf config.desktop.touch (
         map (
-          gesture:
-          {
+          gesture: {
             inherit (gesture) pattern;
             action =
-              if builtins.isString gesture.action && touchCommands ? ${gesture.action} then
-                mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd(${builtins.toJSON touchCommands.${gesture.action}}))''
-              else if builtins.isString gesture.action && config.desktop.actions ? ${gesture.action} then
-                mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd(${builtins.toJSON config.desktop.actions.${gesture.action}.command}))''
-              else if builtins.isAttrs gesture.action then
-                mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd(${builtins.toJSON gesture.action.exec}))''
-              else
-                gesture.action;
+              if builtins.isString gesture.action && touchCommands ? ${gesture.action}
+              then mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd(${builtins.toJSON touchCommands.${gesture.action}}))''
+              else if builtins.isString gesture.action && config.desktop.actions ? ${gesture.action}
+              then mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd(${builtins.toJSON config.desktop.actions.${gesture.action}.command}))''
+              else if builtins.isAttrs gesture.action
+              then mkLuaFn ''hl.dispatch(hl.dsp.exec_cmd(${builtins.toJSON gesture.action.exec}))''
+              else gesture.action;
           }
-        ) config.desktop.touchscreen.gestures
+        )
+        config.desktop.touchscreen.gestures
       );
 
       "plugin.hyprgrass.bind" = lib.mkIf config.desktop.touch (
         map (
           bind:
-          {
-            inherit (bind) pattern;
-            action =
-              if builtins.isString bind.action && touchCommands ? ${bind.action} then
-                mkDspExec touchCommands.${bind.action}
-              else if builtins.isString bind.action && config.desktop.actions ? ${bind.action} then
-                mkDspExec config.desktop.actions.${bind.action}.command
-              else if builtins.isAttrs bind.action && bind.action ? exec then
-                mkDspExec bind.action.exec
-              else
-                mkDsp bind.action.dispatcher;
-          }
-          // lib.optionalAttrs (bind ? mouse) { inherit (bind) mouse; }
-        ) config.desktop.touchscreen.binds
+            {
+              inherit (bind) pattern;
+              action =
+                if builtins.isString bind.action && touchCommands ? ${bind.action}
+                then mkDspExec touchCommands.${bind.action}
+                else if builtins.isString bind.action && config.desktop.actions ? ${bind.action}
+                then mkDspExec config.desktop.actions.${bind.action}.command
+                else if builtins.isAttrs bind.action && bind.action ? exec
+                then mkDspExec bind.action.exec
+                else mkDsp bind.action.dispatcher;
+            }
+            // lib.optionalAttrs (bind ? mouse) {inherit (bind) mouse;}
+        )
+        config.desktop.touchscreen.binds
       );
 
-      monitor = map (
-        monitor:
-        let
-          configured = lib.filterAttrs (_: value: value != null) monitor;
-          hdr = config.desktop.hdr && configured.output == config.desktop.primaryOutput;
-        in
-        (if configured.output == config.desktop.primaryOutput then
-          configured // { scale = config.desktop.primaryScale; }
-        else
-          configured)
-        // lib.optionalAttrs hdr {
-          cm = "hdr";
-          supports_hdr = 1;
-        }
-      ) config.desktop.monitors;
+      monitor =
+        map (
+          monitor: let
+            configured = lib.filterAttrs (_: value: value != null) monitor;
+            hdr = config.desktop.hdr && configured.output == config.desktop.primaryOutput;
+          in
+            (
+              if configured.output == config.desktop.primaryOutput
+              then configured // {scale = config.desktop.primaryScale;}
+              else configured
+            )
+            // lib.optionalAttrs hdr {
+              cm = "hdr";
+              supports_hdr = 1;
+            }
+        )
+        config.desktop.monitors;
 
-      device = map (
-        device:
-        {
-          inherit (device) name;
-          output = if device.output == null then config.desktop.touchscreen.output else device.output;
-        }
-      ) config.desktop.touchscreen.devices;
+      device =
+        map (
+          device: {
+            inherit (device) name;
+            output =
+              if device.output == null
+              then config.desktop.touchscreen.output
+              else device.output;
+          }
+        )
+        config.desktop.touchscreen.devices;
 
       gesture = lib.mkIf config.desktop.touch [
         {
@@ -210,7 +212,9 @@ in
         ];
 
         gestures = lib.mkIf config.desktop.touch {
-          workspace_swipe_touch = true;
+          # Single-finger touch scrolls content. Workspace switching stays on
+          # the explicit three-finger hyprgrass gesture below.
+          workspace_swipe_touch = false;
           workspace_swipe_cancel_ratio = 0.15;
           workspace_swipe_invert = false;
         };
@@ -239,7 +243,7 @@ in
           rounding_power = config.desktop.compositor.rounding.power;
 
           inactive_opacity = 0.7;
-          active_opacity = 0.9;
+          active_opacity = 0.85;
 
           shadow = {
             enabled = true;
@@ -251,17 +255,23 @@ in
             enabled = true;
             size = 3;
             passes = 2;
-            noise = 0.001;
+            noise = 0.015;
             ignore_opacity = true;
-            vibrancy_darkness = 0.4;
-            contrast = 0.9;
-            brightness = 0.8;
-            vibrancy = 0.17;
+            vibrancy_darkness = 0.0;
+            contrast = 0.95;
+            brightness = 0.85;
+            vibrancy = 0.25;
             new_optimizations = true;
             xray = true;
+            popups = true;
+            popups_ignorealpha = 0.2;
           };
 
           motion_blur = {
+            enabled = true;
+          };
+
+          wobble = {
             enabled = true;
           };
         };
@@ -325,6 +335,7 @@ in
         chromatic_aberration = 0.9;
         fresnel_strength = 1;
         specular_strength = 1;
+        xray = true;
         dark = {
           brightness = 1;
           adaptive_dim = .05;
@@ -345,46 +356,53 @@ in
         }
       ];
 
-      on = map (
-        entry:
-        let
-          command = (if entry.useUwsm then "uwsm app -- " else "") + entry.command;
-        in
-        mkArgs [
-          "hyprland.start"
-          (mkLuaFn ''hl.exec_cmd(${builtins.toJSON command})'')
-        ]
-      ) config.desktop.compositor.autostart;
+      on =
+        map (
+          entry: let
+            command =
+              (
+                if entry.useUwsm
+                then "uwsm app -- "
+                else ""
+              )
+              + entry.command;
+          in
+            mkArgs [
+              "hyprland.start"
+              (mkLuaFn ''hl.exec_cmd(${builtins.toJSON command})'')
+            ]
+        )
+        config.desktop.compositor.autostart;
 
       layer_rule = map mapLayerRule config.desktop.layerRules;
 
-      workspace_rule = [
-        {
-          workspace = "w[tv1]s[false]";
-          gaps_in = config.desktop.compositor.margin.inner;
-          gaps_out = config.desktop.compositor.margin.outer;
-        }
-        {
-          workspace = "f[1]s[false]";
-          gaps_in = config.desktop.compositor.margin.inner;
-          gaps_out = config.desktop.compositor.margin.outer;
-        }
-      ]
-       ++ (genList (
-         index:
-         let
-           workspace = index + 1;
-         in
-         {
-           workspace = toString workspace;
-         }
-         // lib.optionalAttrs (
-           builtins.elem workspace config.desktop.compositor.workspaces.defaults
-         ) { default = true; }
-       ) config.desktop.compositor.workspaces.count);
+      workspace_rule =
+        [
+          {
+            workspace = "w[tv1]s[false]";
+            gaps_in = config.desktop.compositor.margin.inner;
+            gaps_out = config.desktop.compositor.margin.outer;
+          }
+          {
+            workspace = "f[1]s[false]";
+            gaps_in = config.desktop.compositor.margin.inner;
+            gaps_out = config.desktop.compositor.margin.outer;
+          }
+        ]
+        ++ (genList (
+            index: let
+              workspace = index + 1;
+            in
+              {
+                workspace = toString workspace;
+              }
+              // lib.optionalAttrs (
+                builtins.elem workspace config.desktop.compositor.workspaces.defaults
+              ) {default = true;}
+          )
+          config.desktop.compositor.workspaces.count);
 
       window_rule = map mapWindowRule config.desktop.windowRules;
-
     };
   };
 }

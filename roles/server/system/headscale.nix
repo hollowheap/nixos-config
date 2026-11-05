@@ -37,6 +37,18 @@ in
           "1.0.0.2"
         ];
         search_domains = [ domains.mesh ];
+        extra_records = [
+          {
+            name = domains.vaultMesh;
+            type = "A";
+            value = "100.64.0.1";
+          }
+          {
+            name = domains.vaultMesh;
+            type = "AAAA";
+            value = "fd7a:115c:a1e0::1";
+          }
+        ];
       };
     };
   };

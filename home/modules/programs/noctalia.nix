@@ -40,6 +40,7 @@
       launcher.command = "noctalia msg panel-toggle launcher";
       window-switcher.command = "noctalia msg window-switcher";
       session.command = "noctalia msg panel-toggle session";
+      lock.command = "noctalia msg session lock";
       brightness-up.command = "noctalia msg brightness-up";
       brightness-down.command = "noctalia msg brightness-down";
       volume-up.command = "noctalia msg volume-up";

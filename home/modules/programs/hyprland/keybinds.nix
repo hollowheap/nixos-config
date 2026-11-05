@@ -38,6 +38,10 @@ in
             (mkDspExec "notify-send -t 1500 'Laptop Mode' 'Enabled (t -> `, y -> NumLock)'; hyprctl dispatch submap laptop")
           ]
           [
+            "SUPER + ALT + P"
+            (mkDspExec "power-mode toggle")
+          ]
+          [
             "SUPER + F"
             (mkDsp "window.fullscreen({ internal = 2, client = 2 })")
           ]
@@ -158,7 +162,7 @@ in
           ]
           [
             "SUPER + SHIFT + L"
-            (mkDsp "window.swap({ direction = \"r\" })")
+            (act "lock")
           ]
 
           # Workspace navigation
@@ -237,8 +241,8 @@ in
           [
             "SUPER + D"
             (mkLuaFn ''
-              hl.dsp.focus({ workspace = "name:wallpaper" })()
-              hl.dsp.submap("wallpaper")()
+              hl.dispatch(hl.dsp.focus({ workspace = "name:wallpaper" }))
+              hl.dispatch(hl.dsp.submap("wallpaper"))
             '')
           ]
           [
@@ -303,15 +307,15 @@ in
             [
               "SUPER + D"
               (mkLuaFn ''
-                hl.dsp.focus({ workspace = "previous_per_monitor" })()
-                hl.dsp.submap("reset")()
+                hl.dispatch(hl.dsp.focus({ workspace = "previous_per_monitor" }))
+                hl.dispatch(hl.dsp.submap("reset"))
               '')
             ]
             [
               "escape"
               (mkLuaFn ''
-                hl.dsp.focus({ workspace = "previous_per_monitor" })()
-                hl.dsp.submap("reset")()
+                hl.dispatch(hl.dsp.focus({ workspace = "previous_per_monitor" }))
+                hl.dispatch(hl.dsp.submap("reset"))
               '')
             ]
           ];

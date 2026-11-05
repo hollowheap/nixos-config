@@ -21,17 +21,17 @@ let
     doCheck = false;
   });
 in
-# nixpkgs pins upstream fdfa60d, which predates Hyprland v0.56.2 API changes.
-# Pin the exact commit upstream hyprpm.toml specifies for Hyprland v0.56.2.
+# nixpkgs pins an older hyprgrass. Pin the commit upstream hyprpm.toml
+# specifies for Hyprland v0.57.0 (hl-0.57.0).
 hyprlandPlugins.mkHyprlandPlugin {
   pluginName = "hyprgrass";
-  version = "0.8.2-unstable-2026-10-08";
+  version = "0.8.2-unstable-2026-10-26";
 
   src = fetchFromGitHub {
     owner = "horriblename";
     repo = "hyprgrass";
-    rev = "8e605468cbf429791d61ddbfaeb14ff5e08fec3e";
-    hash = "sha256-0nXTqzvZQSoTbpKcDmc4kciHmlIXfMZfLk5E1Ax9CP0=";
+    rev = "8ca1af717d5b4ea1215a781df52bcef02d7b15e6";
+    hash = "sha256-Z4la09NwLkQD9tui840xTOPVoF1UnOUWkvLHcfxGxvY=";
   };
 
   nativeBuildInputs = [

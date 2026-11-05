@@ -22,6 +22,15 @@
         exit 1
       '';
       pre-push = pkgs.writeShellScript "git-pre-push" ''
+        local_hook="$(git rev-parse --git-common-dir)/hooks/pre-push"
+        if [ -x "$local_hook" ]; then
+          stdin_tmp="$(mktemp)"
+          trap 'rm -f "$stdin_tmp"' EXIT
+          cat > "$stdin_tmp"
+          "$local_hook" "$@" < "$stdin_tmp" || exit $?
+          exec < "$stdin_tmp"
+        fi
+
         while read -r local_ref local_sha _remote_ref remote_sha; do
           [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
           case "$local_ref" in
@@ -137,10 +146,15 @@
   };
 
   systemd.user.services.git-maintenance = {
-    Unit.Description = "Run git maintenance for nixos-config";
+    Unit.Description = "Run git maintenance for repositories under ~/repos";
     Service = {
       Type = "oneshot";
-      ExecStart = "${pkgs.git}/bin/git -C ${config.home.homeDirectory}/repos/nixos-config maintenance run --schedule=daily";
+      ExecStart = "${pkgs.writeShellScript "git-maintenance-all" ''
+        for repo in ${config.home.homeDirectory}/repos/*; do
+          [ -d "$repo/.git" ] || continue
+          ${pkgs.git}/bin/git -C "$repo" maintenance run --schedule=daily || exit 1
+        done
+      ''}";
     };
   };
 

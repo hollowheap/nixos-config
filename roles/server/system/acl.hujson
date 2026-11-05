@@ -1,9 +1,20 @@
 {
+  "hosts": {
+    "vault4": "100.64.0.1",
+    "vault6": "fd7a:115c:a1e0::1",
+    "headscale4": "100.64.0.1",
+    "headscale6": "fd7a:115c:a1e0::1"
+  },
   "acls": [
     {
       "action": "accept",
       "src": ["*"],
-      "dst": ["*:443"]
+      "dst": [
+        "vault4:443",
+        "vault6:443",
+        "headscale4:443",
+        "headscale6:443"
+      ]
     }
   ]
 }

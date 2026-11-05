@@ -1,29 +1,44 @@
 {
-  cmake,
   lib,
   hyprlandPlugins,
   fetchFromGitHub,
+  pkg-config,
+  wayland,
+  wayland-scanner,
+  pixman,
+  libdrm,
 }:
-hyprlandPlugins.mkHyprlandPlugin (_: {
+hyprlandPlugins.mkHyprlandPlugin {
   pluginName = "hyprglass";
-  version = "0.10.0";
+  version = "1.1.1";
 
   src = fetchFromGitHub {
     owner = "hyprnux";
     repo = "hyprglass";
-    rev = "8a4c0d3b9d880bd16676bb9026eca4a0435da7c9";
-    hash = "sha256-I/1TfD8VtDE44Jk3XsAYWk/Df/aTySMt0UIgs+gipx8=";
+    rev = "v1.1.1";
+    hash = "sha256-cQmVmmdaITss2hO6aidKOtq6GtEe85fmgrPcrn1eIUg=";
   };
 
   nativeBuildInputs = [
-    cmake
+    pkg-config
+    wayland-scanner
+  ];
+
+  buildInputs = [
+    wayland
+    pixman
+    libdrm
   ];
 
   dontUseCmakeConfigure = true;
 
   installPhase = ''
+    runHook preInstall
+
     mkdir -p $out/lib
     cp hyprglass.so $out/lib/libhyprglass.so
+
+    runHook postInstall
   '';
 
   meta = {
@@ -32,4 +47,4 @@ hyprlandPlugins.mkHyprlandPlugin (_: {
     license = lib.licenses.bsd3;
     platforms = lib.platforms.linux;
   };
-})
+}

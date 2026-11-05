@@ -65,7 +65,6 @@ in
       name = "nixos-config-dev";
       packages = with pkgs; [
         git
-        sops
         nixfmt
       ];
     };

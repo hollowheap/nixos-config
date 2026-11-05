@@ -5,6 +5,7 @@
     ./headscale.nix
     ./vaultwarden.nix
     ./ddclient.nix
+    ./backup.nix
   ];
 
   # Caddy uses tls internal for loopback vhosts.

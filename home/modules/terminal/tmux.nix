@@ -32,6 +32,59 @@ let
 
   batteryBin = "${pkgs.tmux-battery}/bin/tmux-battery";
   continuumSave = "${pkgs.tmuxPlugins.continuum}/share/tmux-plugins/continuum/scripts/continuum_save.sh";
+
+  popupPicker = pkgs.writeShellApplication {
+    name = "tmux-popup";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.fzf
+      pkgs.gawk
+      pkgs.tmux
+    ];
+    text = ''
+      set -euo pipefail
+
+      case "''${1:-windows}" in
+        sessions)
+          selection="$(tmux list-sessions -F '#{session_id},#{session_name},#{session_windows},#{session_attached}' |
+            awk -F, '{
+              state = ($4 == "1") ? "attached" : "detached";
+              printf "%s,%s,%s,%s,%-24s %3s windows  %s\\n", $1, $2, $3, $4, $2, $3, state;
+            }' |
+            FZF_DEFAULT_OPTS="" fzf --reverse --height=100% --border=rounded \
+              --delimiter=',' --with-nth=5 --accept-nth=1 \
+              --header='  SESSION                  WINDOWS  STATE' \
+              --preview='tmux list-windows -t {1} -F "#{window_index}: #{window_name}" 2>/dev/null' \
+              --preview-window='right:55%,border-rounded' \
+              --prompt='Session ❯ ')" || exit 0
+          [ -n "$selection" ] || exit 0
+          tmux switch-client -t "$selection"
+          ;;
+        windows)
+          selection="$(tmux list-windows -a -F '#{session_id},#{window_id},#{session_name},#{window_index},#{window_name},#{window_active}' |
+            awk -F, '{
+              active = ($6 == "1") ? "*" : " ";
+              printf "%s,%s,%s,%s,%s,%s,%s %2s %-24s %s\\n", $1, $2, $3, $4, $5, $6, active, $4, $5, $3;
+            }' |
+            FZF_DEFAULT_OPTS="" fzf --reverse --height=100% --border=rounded \
+              --delimiter=',' --with-nth=7 --accept-nth=1,2 \
+              --header='  #  WINDOW                    SESSION' \
+              --preview='tmux capture-pane -p -t {2} 2>/dev/null' \
+              --preview-window='right:55%,border-rounded' \
+              --prompt='Window ❯ ')" || exit 0
+          [ -n "$selection" ] || exit 0
+          session="''${selection%%,*}"
+          window="''${selection#*,}"
+          tmux switch-client -t "$session"
+          tmux select-window -t "$window"
+          ;;
+        *)
+          echo "usage: tmux-popup [sessions|windows]" >&2
+          exit 2
+          ;;
+      esac
+    '';
+  };
 in
 {
   programs.tmux = {
@@ -46,8 +99,13 @@ in
       {
         plugin = resurrect;
         extraConfig = ''
+          set -g @resurrect-dir '~/.local/state/tmux/resurrect'
           set -g @resurrect-capture-pane-contents 'on'
+          set -g @resurrect-pane-contents-area 'visible'
+          set -g @resurrect-delete-backup-after '30'
+          set -g @resurrect-strategy-vim 'session'
           set -g @resurrect-strategy-nvim 'session'
+          set -g @resurrect-hook-post-save-all 'chmod -R go-rwx "$HOME/.local/state/tmux/resurrect"'
         '';
       }
       {
@@ -72,7 +130,7 @@ in
         plugin = continuum;
         extraConfig = ''
           set -g @continuum-restore 'on'
-          set -g @continuum-save-interval '15'
+          set -g @continuum-save-interval '5'
         '';
       }
     ];
@@ -135,14 +193,16 @@ in
       unbind r
       bind r source-file ~/.config/tmux/tmux.conf
 
-      # Window navigation (p/n; C-p/C-n stay available to the pane)
+      # Window navigation (C-p/C-n previous/next; C-Tab last)
       bind c new-window -c "#{pane_current_path}"
+      bind -N "Choose session" s display-popup -E -w 80% -h 60% -T " Sessions " "${popupPicker}/bin/tmux-popup sessions"
+      bind -N "Choose window" w display-popup -E -w 80% -h 60% -T " Windows " "${popupPicker}/bin/tmux-popup windows"
       bind Tab last-window
-      bind -n M-p previous-window
-      bind -n M-n next-window
-      bind -n C-Tab next-window
-      bind -n C-S-Tab previous-window
-      bind -n C-BTab previous-window
+      bind -n C-p previous-window
+      bind -n C-n next-window
+      bind -n C-Tab last-window
+      bind -n C-S-Tab last-window
+      bind -n C-BTab last-window
 
       bind -n M-1 select-window -t 1
       bind -n M-2 select-window -t 2
@@ -236,9 +296,13 @@ in
     '';
   };
 
-  home.packages = [ pkgs.xclip ];
+  home.packages = [
+    pkgs.xclip
+    popupPicker
+  ];
 
   home.activation.tmuxReload = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    ${pkgs.coreutils}/bin/install -d -m 700 "${config.xdg.stateHome}/tmux/resurrect"
     if ${pkgs.tmux}/bin/tmux info >/dev/null 2>&1; then
       ${pkgs.tmux}/bin/tmux source-file ~/.config/tmux/tmux.conf >/dev/null 2>&1 || true
     fi

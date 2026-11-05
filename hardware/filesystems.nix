@@ -23,13 +23,6 @@ _:
     };
   };
 
-  swapDevices = [
-    {
-      device = "/.swapvol/swapfile";
-      size = 16384;
-    }
-  ];
-
   zramSwap.enable = true;
 
   services.btrfs.autoScrub.enable = true;

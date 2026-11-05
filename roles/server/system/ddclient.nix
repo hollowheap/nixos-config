@@ -8,11 +8,12 @@ in
     enable = true;
     protocol = "duckdns";
     passwordFile = "/run/credentials/ddclient.service/duckdns";
+    usev6 = "";
     domains = [ domains.base ];
   };
 
   systemd.services.ddclient.serviceConfig.LoadCredential = [
-    "duckdns=${config.sops.secrets."duckdns_password".path}"
+    "duckdns:${config.sops.secrets."duckdns_password".path}"
   ];
 
   sops.secrets."duckdns_password" = {

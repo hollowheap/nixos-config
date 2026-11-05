@@ -116,13 +116,6 @@ in
             "SuggestURLTemplate" = "https://www.startpage.com/osuggestions?q={searchTerm}";
           }
           {
-            "Name" = "MyNixOS";
-            "URLTemplate" = "https://mynixos.com/search?q={searchTerms}";
-            "IconURL" = "https://mynixos.com/favicon.ico";
-            "Alias" = "@nix";
-            "Description" = "Search packages and options on MyNixOS";
-          }
-          {
             "Name" = "YouTube";
             "URLTemplate" = "https://www.youtube.com/results?search_query={searchTerms}";
             "IconURL" = "https://www.youtube.com/favicon.ico";
@@ -135,6 +128,27 @@ in
             "IconURL" = "https://github.githubassets.com/favicons/favicon.svg";
             "Alias" = "@gh";
             "Description" = "Search GitHub repositories";
+          }
+          {
+            "Name" = "Wikipedia";
+            "URLTemplate" = "https://en.wikipedia.org/w/index.php?search={searchTerms}";
+            "IconURL" = "https://en.wikipedia.org/favicon.ico";
+            "Alias" = "@wiki";
+            "Description" = "Search Wikipedia";
+          }
+          {
+            "Name" = "MDN";
+            "URLTemplate" = "https://developer.mozilla.org/en-US/search?q={searchTerms}";
+            "IconURL" = "https://developer.mozilla.org/favicon.ico";
+            "Alias" = "@mdn";
+            "Description" = "Search MDN Web Docs";
+          }
+          {
+            "Name" = "Stack Overflow";
+            "URLTemplate" = "https://stackoverflow.com/search?q={searchTerms}";
+            "IconURL" = "https://stackoverflow.com/favicon.ico";
+            "Alias" = "@so";
+            "Description" = "Search Stack Overflow";
           }
         ];
         Remove = [
@@ -353,30 +367,43 @@ in
             container = containers.Personal.id;
             icon = "chrome://browser/skin/zen-icons/selectable/lightning.svg";
             pins = {
+              "Muse" = {
+                url = "https://muse.ai";
+                id = pinUuid 13;
+                position = 100;
+                isEssential = true;
+                container = containers.Personal.id;
+              };
               "Gemini" = {
                 url = "https://gemini.google.com";
                 id = pinUuid 1;
-                position = 100;
+                position = 200;
                 isEssential = true;
                 container = containers.Personal.id;
               };
               "Claude" = {
                 url = "https://claude.ai";
                 id = pinUuid 2;
-                position = 200;
+                position = 300;
                 isEssential = true;
-                container = containers.Personal.id;
-              };
-              "MyNixOS" = {
-                url = "https://mynixos.com";
-                id = pinUuid 6;
-                position = 1010;
                 container = containers.Personal.id;
               };
               "Key BR" = {
                 url = "https://keybr.com";
                 id = pinUuid 7;
-                position = 1020;
+                position = 400;
+                container = containers.Personal.id;
+              };
+              "GitHub" = {
+                url = "https://github.com";
+                id = pinUuid 11;
+                position = 500;
+                container = containers.Personal.id;
+              };
+              "Hugging Face" = {
+                url = "https://huggingface.co";
+                id = pinUuid 12;
+                position = 600;
                 container = containers.Personal.id;
               };
             };
@@ -390,8 +417,11 @@ in
               "claude" = {
                 reference = "claude.ai";
               };
-              "mynixos" = {
-                reference = "mynixos.com";
+              "muse" = {
+                reference = "muse.ai";
+              };
+              "huggingface" = {
+                reference = "huggingface.co";
               };
             };
           };
@@ -488,7 +518,6 @@ in
           "4ab93b88-151c-451b-a1b7-a1e0e28fa7f8" # No Sidebar Scrollbar
           "f4866f39-cfd6-4498-ab92-54213b8279dc" # Animation Plus
           "79dde383-4fe7-404a-a8e6-9be440022542" # Tidy Popup
-          "4ab93b88-151c-451b-a1b7-a1e0e28fa7f8" # No Sidebar Scrollbar
           "c01d3e22-1cee-45c1-a25e-53c0f180eea8" # Ghost Tabs
           "4a222d82-2803-4ed2-a390-90abfce4f195" # Back Fwd Always Hidden
           "1e86cf37-a127-4f24-b919-d265b5ce29a0" # Lean

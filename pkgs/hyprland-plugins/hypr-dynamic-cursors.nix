@@ -4,17 +4,16 @@
   fetchFromGitHub,
 }:
 # nixpkgs pins upstream f5ba36c, which only supports Hyprland v0.56.0/v0.56.1.
-# Hyprland 0.56.2 needs the rev upstream pins for v0.56.2 (hyprpm.toml), otherwise
-# the plugin throws on load: "plugin crashed/threw in main: std::exception".
+# HEAD 2a8d0b7 updates the plugin to the Hyprland 0.57 render-context API.
 hyprlandPlugins.mkHyprlandPlugin {
   pluginName = "hypr-dynamic-cursors";
-  version = "0-unstable-2026-08-06";
+  version = "0-unstable-2026-10-05";
 
   src = fetchFromGitHub {
     owner = "VirtCode";
     repo = "hypr-dynamic-cursors";
-    rev = "5a224284872208b5324759d535d65061043725de";
-    hash = "sha256-BQjuQplkQFA30/7evDxmEAvr2ArIG09JffEBQhuzo80=";
+    rev = "2a8d0b735328d874a78ca93b2f201649f712a74a";
+    hash = "sha256-PSt/SRtemvsoGYNFJ7YLiXGxT8EJe3AhmGwt5Vt79aA=";
   };
 
   dontUseCmakeConfigure = true;
