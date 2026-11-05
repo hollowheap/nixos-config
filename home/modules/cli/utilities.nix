@@ -7,21 +7,16 @@
     fzf = {
       enable = true;
       tmux = {
-        enableShellIntegration = false;
+        enableShellIntegration = true;
+        # fzf-tmux owns popup placement. A global --tmux option makes
+        # fzf-tab open a nested popup inside its own popup.
         shellIntegrationOptions = [
-          "-w"
-          "75%"
-          "-h"
-          "40%"
-          "-x"
-          "W"
-          "-y"
-          "W"
+          "-p"
+          "75%,40%"
         ];
       };
       defaultOptions = [
         "--color=base16"
-        "--tmux=bottom,40%"
         "--layout=reverse"
         "--border=rounded"
         "--prompt='❯ '"
@@ -69,14 +64,8 @@
   ];
 
   home.packages = with pkgs; [
-    gh
-    sops
-    age
-    yq-go
-    nix-index
-    comma
-    restic
     harlequin
     tdf
+    ui-scrape
   ];
 }

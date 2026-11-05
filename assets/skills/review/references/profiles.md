@@ -2,11 +2,11 @@
 
 ## Profile matrix
 
-| Profile | Inputs | Persistent? | Vxx | RDST sections | Q writes |
+| Profile | Inputs | Persistent? | Vxx | Review record | Q writes |
 |---|---|---|---|---|---|
-| diff | parent task/spec, changed hunks, one verification | no | only if durable Qxx | no | only by promoting to Vxx |
-| slice | `R/D/S/T`, relevant architecture section, diff | only if durable | only if durable | optional | real design unknowns only |
-| robust | full relevant design/architecture/evidence | yes | always | yes | may write |
+| diff | parent task/spec, changed hunks, one verification | no | only if durable Qxx | none | only by promoting to Vxx |
+| slice | `R/D/S/T`, relevant architecture section, diff | only if durable | only if durable | findings only | real design unknowns only |
+| robust | full relevant design/architecture/evidence | yes | always | findings only | may write |
 
 ## Review IDs
 
@@ -30,8 +30,8 @@
 
 ## Token budget
 
-- diff: no full architecture or review-history reads; no gate sections; stop at no high/medium findings; low notes one line or omitted.
-- slice/robust: read only the relevant architecture section and review scope; persist `Vxx` and RDST sections only when durable or required.
+- diff: no full architecture or review-history reads; no review document; stop at no high/medium findings; low notes one line or omitted.
+- slice/robust: read only the relevant architecture section and review scope; persist `Vxx` and findings only when durable or required.
 
 ## Simplicity checks
 

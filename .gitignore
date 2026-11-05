@@ -14,3 +14,6 @@ __pycache__/
 
 # Private mail accounts
 home/modules/programs/accounts.local.nix
+
+# Rust build output for local review tooling
+pkgs/ui-scrape/target/
