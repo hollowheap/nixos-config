@@ -7,6 +7,10 @@
     description = "Draft high-density pull request descriptions.";
     agents = [ "architect" "engineer" ];
   };
+  "opal" = {
+    description = "UI craft: design language, DTCG tokens, and rendered audits with ui-probe.";
+    agents = [ "architect" "engineer" ];
+  };
   "author-skill" = {
     description = "Author or refine workspace skills.";
     agents = [ "architect" "engineer" ];

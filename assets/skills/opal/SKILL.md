@@ -1,4 +1,4 @@
-# UI Review Lens
+# Opal
 
 Use when the diff renders or changes a user interface.
 
@@ -19,7 +19,7 @@ Use when the diff renders or changes a user interface.
 
 ## Anti-patterns
 
-Read `references/slop.md`; flag its matches. Treat them as findings, not unconditional bans: a documented brief can earn any pattern, and the finding must name the earning line.
+The rules pack reports slop patterns. Treat its findings as advisory, not bans: a documented brief can earn any pattern, and the finding must name the earning line.
 
 ## Heuristics
 
@@ -29,15 +29,17 @@ Read `references/slop.md`; flag its matches. Treat them as findings, not uncondi
 
 ## Setup
 
-Run `scripts/ui-witness.sh init` once per project. Fill `.ui-witness/design.json`; add `.ui-witness/rules.json` only to override the bundled Impeccable pack. Then run `scripts/ui-witness.sh audit <url> -- --theme both --viewport sweep`.
+Run `ui-probe init` once per project. Fill `.opal/design.json`; add `.opal/rules.json` only to override named rules or add structural rules. Then run `ui-probe audit <url> --theme both --viewport sweep`.
+
+Rules resolve from `--rules`, `.opal/rules.json`, then `~/.opal/rules.json`. Named rules overlay by id; structural rules append. The report lists every loaded pack under `sources.rules`. Design resolves from `--design`, `.opal/design.json`, then `~/.opal/design.json`; the report lists the chosen file under `sources.design`.
 
 ## Audit
 
 Read `artifacts/ui-design.md` when present; use its tokens, density, typography, and constraints as the design source. If it is absent, infer them from the diff.
 
-Run `scripts/ui-witness.sh source` for source patterns in changed UI files. Treat matches as evidence, not findings; verify each match in context.
+Run `ui-probe source .` for source patterns in changed UI files before reading the diff. Treat matches as evidence, not findings; verify each match in context.
 
-If a browser is available, render the desktop and mobile viewports in light and dark themes, and sample hover and focus states. Prefer `scripts/ui-witness.sh audit <url> -- [flags]`; it reports findings derived from rendered geometry and computed colors, plus a candidate list and tab order, as JSON. Use `--expand` to open each ARIA disclosure one at a time and report per-state deltas. Read the script and the report for thresholds and evidence. Without the tool or a browser, inspect supplied screenshots and list every unrendered check under unverified.
+Run `ui-probe audit <url> [flags]` before judging. A rendered review without a probe run is incomplete. The probe renders desktop and mobile viewports in light and dark themes and samples hover and focus states; it reports findings derived from rendered geometry and computed colors, plus a candidate list and tab order, as JSON. Use `--expand` to open each ARIA disclosure one at a time and report per-state deltas. Read the report for thresholds and evidence. Without the tool or a browser, inspect supplied screenshots and list every unrendered check under unverified.
 
 Exercise preload, loaded, empty, error, disabled, collapsed, and expanded; snapshot only the states the diff touches.
 

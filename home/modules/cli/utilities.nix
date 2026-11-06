@@ -68,4 +68,7 @@
     tdf
     ui-probe
   ];
+
+  home.file.".opal/rules.json".source =
+    ../../../assets/skills/opal/references/impeccable-rules.json;
 }

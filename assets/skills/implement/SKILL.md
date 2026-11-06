@@ -17,6 +17,15 @@ Use only when the change is one file or a small reversible edit with a clear ver
 3. Run the verify. If it fails twice, stop.
 4. No R/D/S/T artifacts; commit only when the user asks.
 
+## UI work
+
+When the task renders or changes an interface:
+
+1. Use `opal` only when the user invokes it; it is explicitly invoked, not auto-loaded.
+2. If it is not available, state that rendered checks require `opal` and list them as unverified.
+3. Commit to one direction; do not ask stylistic questions mid-implementation.
+4. Run the probe only when `opal` is active; otherwise hand the unverified list to `{{skill:review}}`.
+
 ## Rules
 
 - Test-first for non-trivial behavior, bugs, and changes with a real seam; trivial one-liners may use the task verify.
