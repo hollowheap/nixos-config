@@ -16,4 +16,4 @@ __pycache__/
 home/modules/programs/accounts.local.nix
 
 # Rust build output for local review tooling
-pkgs/ui-scrape/target/
+pkgs/ui-probe/target/

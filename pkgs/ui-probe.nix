@@ -6,15 +6,15 @@
   rustfmt,
 }:
 rustPlatform.buildRustPackage {
-  pname = "ui-scrape";
+  pname = "ui-probe";
   version = "0.1.0";
 
   src = lib.cleanSourceWith {
-    src = ./ui-scrape;
+    src = ./ui-probe;
     filter = path: _type: builtins.baseNameOf path != "target";
   };
 
-  cargoLock.lockFile = ./ui-scrape/Cargo.lock;
+  cargoLock.lockFile = ./ui-probe/Cargo.lock;
 
   nativeBuildInputs = [
     makeWrapper
@@ -22,12 +22,12 @@ rustPlatform.buildRustPackage {
   ];
 
   postInstall = ''
-    wrapProgram $out/bin/ui-scrape --set UI_SCRAPE_CHROME ${chromium}/bin/chromium
+    wrapProgram $out/bin/ui-probe --set UI_PROBE_CHROME ${chromium}/bin/chromium
   '';
 
   meta = {
     description = "Render a page in headless Chromium and emit UI evidence as JSON";
     license = lib.licenses.mit;
-    mainProgram = "ui-scrape";
+    mainProgram = "ui-probe";
   };
 }

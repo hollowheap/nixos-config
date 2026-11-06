@@ -4,11 +4,11 @@ Use when the diff renders or changes a user interface.
 
 ## Authoring
 
-1. Decompose compound primitives into parts (`Root`, `Trigger`, `Portal`, `Content`, `Close`); use context instead of prop drilling.
-2. Model async state as a strict union: `idle`, `loading`, `success`, `empty`, `error`; cancel stale work with `AbortController`.
-3. Wire WAI-ARIA roles and state (`aria-expanded`, `aria-controls`), keyboard navigation, and visible focus.
-4. Support `asChild` composition and ref forwarding; merge classes with `cn()`.
-5. Animate only compositor properties (`transform`, `opacity`); respect `prefers-reduced-motion`.
+- Decompose compound primitives into parts (`Root`, `Trigger`, `Portal`, `Content`, `Close`); use context instead of prop drilling.
+- Model async state as a strict union: `idle`, `loading`, `success`, `empty`, `error`; cancel stale work with `AbortController`.
+- Wire WAI-ARIA roles and state (`aria-expanded`, `aria-controls`), keyboard navigation, and visible focus.
+- Support `asChild` composition and ref forwarding; merge classes with `cn()`.
+- Animate only compositor properties (`transform`, `opacity`); respect `prefers-reduced-motion`.
 
 ## Design specificity
 
@@ -24,26 +24,30 @@ Read `references/slop.md`; flag its matches. Treat them as findings, not uncondi
 ## Heuristics
 
 - Check visibility of system status, match to the user's world, user control, consistency, error prevention, recognition over recall, flexibility, minimalist design, error recovery, and help.
-- Flag more than four primary choices, hidden state, working-memory load, and unchunked data.
-- Report severity: P0 blocks use, P1 blocks the primary task, P2 degrades trust or speed, P3 is polish.
+- Flag a crowd of primary choices, hidden state, working-memory load, and unchunked data.
+- Report severity as blocking use, blocking the primary task, degrading trust or speed, or polish.
+
+## Setup
+
+Run `scripts/ui-witness.sh init` once per project. Fill `.ui-witness/design.json`; add `.ui-witness/rules.json` only to override the bundled Impeccable pack. Then run `scripts/ui-witness.sh audit <url> -- --theme both --viewport sweep`.
 
 ## Audit
 
 Read `artifacts/ui-design.md` when present; use its tokens, density, typography, and constraints as the design source. If it is absent, infer them from the diff.
 
-Run `ui-scrape --source .` for source patterns in changed UI files. Treat matches as evidence, not findings; verify each match in context.
+Run `scripts/ui-witness.sh source` for source patterns in changed UI files. Treat matches as evidence, not findings; verify each match in context.
 
-If a browser is available, render the target at desktop (>=1024px) and mobile (375x667), in light and dark themes, and sample hover and focus states. Prefer `ui-scrape --url <url> --wait-for <selector> --state <name> [--expand] [--theme light|dark]`; it reports findings derived from rendered geometry and computed colors, plus a candidate list and tab order, as JSON. `--expand` opens each ARIA disclosure one at a time and reports per-state deltas. Without the tool or a browser, inspect supplied screenshots and list every unrendered check under unverified.
+If a browser is available, render the desktop and mobile viewports in light and dark themes, and sample hover and focus states. Prefer `scripts/ui-witness.sh audit <url> -- [flags]`; it reports findings derived from rendered geometry and computed colors, plus a candidate list and tab order, as JSON. Use `--expand` to open each ARIA disclosure one at a time and report per-state deltas. Read the script and the report for thresholds and evidence. Without the tool or a browser, inspect supplied screenshots and list every unrendered check under unverified.
 
 Exercise preload, loaded, empty, error, disabled, collapsed, and expanded; snapshot only the states the diff touches.
 
 - Every interactive control needs an accessible name, visible focus indicator, and keyboard trigger.
 - Widget roles carry their states: `aria-expanded`, `aria-controls`, `aria-selected`, `aria-pressed`, `aria-current`. Async status uses a live region. No ARIA overrides native semantics without cause.
-- Touch targets are at least 44x44px; text contrast is at least 4.5:1.
-- Body measure stays 65-75ch; tracking stays at or above -0.04em; no text overflows its container. Display sizes follow `artifacts/ui-design.md`, not a fixed ceiling.
+- Touch targets and text contrast meet the thresholds in the bundled rules pack and the report evidence.
+- Body measure, tracking, and overflow stay within the report limits; no text overflows its container. Display sizes follow `artifacts/ui-design.md`, not a fixed ceiling.
 - Compare computed padding, margin, and gap against the density profile.
-- Declare elevation once, border or shadow. Flag a 1px border under a wide soft shadow as a ghost card. Match radii to `artifacts/ui-design.md`; without a spec, flag mixed radii on comparable surfaces, not a numeric range.
-- Theme selection, caret, scrollbars, focus rings, underline offset, and tabular numerals from the palette; browser defaults belong to no design system.
+- Declare elevation once, border or shadow. Flag a hairline border under a wide soft shadow as a ghost card. Match radii to `artifacts/ui-design.md`; without a spec, flag mixed radii on comparable surfaces, not a numeric range. Keep radius units: a percentage never equals the same number of pixels.
+- Theme selection, caret, scrollbars, focus rings, underline offset, and tabular numerals come from the palette; browser defaults belong to no design system.
 - Resolve computed colors across themes; report off-palette nodes.
 - Never suppress focus rings without an equivalent visible focus ring.
 - Never introduce raw color literals in components; fix token mappings.

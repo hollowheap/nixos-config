@@ -66,6 +66,6 @@
   home.packages = with pkgs; [
     harlequin
     tdf
-    ui-scrape
+    ui-probe
   ];
 }
