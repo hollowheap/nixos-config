@@ -9,8 +9,7 @@ let
 in
 {
   services.gnome-keyring = {
-    enable = true;
-    components = [ "secrets" ];
+    enable = false;
   };
 
   services.gpg-agent = {
