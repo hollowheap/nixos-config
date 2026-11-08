@@ -412,11 +412,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1794116471,
-        "narHash": "sha256-UpxeWxsQM03J6I4Gk/oYKECsUjU30IZUo3VAGrP0JWU=",
+        "lastModified": 1794118575,
+        "narHash": "sha256-mvTyMZCWZSasMfFnp9Tw0nAZ5BdFMflNbUdsoP6TdyU=",
         "owner": "hollowheap",
         "repo": "opal",
-        "rev": "b409044ebaa86fbc696496f8a2c34ee4cce291a7",
+        "rev": "64417aa4b4c216c7ae32ea3796febe883f325ae2",
         "type": "github"
       },
       "original": {
