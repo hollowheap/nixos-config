@@ -1,6 +1,9 @@
 { pkgs, src }:
 pkgs.runCommand "check-artifacts" {
-  nativeBuildInputs = [ pkgs.python3 ];
+  nativeBuildInputs = [
+    pkgs.python3
+    pkgs.ripgrep
+  ];
 } ''
   set -euo pipefail
 
@@ -39,14 +42,14 @@ pkgs.runCommand "check-artifacts" {
   EOF
 
   ARTIFACTS_DIR="$tmp/artifacts" python3 ${src}/pkgs/artifacts-helper.py verify-links > "$tmp/valid.out" 2>&1
-  grep -qx "OK" "$tmp/valid.out"
+  rg -qx "OK" "$tmp/valid.out"
 
   sed -i 's|### Module Seams|### architecture.md#module-seams|' "$tmp/artifacts/decisions.md"
   if ARTIFACTS_DIR="$tmp/artifacts" python3 ${src}/pkgs/artifacts-helper.py verify-links > "$tmp/decision-path.out" 2>&1; then
     echo "expected a decision H3 path to fail" >&2
     exit 1
   fi
-  grep -q "must name an architecture section" "$tmp/decision-path.out"
+  rg -q "must name an architecture section" "$tmp/decision-path.out"
   sed -i 's|### architecture.md#module-seams|### Module Seams|' "$tmp/artifacts/decisions.md"
 
   sed -i 's|#### Module Seams|#### architecture.md#module-seams|' "$tmp/artifacts/specs.md"
@@ -54,14 +57,14 @@ pkgs.runCommand "check-artifacts" {
     echo "expected an Arch path to fail" >&2
     exit 1
   fi
-  grep -q "must name an architecture section" "$tmp/path.out"
+  rg -q "must name an architecture section" "$tmp/path.out"
 
   sed -i 's|#### architecture.md#module-seams|#### Missing Section|' "$tmp/artifacts/specs.md"
   if ARTIFACTS_DIR="$tmp/artifacts" python3 ${src}/pkgs/artifacts-helper.py verify-links > "$tmp/invalid.out" 2>&1; then
     echo "expected an unknown Arch section to fail" >&2
     exit 1
   fi
-  grep -q "Unknown Arch section" "$tmp/invalid.out"
+  rg -q "Unknown Arch section" "$tmp/invalid.out"
 
   touch $out
 ''

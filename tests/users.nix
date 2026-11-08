@@ -2,15 +2,15 @@
 pkgs.runCommand "check-users" {
   nativeBuildInputs = with pkgs; [
     findutils
-    gnugrep
+    ripgrep
   ];
 } ''
   set -euo pipefail
   cd ${src}
 
-  grep -q "adminExtraGroups" modules/virtualisation/podman.nix
-  grep -q "adminExtraGroups" modules/options/users.nix
-  ! grep -q '"podman"' modules/system/users.nix
+  rg -q "adminExtraGroups" modules/virtualisation/podman.nix
+  rg -q "adminExtraGroups" modules/options/users.nix
+  ! rg -q '"podman"' modules/system/users.nix
 
   touch $out
 ''

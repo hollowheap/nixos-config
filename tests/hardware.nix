@@ -2,7 +2,7 @@
 pkgs.runCommand "check-hardware" {
   nativeBuildInputs = with pkgs; [
     findutils
-    gnugrep
+    ripgrep
   ];
 } ''
   set -euo pipefail
@@ -13,12 +13,12 @@ pkgs.runCommand "check-hardware" {
   test -f hardware/nvidia.nix
   test -f hardware/touch.nix
 
-  grep -q "traits = \[" hosts/lacuna/hardware.nix
-  grep -q "hybrid-gpu" hosts/acervus/default.nix
-  ! grep -q "hybrid-gpu" hosts/lacuna/hardware.nix
-  grep -q "desktop.touch = true" hardware/touch.nix
-  grep -q "desktop.hdr = true" hardware/hdr.nix
-  grep -q "desktop.touch = true" home/hollowheap.nix
+  rg -q "traits = \[" hosts/lacuna/hardware.nix
+  rg -q "hybrid-gpu" hosts/acervus/default.nix
+  ! rg -q "hybrid-gpu" hosts/lacuna/hardware.nix
+  rg -q "desktop.touch = true" hardware/touch.nix
+  rg -q "desktop.hdr = true" hardware/hdr.nix
+  rg -q "desktop.touch = true" home/hollowheap.nix
 
   touch $out
 ''

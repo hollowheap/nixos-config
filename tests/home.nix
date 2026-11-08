@@ -2,7 +2,7 @@
 pkgs.runCommand "check-home" {
   nativeBuildInputs = with pkgs; [
     findutils
-    gnugrep
+    ripgrep
   ];
 } ''
   set -euo pipefail
@@ -10,7 +10,7 @@ pkgs.runCommand "check-home" {
 
   test -f home/hollowheap.nix
   test -f home/modules/programs/nvim/lsp.nix
-  grep -q "yamllint" home/modules/programs/nvim/lsp.nix
+  rg -q "yamllint" home/modules/programs/nvim/lsp.nix
   test -f home/modules/ai/options.nix
   test -f home/modules/ai/agents.nix
   test -f home/modules/programs/thunderbird-accounts.nix
@@ -39,63 +39,73 @@ pkgs.runCommand "check-home" {
   test -f home/modules/terminal/zsh.nix
   test -f home/modules/programs/wallust.nix
   test -f home/modules/programs/nvim/diagrams.nix
-  grep -q "./nvim/diagrams.nix" home/modules/programs/nvim.nix
-  grep -q "diagram.nvim" flake/default.nix
+  rg -q "./nvim/diagrams.nix" home/modules/programs/nvim.nix
+  rg -q "diagram.nvim" flake/default.nix
 
   ! test -e home/cli.nix
   ! test -e home/gui.nix
   ! test -e home/modules/options
-  grep -q "inputs.import-tree ./modules" home/hollowheap.nix
-  grep -q "username = \"hollowheap\"" home/hollowheap.nix
-  grep -q "desktop.touch = true" home/hollowheap.nix
-  grep -q "readDir ../home" flake/default.nix
-  grep -q "genAttrs homeUserNames" flake/default.nix
-  grep -q "config.desktop.primaryScale" home/modules/programs/hyprland/hyprland.nix
-  grep -q "bind = map mkArgs" home/modules/programs/hyprland/keybinds.nix
-  grep -q "desktop.touchscreen" home/modules/environment/touch.nix
-  grep -q "desktop.touchscreen.devices" home/modules/programs/hyprland/hyprland.nix
-  grep -q "toggle-touch-keyboard" home/modules/environment/touch.nix
-  ! grep -q "wvkbd" home/modules/environment/touch.nix
-  ! grep -q "LIBVA_DRIVER_NAME" home/modules/environment/session.nix
-  grep -q "LIBVA_DRIVER_NAME" hardware/nvidia.nix
-  grep -q "desktop.actions" home/modules/programs/hyprland/keybinds.nix
-  grep -q "desktop.windowRules" home/modules/programs/hyprland/hyprland.nix
-  grep -q "zen-auth-popups" home/modules/programs/gui/zen-browser.nix
-  grep -q "screenshare-picker" home/modules/environment/rules.nix
-  grep -q "pi.mode" home/modules/programs/pi-coding-agent.nix
-  grep -q -- "-builtin:tool-search" home/modules/programs/pi-coding-agent.nix
-  grep -q -- "-builtin:mcp" home/modules/programs/pi-coding-agent.nix
-  grep -q -- "-builtin:llama.cpp" home/modules/programs/pi-coding-agent.nix
-  grep -q "bind C-g send-keys C-g" home/modules/terminal/tmux.nix
-  grep -q "bind l send-keys l" home/modules/terminal/tmux.nix
-  grep -q "@continuum-save-interval '5'" home/modules/terminal/tmux.nix
-  grep -q "@resurrect-strategy-nvim 'session'" home/modules/terminal/tmux.nix
-  grep -q "continuum_save.sh" home/modules/terminal/tmux.nix
-  grep -q 'List all key bindings' home/modules/terminal/tmux.nix
-  grep -q 'list-keys -T prefix' home/modules/terminal/tmux.nix
-  grep -q "unbind -q g" home/modules/terminal/tmux.nix
-  grep -q "bind -n C-g display-popup" home/modules/terminal/tmux.nix
-  grep -q "bind -n C-y display-popup" home/modules/terminal/tmux.nix
-  grep -q "bind -n C-b display-popup" home/modules/terminal/tmux.nix
-  ! grep -q "bind C-g display-popup" home/modules/terminal/tmux.nix
-  ! grep -q "bind g display-popup" home/modules/terminal/tmux.nix
-  ! grep -q "bind y display-popup" home/modules/terminal/tmux.nix
-  ! grep -q "bind b display-popup" home/modules/terminal/tmux.nix
-  ! grep -q "bind t display-popup" home/modules/terminal/tmux.nix
-  grep -q "bind -n C-p previous-window" home/modules/terminal/tmux.nix
-  grep -q ']4;7;#e0e0e0' assets/wallust-templates/sequences
-  grep -q ']4;8;#2e2e2e' assets/wallust-templates/sequences
-  grep -q "detectContrast" lib/color.nix
-  grep -q "inherit (color) detectContrast" home/modules/styles/pills.nix
-  ! grep -q "prev_fg\|prev_bg" home/modules/styles/pills.nix
-  ! grep -q "wayland.windowManager.hyprland" home/modules/environment/touch.nix
-  grep -q "config.desktop.touchscreen" home/modules/programs/hyprland/hyprland.nix
-  grep -q "config.desktop.compositor" home/modules/programs/hyprland/hyprland.nix
-  ! grep -q "bind = map mkArgs" home/modules/programs/hyprland/hyprland.nix
-  grep -q "../../../lib/hyprland.nix" home/modules/programs/hyprland/keybinds.nix
-  grep -q "config.desktop.primaryScale" roles/desktop/system/default.nix
-  grep -q "config.desktop.fonts" home/modules/styles/fonts.nix
-  ! grep -q "stylix" flake.nix
+  rg -q "inputs.import-tree ./modules" home/hollowheap.nix
+  rg -q "hollowheap/opal" flake.nix
+  rg -q "hollowheap/iridescent" flake.nix
+  rg -q -F 'inputs.opal.outPath + "/skills"' home/modules/ai/skills.nix
+  rg -q -F 'inputs.iridescent + "/skills"' home/modules/ai/skills.nix
+  rg -q -F 'inputs.docmd + "/skills"' home/modules/ai/skills.nix
+  rg -q "splitFrontmatter" lib/ai-skills.nix
+  rg -q "readReferenceFiles" lib/ai-skills.nix
+  ! test -e pkgs/ui-probe.nix
+  ! test -e assets/skills/opal
+  rg -q "inputs.opal.packages" home/modules/cli/utilities.nix
+  rg -q "username = \"hollowheap\"" home/hollowheap.nix
+  rg -q "desktop.touch = true" home/hollowheap.nix
+  rg -q "readDir ../home" flake/default.nix
+  rg -q "genAttrs homeUserNames" flake/default.nix
+  rg -q "config.desktop.primaryScale" home/modules/programs/hyprland/hyprland.nix
+  rg -q "bind = map mkArgs" home/modules/programs/hyprland/keybinds.nix
+  rg -q "desktop.touchscreen" home/modules/environment/touch.nix
+  rg -q "desktop.touchscreen.devices" home/modules/programs/hyprland/hyprland.nix
+  rg -q "toggle-touch-keyboard" home/modules/environment/touch.nix
+  ! rg -q "wvkbd" home/modules/environment/touch.nix
+  ! rg -q "LIBVA_DRIVER_NAME" home/modules/environment/session.nix
+  rg -q "LIBVA_DRIVER_NAME" hardware/nvidia.nix
+  rg -q "desktop.actions" home/modules/programs/hyprland/keybinds.nix
+  rg -q "desktop.windowRules" home/modules/programs/hyprland/hyprland.nix
+  rg -q "zen-auth-popups" home/modules/programs/gui/zen-browser.nix
+  rg -q "screenshare-picker" home/modules/environment/rules.nix
+  rg -q "pi.mode" home/modules/programs/pi-coding-agent.nix
+  rg -q -e "-builtin:tool-search" home/modules/programs/pi-coding-agent.nix
+  rg -q -e "-builtin:mcp" home/modules/programs/pi-coding-agent.nix
+  rg -q -e "-builtin:llama.cpp" home/modules/programs/pi-coding-agent.nix
+  rg -q "bind C-g send-keys C-g" home/modules/terminal/tmux.nix
+  rg -q "bind l send-keys l" home/modules/terminal/tmux.nix
+  rg -q "@continuum-save-interval '5'" home/modules/terminal/tmux.nix
+  rg -q "@resurrect-strategy-nvim 'session'" home/modules/terminal/tmux.nix
+  rg -q "continuum_save.sh" home/modules/terminal/tmux.nix
+  rg -q 'List all key bindings' home/modules/terminal/tmux.nix
+  rg -q 'list-keys -T prefix' home/modules/terminal/tmux.nix
+  rg -q "unbind -q g" home/modules/terminal/tmux.nix
+  rg -q "bind -n C-g display-popup" home/modules/terminal/tmux.nix
+  rg -q "bind -n C-y display-popup" home/modules/terminal/tmux.nix
+  rg -q "bind -n C-b display-popup" home/modules/terminal/tmux.nix
+  ! rg -q "bind C-g display-popup" home/modules/terminal/tmux.nix
+  ! rg -q "bind g display-popup" home/modules/terminal/tmux.nix
+  ! rg -q "bind y display-popup" home/modules/terminal/tmux.nix
+  ! rg -q "bind b display-popup" home/modules/terminal/tmux.nix
+  ! rg -q "bind t display-popup" home/modules/terminal/tmux.nix
+  rg -q "bind -n C-p previous-window" home/modules/terminal/tmux.nix
+  rg -q ']4;7;#e0e0e0' assets/wallust-templates/sequences
+  rg -q ']4;8;#2e2e2e' assets/wallust-templates/sequences
+  rg -q "detectContrast" lib/color.nix
+  rg -q -F "inherit (color) detectContrast" home/modules/styles/pills.nix
+  ! rg -q 'prev_fg|prev_bg' home/modules/styles/pills.nix
+  ! rg -q "wayland.windowManager.hyprland" home/modules/environment/touch.nix
+  rg -q "config.desktop.touchscreen" home/modules/programs/hyprland/hyprland.nix
+  rg -q "config.desktop.compositor" home/modules/programs/hyprland/hyprland.nix
+  ! rg -q "bind = map mkArgs" home/modules/programs/hyprland/hyprland.nix
+  rg -q "../../../lib/hyprland.nix" home/modules/programs/hyprland/keybinds.nix
+  rg -q "config.desktop.primaryScale" roles/desktop/system/default.nix
+  rg -q "config.desktop.fonts" home/modules/styles/fonts.nix
+  ! rg -q "stylix" flake.nix
 
   touch $out
 ''

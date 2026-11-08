@@ -2,25 +2,25 @@
 pkgs.runCommand "check-services" {
   nativeBuildInputs = with pkgs; [
     findutils
-    gnugrep
+    ripgrep
   ];
 } ''
   set -euo pipefail
   cd ${src}
 
-  ! grep -q "tls internal" roles/server/system/caddy.nix
-  test "$(grep -c 'dns duckdns' roles/server/system/caddy.nix)" -eq 1
-  ! grep -q "certs/local-ca.crt" roles/server/system/caddy.nix
-  grep -q "caddy_env" roles/server/system/caddy.nix
-  ! grep -q "SSL_CERT_FILE" roles/server/system/caddy.nix
-  grep -q "vaultwarden_env" roles/server/system/vaultwarden.nix
-  grep -q "tls internal" roles/server/system/vaultwarden.nix
-  grep -q "tls internal" roles/server/system/headscale.nix
-  grep -q "backupDir" roles/server/system/vaultwarden.nix
-  grep -q "useSystemdActivation = true" modules/security/sops.nix
-  grep -q "Headscale ingress" roles/server/system/headscale.nix
-  grep -q "nix-on-droid.cachix.org" modules/system/cachix.nix
-  grep -q "hyprland.cachix.org" modules/system/cachix.nix
+  ! rg -q "tls internal" roles/server/system/caddy.nix
+  test "$(rg -c 'dns duckdns' roles/server/system/caddy.nix)" -eq 1
+  ! rg -q "certs/local-ca.crt" roles/server/system/caddy.nix
+  rg -q "caddy_env" roles/server/system/caddy.nix
+  ! rg -q "SSL_CERT_FILE" roles/server/system/caddy.nix
+  rg -q "vaultwarden_env" roles/server/system/vaultwarden.nix
+  rg -q "tls internal" roles/server/system/vaultwarden.nix
+  rg -q "tls internal" roles/server/system/headscale.nix
+  rg -q "backupDir" roles/server/system/vaultwarden.nix
+  rg -q "useSystemdActivation = true" modules/security/sops.nix
+  rg -q "Headscale ingress" roles/server/system/headscale.nix
+  rg -q "nix-on-droid.cachix.org" modules/system/cachix.nix
+  rg -q "hyprland.cachix.org" modules/system/cachix.nix
 
   touch $out
 ''

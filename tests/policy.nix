@@ -2,22 +2,22 @@
 pkgs.runCommand "check-policy" {
   nativeBuildInputs = with pkgs; [
     findutils
-    gnugrep
+    ripgrep
   ];
 } ''
   set -euo pipefail
   cd ${src}
 
-  ! grep -R "hardware/" profiles
-  ! grep -R "config.profile" modules home roles hardware boot
-  ! grep -R "import-tree.*hosts" flake hosts
-  ! grep -R "profiles/desktop" hosts/lacuna/default.nix
+  ! rg "hardware/" profiles
+  ! rg "config.profile" modules home roles hardware boot
+  ! rg "import-tree.*hosts" flake hosts
+  ! rg "profiles/desktop" hosts/lacuna/default.nix
 
-  grep -q "roles/server/system" hosts/lacuna/default.nix
-  grep -q "homeUserNames" flake/default.nix
-  grep -q "inputs.import-tree ./modules" home/hollowheap.nix
-  ! grep -q "roles/server" hosts/acervus/default.nix
-  ! grep -q "roles/desktop" hosts/acervus/default.nix
+  rg -q "roles/server/system" hosts/lacuna/default.nix
+  rg -q "homeUserNames" flake/default.nix
+  rg -q "inputs.import-tree ./modules" home/hollowheap.nix
+  ! rg -q "roles/server" hosts/acervus/default.nix
+  ! rg -q "roles/desktop" hosts/acervus/default.nix
 
   touch $out
 ''

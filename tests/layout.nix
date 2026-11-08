@@ -2,7 +2,7 @@
 pkgs.runCommand "check-layout" {
   nativeBuildInputs = with pkgs; [
     findutils
-    gnugrep
+    ripgrep
   ];
 } ''
   set -euo pipefail
