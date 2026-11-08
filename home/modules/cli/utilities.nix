@@ -1,4 +1,8 @@
-{ config, pkgs, ... }:
+{ config, inputs, pkgs, ... }:
+let
+  uiProbe = inputs.opal.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  opalRules = inputs.opal.packages.${pkgs.stdenv.hostPlatform.system}.rules;
+in
 {
   programs = {
     eza.enable = true;
@@ -66,9 +70,10 @@
   home.packages = with pkgs; [
     harlequin
     tdf
-    ui-probe
+    uiProbe
   ];
 
-  home.file.".opal/rules.json".source =
-    ../../../assets/skills/opal/references/impeccable-rules.json;
+  home.file.".opal/bin/ui-probe".source = "${uiProbe}/bin/ui-probe";
+
+  home.file.".opal/rules.json".source = "${opalRules}";
 }

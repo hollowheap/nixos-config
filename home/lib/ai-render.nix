@@ -98,9 +98,17 @@ rec {
           ${content}
         ''
       } "$out/SKILL.md"
-      ${concatStringsSep "\n" (mapAttrsToList (fileName: reference: ''
-        cp ${pkgs.writeText "${name}-reference-${fileName}" (renderSkill reference)} "$out/references/${fileName}"
-      '') skill.references)}
+      ${concatStringsSep "\n" (mapAttrsToList (
+        fileName: reference:
+        if builtins.isAttrs reference then
+          ''
+            install -D -m0644 ${reference.source} "$out/references/${fileName}"
+          ''
+        else
+          ''
+            install -D -m0644 ${pkgs.writeText "${name}-reference-${fileName}" (renderSkill reference)} "$out/references/${fileName}"
+          ''
+      ) skill.references)}
       ${concatStringsSep "\n" (mapAttrsToList (fileName: content: ''
         install -m0755 ${pkgs.writeText "${name}-script-${fileName}" content} "$out/scripts/${fileName}"
       '') skill.scripts)}

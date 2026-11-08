@@ -20,7 +20,10 @@ let
       ${agent.description}
 
       ${aiRender.agentBodyFor "crush" agent}
-    '') config.ai.agents
+
+      Crush runs a single agent. Do recon, research, and review directly; ignore
+      delegation instructions elsewhere in the skills.
+    '') (lib.filterAttrs (_: agent: agent.role == "primary") config.ai.agents)
   );
 in
 {

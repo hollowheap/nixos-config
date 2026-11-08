@@ -41,10 +41,19 @@ let
         '';
       }
     ]
-    ++ (mapAttrsToList (refName: refContent: {
-      name = ".kiro/skills/${name}/references/${refName}";
-      value.text = renderSkill refContent;
-    }) skill.references)
+    ++ (mapAttrsToList (
+      refName: refContent:
+      if builtins.isAttrs refContent then
+        {
+          name = ".kiro/skills/${name}/references/${refName}";
+          value.source = refContent.source;
+        }
+      else
+        {
+          name = ".kiro/skills/${name}/references/${refName}";
+          value.text = renderSkill refContent;
+        }
+    ) skill.references)
     ++ (mapAttrsToList (scriptName: scriptContent: {
       name = ".kiro/skills/${name}/scripts/${scriptName}";
       value = {

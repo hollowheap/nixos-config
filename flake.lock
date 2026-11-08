@@ -20,6 +20,22 @@
         "type": "github"
       }
     },
+    "docmd": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793801532,
+        "narHash": "sha256-blgVBiR2+GwbK99D+KORhyHqiWsRD84NUOTq2nCqt8o=",
+        "owner": "hollowheap",
+        "repo": "docmd",
+        "rev": "7f819b1955e5b7fdd45ce1d8a6dca4d86d7c351b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hollowheap",
+        "repo": "docmd",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -108,6 +124,22 @@
       "original": {
         "owner": "denful",
         "repo": "import-tree",
+        "type": "github"
+      }
+    },
+    "iridescent": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794115920,
+        "narHash": "sha256-8b7/7c5COM/XxApsEESgscP5gJRDl/Up+KTaWSqTH14=",
+        "owner": "hollowheap",
+        "repo": "iridescent",
+        "rev": "7345ebaaadfe4e8908c3c06df24e9fc7d13de119",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hollowheap",
+        "repo": "iridescent",
         "type": "github"
       }
     },
@@ -279,6 +311,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1793876309,
+        "narHash": "sha256-Wojg9lIH/hDH91iDVH2/EPw8oDSpxjxhXONbU1yf4Zg=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "f9a75f41be3a74eab55d3a7679d34ad6cc0da977",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nmd": {
       "inputs": {
         "nixpkgs": [
@@ -359,17 +407,38 @@
         "type": "github"
       }
     },
+    "opal": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1794116471,
+        "narHash": "sha256-UpxeWxsQM03J6I4Gk/oYKECsUjU30IZUo3VAGrP0JWU=",
+        "owner": "hollowheap",
+        "repo": "opal",
+        "rev": "b409044ebaa86fbc696496f8a2c34ee4cce291a7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hollowheap",
+        "repo": "opal",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "disko": "disko",
+        "docmd": "docmd",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
+        "iridescent": "iridescent",
         "minecraft-plymouth-theme": "minecraft-plymouth-theme",
         "nix-on-droid": "nix-on-droid",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "noctalia-greeter": "noctalia-greeter",
         "nvf": "nvf",
+        "opal": "opal",
         "sops-nix": "sops-nix",
         "zen-browser": "zen-browser"
       }

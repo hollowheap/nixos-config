@@ -188,10 +188,19 @@ let
           '';
         }
       ]
-      ++ mapAttrsToList (fileName: content: {
-        name = "${configDir}/skills/${name}/references/${fileName}";
-        value.text = renderSkill content;
-      }) skill.references
+      ++ mapAttrsToList (
+        fileName: content:
+        if builtins.isAttrs content then
+          {
+            name = "${configDir}/skills/${name}/references/${fileName}";
+            value.source = content.source;
+          }
+        else
+          {
+            name = "${configDir}/skills/${name}/references/${fileName}";
+            value.text = renderSkill content;
+          }
+      ) skill.references
       ++ mapAttrsToList (fileName: content: {
         name = "${configDir}/skills/${name}/scripts/${fileName}";
         value = {

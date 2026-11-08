@@ -8,7 +8,6 @@ let
   inherit (lib) mkIf mapAttrs mapAttrsToList optionals concatStringsSep;
 
   aiRender = config.ai.render;
-  renderSkill = aiRender.renderSkillInvocation { skills = config.ai.skills; };
 
   copilotToolsFor =
     agent:
@@ -39,16 +38,10 @@ let
       ${aiRender.agentBodyFor "copilot" agent}
     '';
 
-  mkSkill =
-    name: skill:
-    ''
-      ---
-      name: ${name}
-      description: ${skill.description}
-      ${lib.optionalString skill.disableModelInvocation "disable-model-invocation: true\n"}---
-
-      ${renderSkill skill.content}
-    '';
+  mkSkill = aiRender.mkSkillDir {
+    prefix = "copilot";
+    skills = config.ai.skills;
+  };
 
   # Copilot CLI built-ins are closed: no drops. Add rule names here once verified.
 in

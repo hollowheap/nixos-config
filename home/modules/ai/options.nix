@@ -17,11 +17,13 @@ let
   inherit (lib.types)
     attrsOf
     bool
+    either
     enum
     int
     lines
     listOf
     nullOr
+    path
     str
     submodule
     unspecified
@@ -228,7 +230,12 @@ let
         description = "Markdown content and guidelines for this skill.";
       };
       references = mkOption {
-        type = attrsOf lines;
+        type = attrsOf (either lines (submodule {
+          options.source = mkOption {
+            type = path;
+            description = "Source path for a binary reference; copied verbatim into references/.";
+          };
+        }));
         default = { };
         apply = attrs: lib.mapAttrs' (
           name: content:
@@ -236,7 +243,7 @@ let
             if builtins.match ".*\\..*" name != null then name else "${name}.md"
           ) content
         ) attrs;
-        description = "Optional sub-documents placed under references/; bare keys get a .md suffix.";
+        description = "Optional sub-documents placed under references/; bare keys get a .md suffix. Text entries are strings; binary entries use `{ source = path; }`.";
       };
       scripts = mkOption {
         type = attrsOf lines;

@@ -46,6 +46,18 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    opal.url = "github:hollowheap/opal";
+
+    iridescent = {
+      url = "github:hollowheap/iridescent";
+      flake = false;
+    };
+
+    docmd = {
+      url = "github:hollowheap/docmd";
+      flake = false;
+    };
+
   };
 
   outputs = inputs: import ./flake inputs;
