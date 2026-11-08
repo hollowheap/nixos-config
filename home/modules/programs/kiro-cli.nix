@@ -83,19 +83,60 @@ let
     let
       caps = agent.capabilities;
       writeRules =
-        if name == "orchestrator" || name == "engineer" || name == "architect" then
-          [ { capability = "fs_write"; match = [ "artifacts/tasks.md" "artifacts/specs.md" ]; effect = "allow"; } ]
+        if name == "architect" then
+          [
+            {
+              capability = "fs_write";
+              match = [ "artifacts/tasks.md" "artifacts/specs.md" ];
+              effect = "allow";
+            }
+          ]
+        else if caps.write then
+          [
+            {
+              capability = "fs_write";
+              match = [ "**" ];
+              effect = "allow";
+            }
+          ]
         else
-          [ { capability = "fs_write"; match = [ "artifacts/tasks.md" "artifacts/specs.md" ]; effect = "deny"; } ];
-      noWriteRules = [ { capability = "fs_write"; match = [ "**" ]; effect = "deny"; } ];
-      executeRules = [ { capability = "shell"; match = [ "**" ]; effect = "allow"; } ];
+          [
+            {
+              capability = "fs_write";
+              match = [ "**" ];
+              effect = "deny";
+            }
+          ];
+      executeRules =
+        if name == "scout" then
+          map (pattern: {
+            capability = "shell";
+            match = [ pattern ];
+            effect = "allow";
+          }) [
+            "repomap*"
+            "rg*"
+            "fd*"
+            "nix eval*"
+            "nix flake show*"
+            "git status*"
+            "git log*"
+            "git diff*"
+          ]
+        else
+          [ { capability = "shell"; match = [ "**" ]; effect = "allow"; } ]
+          ++ optionals caps.execute (
+            map (pattern: {
+              capability = "shell";
+              match = [ pattern ];
+              effect = "deny";
+            }) config.ai.guards.bashDeny
+          );
       delegateRules = optionals (agent.availableAgents != [ ]) [
         { capability = "subagent"; match = map slugToTitle agent.availableAgents; effect = "allow"; }
       ];
     in
-    (if caps.write then writeRules else noWriteRules)
-    ++ (optionals caps.execute executeRules)
-    ++ (optionals caps.delegate delegateRules);
+    writeRules ++ (optionals caps.execute executeRules) ++ (optionals caps.delegate delegateRules);
 
   kiroHookEvent =
     event:
