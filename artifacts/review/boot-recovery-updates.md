@@ -8,6 +8,15 @@ Scope: boot, recovery, updates
 - Biggest missing option: no UKI/measured boot (`boot.lanzaboote` or native `boot.uki`) and no LUKS recovery-key/re-enrollment runbook; recovery depends on an undocumented imperative TPM enrollment.
 - Seam worth changing: secure boot, TPM policy, sbctl keys, and firmware-update recovery are split across `boot/secure-boot.nix`, `boot/tpm.nix`, and state under `/var/lib`; make one boot-policy module with capability options and a documented recovery contract.
 
+## Reconciliation (2026-11-09)
+
+- F4 resolved: `configurationLimit = 10`, 10-second menu timeout, and 14-day GC.
+- F9 resolved: the theme is pinned to `c10fd20713db2f002645a4c709b153964cac77cd` and loads only when `/theme/mainmenu.cfg` exists.
+- F3 partially resolved: `sbctl` is in system packages; key creation, backup, and enrollment remain manual.
+- F7 partially resolved: `min-free = 5G` and the duplicate store optimisation are settled; automatic updates remain a preference.
+- Rejected defaults applied: `useOSProber`, `enableCryptodisk`, `initrd.verbose`, `rd.udev.log_level`, the fallback-shell parameter, and redundant initrd modules are removed.
+- Open: F1/F2 (UKI and recovery key), F5 (panic/watchdog), F6 (headless recovery), F8 (fwupd signing).
+
 ## Findings
 
 ### F1: Secure Boot signs kernels but never verifies the initrd
