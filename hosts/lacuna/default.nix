@@ -18,5 +18,11 @@
     intel-compute-runtime
   ];
 
+  networking.firewall.interfaces.wlan0.allowedTCPPorts = [
+    1883
+    8083
+    8090
+  ];
+
   # boot.kernelParams = [ "i915.enable_guc=3" ];
 }

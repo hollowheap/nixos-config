@@ -7,6 +7,7 @@ let
     "filesystems"
     "graphics"
     "rgb"
+    "serial"
     "touch"
     "wifi"
   ];
