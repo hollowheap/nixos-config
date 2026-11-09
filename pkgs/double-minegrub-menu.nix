@@ -12,7 +12,7 @@ stdenvNoCC.mkDerivation {
   src = fetchFromGitHub {
     owner = "Lxtharia";
     repo = "double-minegrub-menu";
-    rev = "dev";
+    rev = "c10fd20713db2f002645a4c709b153964cac77cd";
     hash = "sha256-VhZ4Jw6xmvnIo+thPoWIr7SOILDVPkWTWMqlbB30doE=";
   };
 

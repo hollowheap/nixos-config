@@ -2,16 +2,14 @@
 
 {
   boot.loader = {
-    timeout = 3;
+    timeout = 10;
     efi.canTouchEfiVariables = true;
 
     grub = {
       enable = true;
-      configurationLimit = 3;
+      configurationLimit = 10;
       device = "nodev";
       efiSupport = true;
-      enableCryptodisk = true;
-      useOSProber = true;
     };
   };
 }
