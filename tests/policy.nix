@@ -8,16 +8,22 @@ pkgs.runCommand "check-policy" {
   set -euo pipefail
   cd ${src}
 
-  ! rg "hardware/" profiles
-  ! rg "config.profile" modules home roles hardware boot
-  ! rg "import-tree.*hosts" flake hosts
-  ! rg "profiles/desktop" hosts/lacuna/default.nix
+  no_match() {
+    local rc=0
+    rg "$@" || rc=$?
+    [ "$rc" -eq 1 ]
+  }
+
+  no_match "hardware/" profiles
+  no_match "config.profile" modules home roles hardware boot
+  no_match "import-tree.*hosts" flake hosts
+  no_match "profiles/desktop" hosts/lacuna/default.nix
 
   rg -q "roles/server/system" hosts/lacuna/default.nix
   rg -q "homeUserNames" flake/default.nix
   rg -q "inputs.import-tree ./modules" home/hollowheap.nix
-  ! rg -q "roles/server" hosts/acervus/default.nix
-  ! rg -q "roles/desktop" hosts/acervus/default.nix
+  no_match -q "roles/server" hosts/acervus/default.nix
+  no_match -q "roles/desktop" hosts/acervus/default.nix
 
   touch $out
 ''

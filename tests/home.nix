@@ -8,6 +8,12 @@ pkgs.runCommand "check-home" {
   set -euo pipefail
   cd ${src}
 
+  no_match() {
+    local rc=0
+    rg "$@" || rc=$?
+    [ "$rc" -eq 1 ]
+  }
+
   test -f home/hollowheap.nix
   test -f home/modules/programs/nvim/lsp.nix
   rg -q "yamllint" home/modules/programs/nvim/lsp.nix
@@ -65,8 +71,8 @@ pkgs.runCommand "check-home" {
   rg -q "desktop.touchscreen" home/modules/environment/touch.nix
   rg -q "desktop.touchscreen.devices" home/modules/programs/hyprland/hyprland.nix
   rg -q "toggle-touch-keyboard" home/modules/environment/touch.nix
-  ! rg -q "wvkbd" home/modules/environment/touch.nix
-  ! rg -q "LIBVA_DRIVER_NAME" home/modules/environment/session.nix
+  no_match -q "wvkbd" home/modules/environment/touch.nix
+  no_match -q "LIBVA_DRIVER_NAME" home/modules/environment/session.nix
   rg -q "LIBVA_DRIVER_NAME" hardware/nvidia.nix
   rg -q "desktop.actions" home/modules/programs/hyprland/keybinds.nix
   rg -q "desktop.windowRules" home/modules/programs/hyprland/hyprland.nix
@@ -87,25 +93,25 @@ pkgs.runCommand "check-home" {
   rg -q "bind -n C-g display-popup" home/modules/terminal/tmux.nix
   rg -q "bind -n C-y display-popup" home/modules/terminal/tmux.nix
   rg -q "bind -n C-b display-popup" home/modules/terminal/tmux.nix
-  ! rg -q "bind C-g display-popup" home/modules/terminal/tmux.nix
-  ! rg -q "bind g display-popup" home/modules/terminal/tmux.nix
-  ! rg -q "bind y display-popup" home/modules/terminal/tmux.nix
-  ! rg -q "bind b display-popup" home/modules/terminal/tmux.nix
-  ! rg -q "bind t display-popup" home/modules/terminal/tmux.nix
+  no_match -q "bind C-g display-popup" home/modules/terminal/tmux.nix
+  no_match -q "bind g display-popup" home/modules/terminal/tmux.nix
+  no_match -q "bind y display-popup" home/modules/terminal/tmux.nix
+  no_match -q "bind b display-popup" home/modules/terminal/tmux.nix
+  no_match -q "bind t display-popup" home/modules/terminal/tmux.nix
   rg -q "bind -n C-p previous-window" home/modules/terminal/tmux.nix
   rg -q ']4;7;#e0e0e0' assets/wallust-templates/sequences
   rg -q ']4;8;#2e2e2e' assets/wallust-templates/sequences
   rg -q "detectContrast" lib/color.nix
   rg -q -F "inherit (color) detectContrast" home/modules/styles/pills.nix
-  ! rg -q 'prev_fg|prev_bg' home/modules/styles/pills.nix
-  ! rg -q "wayland.windowManager.hyprland" home/modules/environment/touch.nix
+  no_match -q 'prev_fg|prev_bg' home/modules/styles/pills.nix
+  no_match -q "wayland.windowManager.hyprland" home/modules/environment/touch.nix
   rg -q "config.desktop.touchscreen" home/modules/programs/hyprland/hyprland.nix
   rg -q "config.desktop.compositor" home/modules/programs/hyprland/hyprland.nix
-  ! rg -q "bind = map mkArgs" home/modules/programs/hyprland/hyprland.nix
+  no_match -q "bind = map mkArgs" home/modules/programs/hyprland/hyprland.nix
   rg -q "../../../lib/hyprland.nix" home/modules/programs/hyprland/keybinds.nix
   rg -q "config.desktop.primaryScale" roles/desktop/system/default.nix
   rg -q "config.desktop.fonts" home/modules/styles/fonts.nix
-  ! rg -q "stylix" flake.nix
+  no_match -q "stylix" flake.nix
 
   touch $out
 ''

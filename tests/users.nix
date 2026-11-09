@@ -8,9 +8,15 @@ pkgs.runCommand "check-users" {
   set -euo pipefail
   cd ${src}
 
+  no_match() {
+    local rc=0
+    rg "$@" || rc=$?
+    [ "$rc" -eq 1 ]
+  }
+
   rg -q "adminExtraGroups" modules/virtualisation/podman.nix
   rg -q "adminExtraGroups" modules/options/users.nix
-  ! rg -q '"podman"' modules/system/users.nix
+  no_match -q '"podman"' modules/system/users.nix
 
   touch $out
 ''
