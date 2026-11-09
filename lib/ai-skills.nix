@@ -8,7 +8,6 @@ let
     attrNames
     concatStringsSep
     elemAt
-    filter
     head
     listToAttrs
     map
@@ -24,31 +23,84 @@ let
   splitFrontmatter =
     raw:
     let
-      lines = lib.splitString "\n" raw;
+      normalized = builtins.replaceStrings [ "\r\n" ] [ "\n" ] raw;
+      lines = lib.splitString "\n" normalized;
       starts = lines != [ ] && head lines == "---";
       body = tail lines;
       end = lib.lists.findFirstIndex (line: line == "---") null body;
-      parseLine =
+      unquote =
+        value:
+        let
+          len = builtins.stringLength value;
+          first = builtins.substring 0 1 value;
+          last = builtins.substring (len - 1) 1 value;
+        in
+        if len >= 2 && first == "\"" && last == "\"" then
+          builtins.replaceStrings [ "\\\"" ] [ "\"" ] (builtins.substring 1 (len - 2) value)
+        else if len >= 2 && first == "'" && last == "'" then
+          builtins.substring 1 (len - 2) value
+        else
+          value;
+      trimLeft =
         line:
         let
-          parts = match "([A-Za-z0-9_-]+):[[:space:]]*(.*)" line;
+          parts = match "[[:space:]]*(.*)" line;
         in
-        if parts == null then
-          null
+        elemAt parts 0;
+      isIndented =
+        line:
+        line != ""
+        && (builtins.substring 0 1 line == " " || builtins.substring 0 1 line == "\t");
+      takeIndented =
+        entries:
+        if entries == [ ] then
+          [ ]
+        else if isIndented (head entries) then
+          [ (head entries) ] ++ takeIndented (tail entries)
         else
-          {
-            name = elemAt parts 0;
-            value = elemAt parts 1;
-          };
+          [ ];
+      parseEntries =
+        entries:
+        if entries == [ ] then
+          { }
+        else
+          let
+            line = head entries;
+            rest = tail entries;
+            parts = match "([A-Za-z0-9_-]+):[[:space:]]*(.*)" line;
+            block = if parts == null then null else match "(\\||>)([-+]?)" (elemAt parts 1);
+            blockLines = map trimLeft (takeIndented rest);
+            tailLines = lib.drop (builtins.length blockLines) rest;
+          in
+          if parts == null then
+            parseEntries rest
+          else
+            let
+              key = elemAt parts 0;
+              inline = elemAt parts 1;
+            in
+            {
+              ${key} =
+                if block != null then
+                  if elemAt block 0 == ">" then
+                    concatStringsSep " " blockLines
+                  else
+                    concatStringsSep "\n" blockLines
+                else if inline == "" then
+                  concatStringsSep " " blockLines
+                else
+                  unquote inline;
+            }
+            // parseEntries (if block != null || inline == "" then tailLines else rest);
     in
     if !starts || end == null then
       {
         data = { };
-        body = raw;
+        body = normalized;
       }
     else
       {
-        data = listToAttrs (filter (entry: entry != null) (map parseLine (lib.take end body)));
+        data = parseEntries (lib.take end body);
         body = concatStringsSep "\n" (lib.drop (end + 1) body);
       };
 
@@ -112,7 +164,9 @@ let
               lib.removePrefix (toString dir + "/") (toString file)
             );
             value =
-              if lib.any (ext: lib.hasSuffix ".${ext}" (toString file)) textExtensions then
+              if
+                lib.any (ext: lib.hasSuffix ".${ext}" (lib.toLower (toString file))) textExtensions
+              then
                 readFile file
               else
                 { source = file; };

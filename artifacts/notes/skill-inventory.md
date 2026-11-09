@@ -59,6 +59,6 @@ See `artifacts/notes/reference-frameworks.md` for remaining gaps and rejected id
 - Every row names inputs, outputs, and a core principle.
 - Distillation marks are `keep`, `merge`, `fold`, or `do not add`; none are implicit.
 - All skills remain explicit and metadata-owned.
-- `review` profiles, `Vxx` IDs, and `Qxx` writes are recorded in `assets/skills/review/references/profiles.md`.
+- `review` profiles, `Vxx` IDs, and `Qxx` writes are recorded in `skills/review/references/profiles.md` in `github:hollowheap/iridescent`.
 - Cross-skill principles are recorded in `skill-principles.md`.
 - External source distinctions are recorded in `reference-frameworks.md`.

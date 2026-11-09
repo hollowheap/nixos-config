@@ -16,10 +16,21 @@ let
       metadata = skillMetadata;
     };
 
-  externalSkills =
-    (readSkills (inputs.opal.outPath + "/skills"))
-    // (readSkills (inputs.iridescent + "/skills"))
-    // (readSkills (inputs.docmd + "/skills"));
+  opalSkills = readSkills (inputs.opal.outPath + "/skills");
+  iridescentSkills = readSkills (inputs.iridescent + "/skills");
+  docmdSkills = readSkills (inputs.docmd + "/skills");
+
+  externalSkills = opalSkills // iridescentSkills // docmdSkills;
+
+  externalNames = lib.concatMap lib.attrNames [
+    opalSkills
+    iridescentSkills
+    docmdSkills
+  ];
+
+  duplicateExternal = builtins.attrNames (
+    lib.filterAttrs (_: names: builtins.length names > 1) (builtins.groupBy (name: name) externalNames)
+  );
 
   baseSkills = readSkills ../../../skills;
 
@@ -63,6 +74,10 @@ in
         name: config.ai.skills ? ${name}
       ) (lib.concatMap (agent: agent.skills) (lib.attrValues config.ai.agents));
       message = "Every skill listed by an agent must exist in ai.skills.";
+    }
+    {
+      assertion = duplicateExternal == [ ];
+      message = "External skill sources define duplicate names: ${builtins.concatStringsSep ", " duplicateExternal}.";
     }
   ];
 }

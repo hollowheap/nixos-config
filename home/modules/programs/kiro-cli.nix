@@ -34,7 +34,7 @@ let
         value.text = ''
           ---
           name: ${name}
-          description: ${skill.description}
+          description: ${builtins.toJSON skill.description}
           ---
 
           ${renderSkill skill.content}
@@ -87,6 +87,12 @@ let
           [
             {
               capability = "fs_write";
+              match = [ "**" ];
+              exclude = [ "artifacts/tasks.md" "artifacts/specs.md" ];
+              effect = "deny";
+            }
+            {
+              capability = "fs_write";
               match = [ "artifacts/tasks.md" "artifacts/specs.md" ];
               effect = "allow";
             }
@@ -107,22 +113,31 @@ let
               effect = "deny";
             }
           ];
+      scoutShell = [
+        "repomap*"
+        "rg*"
+        "fd*"
+        "nix eval*"
+        "nix flake show*"
+        "git status*"
+        "git log*"
+        "git diff*"
+      ];
       executeRules =
         if name == "scout" then
-          map (pattern: {
+          [
+            {
+              capability = "shell";
+              match = [ "**" ];
+              exclude = scoutShell;
+              effect = "deny";
+            }
+          ]
+          ++ map (pattern: {
             capability = "shell";
             match = [ pattern ];
             effect = "allow";
-          }) [
-            "repomap*"
-            "rg*"
-            "fd*"
-            "nix eval*"
-            "nix flake show*"
-            "git status*"
-            "git log*"
-            "git diff*"
-          ]
+          }) scoutShell
         else
           [ { capability = "shell"; match = [ "**" ]; effect = "allow"; } ]
           ++ optionals caps.execute (

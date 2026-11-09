@@ -3,9 +3,9 @@
   lib,
   pkgs,
   ...
-}:
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     all
     concatStringsSep
     filter
@@ -14,7 +14,8 @@ let
     mkOption
     optionalString
     ;
-  inherit (lib.types)
+  inherit
+    (lib.types)
     attrsOf
     bool
     either
@@ -31,15 +32,14 @@ let
 
   cfg = config.ai;
 
-  aiRenderBase = import ../../lib/ai-render.nix { inherit lib pkgs; };
+  aiRenderBase = import ../../lib/ai-render.nix {inherit lib pkgs;};
 
-  harnessDroppedDisciplines = { };
+  harnessDroppedDisciplines = {};
 
-  harnessDroppedRules = { };
+  harnessDroppedRules = {};
 
   agentSubmodule = submodule (
-    { config, ... }:
-    {
+    {config, ...}: {
       options = {
         description = mkOption {
           type = str;
@@ -50,7 +50,10 @@ let
             "primary"
             "subagent"
           ];
-          default = if !config.mainAgent && config.subagent then "subagent" else "primary";
+          default =
+            if !config.mainAgent && config.subagent
+            then "subagent"
+            else "primary";
           description = "Agent role: primary or subagent.";
         };
         tier = mkOption {
@@ -73,7 +76,7 @@ let
         };
         dropDisciplines = mkOption {
           type = listOf str;
-          default = [ ];
+          default = [];
           description = "Discipline names excluded for this agent.";
         };
         mainAgent = mkOption {
@@ -121,22 +124,22 @@ let
               };
             };
           };
-          default = { };
+          default = {};
           description = "Harness-neutral capability boundary. Each harness renderer translates these into its own tool vocabulary and permission model.";
         };
         availableAgents = mkOption {
           type = listOf str;
-          default = [ ];
+          default = [];
           description = "Subagent-role agents this agent may spawn (requires capabilities.delegate). Empty means none; primary agents are never spawnable.";
         };
         trustedAgents = mkOption {
           type = listOf str;
-          default = [ ];
+          default = [];
           description = "Sub-agents that run without permission prompts when spawned by this agent.";
         };
         skills = mkOption {
           type = listOf str;
-          default = [ ];
+          default = [];
           description = "List of skills associated with this agent.";
         };
         model = mkOption {
@@ -146,7 +149,7 @@ let
         };
         models = mkOption {
           type = attrsOf str;
-          default = { };
+          default = {};
           description = "Harness-specific model overrides keyed by harness name (opencode, pi, codex, ...).";
         };
         prompt = mkOption {
@@ -204,7 +207,7 @@ let
             };
           };
         };
-        default = { };
+        default = {};
         description = "Capability intersection: renders only into agents holding every cap set true.";
       };
       text = mkOption {
@@ -236,18 +239,23 @@ let
             description = "Source path for a binary reference; copied verbatim into references/.";
           };
         }));
-        default = { };
-        apply = attrs: lib.mapAttrs' (
-          name: content:
-          lib.nameValuePair (
-            if builtins.match ".*\\..*" name != null then name else "${name}.md"
-          ) content
-        ) attrs;
-        description = "Optional sub-documents placed under references/; bare keys get a .md suffix. Text entries are strings; binary entries use `{ source = path; }`.";
+        default = {};
+        apply = attrs:
+          lib.mapAttrs' (
+            name: content:
+              lib.nameValuePair (
+                if builtins.isString content && builtins.match ".*\\..*" name == null
+                then "${name}.md"
+                else name
+              )
+              content
+          )
+          attrs;
+        description = "Optional sub-documents placed under references/; bare text keys get a .md suffix. Text entries are strings; binary entries use `{ source = path; }`.";
       };
       scripts = mkOption {
         type = attrsOf lines;
-        default = { };
+        default = {};
         description = "Optional executable scripts placed under scripts/.";
       };
       agents = mkOption {
@@ -277,13 +285,12 @@ let
       };
       rules = mkOption {
         type = attrsOf (nullOr lines);
-        default = { };
+        default = {};
         description = "Individually addressable rule lines. Null entries are dropped at render time; harness renderers may additionally drop rules their built-in prompts already cover.";
       };
     };
   };
-in
-{
+in {
   options.ai = {
     tiers = mkOption {
       type = attrsOf (submodule {
@@ -306,12 +313,12 @@ in
           };
           models = mkOption {
             type = attrsOf str;
-            default = { };
+            default = {};
             description = "Harness-specific model overrides for this tier.";
           };
           efforts = mkOption {
             type = attrsOf str;
-            default = { };
+            default = {};
             description = "Harness-specific effort overrides for this tier.";
           };
         };
@@ -324,8 +331,8 @@ in
           models = {
             opencode = "opencode-go/deepseek-v4.1-flash";
             codex = "gpt-6-luna";
-            kiro = "claude-sonnet-5.5";
-            antigravity = "Gemini 3.8 Flash (High)";
+            kiro = "claude-opus-5.5";
+            antigravity = "Gemini 4 Argon (Medium)";
             crush = "deepseek-v4.1-flash";
           };
           efforts = {
@@ -393,7 +400,7 @@ in
           };
           args = mkOption {
             type = listOf str;
-            default = [ ];
+            default = [];
             description = "Arguments passed to the hook command.";
           };
           matcher = mkOption {
@@ -413,12 +420,12 @@ in
           };
           harnesses = mkOption {
             type = listOf str;
-            default = [ ];
+            default = [];
             description = "Harnesses to render; empty means every supporting renderer.";
           };
         };
       });
-      default = { };
+      default = {};
       description = "Shared lifecycle hooks rendered into each harness's native hook format.";
     };
 
@@ -446,25 +453,25 @@ in
 
     agents = mkOption {
       type = attrsOf agentSubmodule;
-      default = { };
+      default = {};
       description = "Shared agent definitions across AI coding tools.";
     };
 
     skills = mkOption {
       type = attrsOf skillSubmodule;
-      default = { };
+      default = {};
       description = "Shared skill definitions across AI coding tools.";
     };
 
     rules = mkOption {
       type = listOf ruleSubmodule;
-      default = [ ];
+      default = [];
       description = "Conditional rules rendered into an agent's instructions only when its capabilities cover the rule's required intersection.";
     };
 
     disciplines = mkOption {
       type = attrsOf disciplineSubmodule;
-      default = { };
+      default = {};
       description = "Global always-on code-writing rules, consolidated per harness into a single sectioned steering/rules file. Each carries harness-specific content that complements that harness's built-in defaults.";
     };
 
@@ -487,147 +494,142 @@ in
       "web"
     ];
 
-    matchesCaps =
-      agent: rule:
+    matchesCaps = agent: rule:
       all (cap: !rule.requires.${cap} or false || agent.capabilities.${cap} or false) capabilityNames;
 
-    agentRules =
-      agent:
-      if agent.role == "subagent" then
-        [ ]
-      else
-        builtins.filter (matchesCaps agent) cfg.rules;
+    agentRules = agent:
+      if agent.role == "subagent"
+      then []
+      else builtins.filter (matchesCaps agent) cfg.rules;
 
-    formatRuleLines =
-      text:
-      let
-        rawLines = lib.splitString "\n" text;
-        nonEmpty = filter (l: lib.trim l != "") rawLines;
-      in
+    formatRuleLines = text: let
+      rawLines = lib.splitString "\n" text;
+      nonEmpty = filter (l: lib.trim l != "") rawLines;
+    in
       concatStringsSep "\n" (
-        map (l: if lib.hasPrefix "- " (lib.trim l) then lib.trim l else "- " + lib.trim l) nonEmpty
+        map (l:
+          if lib.hasPrefix "- " (lib.trim l)
+          then lib.trim l
+          else "- " + lib.trim l)
+        nonEmpty
       );
 
-    renderDisciplines =
-      {
-        dropped ? { },
-      }:
-      disciplines:
+    renderDisciplines = {dropped ? {}}: disciplines:
       concatStringsSep "\n" (
         filter (s: s != "") (
           mapAttrsToList (
-            name: d:
-            let
-              dropList = dropped.${name} or [ ];
+            name: d: let
+              dropList = dropped.${name} or [];
               kept = filterAttrs (rName: text: text != null && !(builtins.elem rName dropList)) d.rules;
             in
-            concatStringsSep "\n" (
-              filter (s: s != "") (map formatRuleLines (lib.attrValues kept))
-            )
-          ) disciplines
+              concatStringsSep "\n" (
+                filter (s: s != "") (map formatRuleLines (lib.attrValues kept))
+              )
+          )
+          disciplines
         )
       );
 
-    renderRules =
-      rules:
+    renderRules = rules:
       concatStringsSep "\n" (
         filter (s: s != "") (map (rule: formatRuleLines rule.text) rules)
       );
 
-    renderDiscipline =
-      {
-        dropped ? { },
-        heading ? "#",
-        separator ? "\n\n",
-      }:
-      name: discipline:
-      aiRenderBase.renderDiscipline { inherit dropped heading separator; } name discipline;
+    renderDiscipline = {
+      dropped ? {},
+      heading ? "#",
+      separator ? "\n\n",
+    }: name: discipline:
+      aiRenderBase.renderDiscipline {inherit dropped heading separator;} name discipline;
 
-    rulesText =
-      rules: agent:
-      let
-        matched = if agent.role == "subagent" then [ ] else builtins.filter (matchesCaps agent) rules;
-      in
-      optionalString (matched != [ ]) (
+    rulesText = rules: agent: let
+      matched =
+        if agent.role == "subagent"
+        then []
+        else builtins.filter (matchesCaps agent) rules;
+    in
+      optionalString (matched != []) (
         "\n\n" + concatStringsSep "\n\n" (map (rule: rule.text) matched)
       );
 
-    modelFor =
-      harness: agent:
-      let
-        tier = cfg.tiers.${agent.tier};
-        harnessModel = agent.models.${harness} or tier.models.${harness} or null;
-        rawModel = if harnessModel != null then harnessModel else agent.model;
-        piModel = agent.models.pi or agent.tier;
-      in
-      if harness == "pi" || harness == "pi-coding-agent" then
-        opencodeGoModelFor { } piModel
-      else
-        rawModel;
+    modelFor = harness: agent: let
+      tier = cfg.tiers.${agent.tier};
+      harnessModel = agent.models.${harness} or tier.models.${harness} or null;
+      rawModel =
+        if harnessModel != null
+        then harnessModel
+        else agent.model;
+      piModel = agent.models.pi or agent.tier;
+    in
+      if harness == "pi" || harness == "pi-coding-agent"
+      then opencodeGoModelFor {} piModel
+      else rawModel;
 
-    effortFor =
-      harness: agent:
-      let
-        tier = cfg.tiers.${agent.tier};
-        harnessEffort = agent.models.${harness + "Effort"} or tier.efforts.${harness} or null;
-        eff = if harnessEffort != null then harnessEffort else agent.effort;
-      in
-      if eff == null then
-        null
-      else
-        eff;
+    effortFor = harness: agent: let
+      tier = cfg.tiers.${agent.tier};
+      harnessEffort = agent.models.${harness + "Effort"} or tier.efforts.${harness} or null;
+      eff =
+        if harnessEffort != null
+        then harnessEffort
+        else agent.effort;
+    in
+      if eff == null
+      then null
+      else eff;
 
-    agentBodyFor =
-      harness: agent:
-      let
-        agentPrompt = if agent.prompt != "" then agent.prompt else agent.instructions;
-        harnessDrops = harnessDroppedDisciplines.${harness} or [ ];
-        agentDrops = agent.dropDisciplines or [ ];
-        allDrops = harnessDrops ++ agentDrops;
-        matchingDisciplines = filterAttrs (
+    agentBodyFor = harness: agent: let
+      agentPrompt =
+        if agent.prompt != ""
+        then agent.prompt
+        else agent.instructions;
+      harnessDrops = harnessDroppedDisciplines.${harness} or [];
+      agentDrops = agent.dropDisciplines or [];
+      allDrops = harnessDrops ++ agentDrops;
+      matchingDisciplines =
+        filterAttrs (
           name: d: d.target == agent.role && !(builtins.elem name allDrops)
-        ) cfg.disciplines;
-        harnessDropRules = harnessDroppedRules.${harness} or { };
-        disciplinesBlock = renderDisciplines { dropped = harnessDropRules; } matchingDisciplines;
-        matchedRules = agentRules agent;
-        rulesBlock = renderRules matchedRules;
-        sections = filter (s: s != "") [
-          (lib.trim agentPrompt)
-          disciplinesBlock
-          rulesBlock
-        ];
-      in
+        )
+        cfg.disciplines;
+      harnessDropRules = harnessDroppedRules.${harness} or {};
+      disciplinesBlock = renderDisciplines {dropped = harnessDropRules;} matchingDisciplines;
+      matchedRules = agentRules agent;
+      rulesBlock = renderRules matchedRules;
+      sections = filter (s: s != "") [
+        (lib.trim agentPrompt)
+        disciplinesBlock
+        rulesBlock
+      ];
+    in
       concatStringsSep "\n\n" sections;
 
     agentBody = agent: agentBodyFor "" agent;
 
-    context =
-      harness:
-      if harness == "opencode" then
-        ""
-      else
-        let
-          primaryDisciplines = filterAttrs (_: d: d.target == "primary") cfg.disciplines;
-          harnessDropRules = harnessDroppedRules.${harness} or { };
-        in
-        renderDisciplines { dropped = harnessDropRules; } primaryDisciplines;
+    context = harness:
+      if harness == "opencode"
+      then ""
+      else let
+        primaryDisciplines = filterAttrs (_: d: d.target == "primary") cfg.disciplines;
+        harnessDropRules = harnessDroppedRules.${harness} or {};
+      in
+        renderDisciplines {dropped = harnessDropRules;} primaryDisciplines;
   };
 
   config.assertions =
     lib.mapAttrsToList (
-      name: agent:
-      {
-        assertion = all (
-          sub: ((config.ai.agents.${sub} or { role = "subagent"; }).role or "subagent") == "subagent"
-        ) agent.availableAgents;
+      name: agent: {
+        assertion =
+          all (
+            sub: ((config.ai.agents.${sub} or {role = "subagent";}).role or "subagent") == "subagent"
+          )
+          agent.availableAgents;
         message = "ai.agents.${name}.availableAgents may only reference subagent-role agents; primary agents cannot be spawned.";
       }
     ) (filterAttrs (_: agent: agent.capabilities.delegate) config.ai.agents)
     ++ lib.mapAttrsToList (
-      name: agent:
-      {
+      name: agent: {
         assertion = !(agent.role == "primary" && agent.subagent);
         message = "ai.agents.${name}: primary agents cannot be spawned as subagents; set subagent = false.";
       }
-    ) config.ai.agents;
+    )
+    config.ai.agents;
 }

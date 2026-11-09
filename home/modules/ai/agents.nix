@@ -114,6 +114,8 @@
       tier = "medium";
       models.opencode = "opencode-go/beam-free";
       models.antigravity = "flash";
+      models.kiro = "claude-sonnet-5.5";
+      models.kiroEffort = "xhigh";
       capabilities = {
         read = true;
         write = true;

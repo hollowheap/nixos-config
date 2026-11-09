@@ -74,6 +74,53 @@ let
       ];
     }
   );
+
+  home = homeConfigurations.hollowheap;
+
+  skillCount = builtins.length (builtins.attrNames home.config.ai.skills);
+
+  optionSkillSets = {
+    opencode = home.config.programs.opencode.skills;
+    codex = home.config.programs.codex.skills;
+    crush = home.config.programs.crush.skills;
+    antigravity = home.config.programs.antigravity-cli.skills;
+    copilot = home.config.programs.github-copilot-cli.skills;
+  };
+
+  fileSkillCount = fragment: builtins.length (
+    builtins.filter (
+      name:
+      inputs.nixpkgs.lib.hasInfix fragment name && inputs.nixpkgs.lib.hasSuffix "/SKILL.md" name
+    ) (builtins.attrNames home.config.home.file)
+  );
+
+  checkSkillsRendered =
+    pkgs.runCommand "check-skills-rendered" {
+      nativeBuildInputs = [ pkgs.ripgrep ];
+    } ''
+      set -euo pipefail
+      ${inputs.nixpkgs.lib.concatStringsSep "\n" (
+        inputs.nixpkgs.lib.mapAttrsToList (
+          harness: skills:
+          inputs.nixpkgs.lib.concatStringsSep "\n" (
+            map (
+              name:
+              let
+                dir = skills.${name};
+              in
+              ''
+                test -f ${dir}/SKILL.md
+                test "$(rg -c '^---$' ${dir}/SKILL.md)" -eq 2
+                rg -q '^description: "' ${dir}/SKILL.md
+              ''
+            ) (builtins.attrNames skills)
+          )
+        ) optionSkillSets
+      )}
+      test ${toString (fileSkillCount ".pi/agent/skills/")} -eq ${toString skillCount}
+      test ${toString (fileSkillCount ".kiro/skills/")} -eq ${toString skillCount}
+      touch $out
+    '';
 in
 {
   nixosConfigurations = osConfigurations;
@@ -82,9 +129,11 @@ in
 
   inherit homeConfigurations;
 
-  checks.x86_64-linux = import ../tests {
+  checks.x86_64-linux = (import ../tests {
     inherit pkgs;
     src = inputs.self;
+  }) // {
+    skills-rendered = checkSkillsRendered;
   };
 
   nixOnDroidConfigurations.fovea = inputs.nix-on-droid.lib.nixOnDroidConfiguration {

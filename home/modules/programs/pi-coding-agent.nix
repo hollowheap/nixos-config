@@ -24,7 +24,7 @@ let
     value.text = ''
       ---
       name: ${name}
-      description: ${agent.description}
+      description: ${builtins.toJSON agent.description}
       model: ${aiRender.modelFor "pi" agent}
       effort: ${aiRender.effortFor "pi" agent}
       mode: ${if agent.capabilities.write then "ask" else "plan"}
@@ -181,7 +181,7 @@ let
           value.text = ''
             ---
             name: ${name}
-            description: ${skill.description}
+            description: ${builtins.toJSON skill.description}
             ${lib.optionalString skill.disableModelInvocation "disable-model-invocation: true\n"}---
 
             ${renderSkill skill.content}

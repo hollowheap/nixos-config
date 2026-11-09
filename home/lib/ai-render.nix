@@ -92,7 +92,7 @@ rec {
         pkgs.writeText "${name}-SKILL.md" ''
           ---
           name: ${name}
-          description: ${skill.description}${descriptionSuffix name}
+          description: ${builtins.toJSON (skill.description + descriptionSuffix name)}
           ${optionalString skill.disableModelInvocation "disable-model-invocation: true\n"}---
 
           ${content}

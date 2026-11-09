@@ -80,7 +80,7 @@ OUTPUT (exact headings, in order)
 
 ## Notes
 
-- The slop test mirrors `assets/skills/review/references/slop.md`, which is distilled from Impeccable's 60-rule registry. Keep the two in sync.
+- The slop test mirrors the advisory Impeccable pack installed at `~/.opal/rules.json` (source: `opal/skills/opal/references/default-rules.json`). Keep the two in sync.
 - Pass 1 and Pass 2 stay independent until the synthesis. Coverage evidence must not anchor the critique.
 - The slop list is judgment, not a ban list. The brief can earn any pattern.
 - Drop the "AI surface" line for products without a model call.

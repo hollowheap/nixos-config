@@ -36,4 +36,4 @@ NixOS flake for `lacuna` and `acervus`, plus a `fovea` nix-on-droid output. The 
 - Verify with a dry-build before switching.
 - Declarative TDD: assert module behavior in `tests/<domain>.nix` or `nix eval` first, implement minimal wiring, and verify.
 - Flake eval hygiene: stage untracked files with `git add -N` before running flake checks or evaluations.
-- Skill bodies live in `skills/` (shared base) and `assets/skills/` (workspace skills); `home/lib/skill-metadata.nix` owns their metadata, and `lib/ai-skills.nix` loads both as pure data.
+- Skill bodies live in `skills/` (nix-specific base) and in external inputs: `iridescent` (lifecycle), `docmd`, and `opal`; `home/lib/skill-metadata.nix` owns harness metadata, and `lib/ai-skills.nix` merges the external sources with local overrides last.
