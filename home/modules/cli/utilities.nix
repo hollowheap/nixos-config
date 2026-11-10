@@ -20,7 +20,6 @@ in
         ];
       };
       defaultOptions = [
-        "--color=base16"
         "--layout=reverse"
         "--border=rounded"
         "--prompt='❯ '"
@@ -73,6 +72,8 @@ in
     uiProbe
     libnotify
   ];
+
+  home.sessionVariables.FZF_DEFAULT_OPTS_FILE = "${config.xdg.configHome}/fzf/colors";
 
   home.file.".opal/bin/ui-probe".source = "${uiProbe}/bin/ui-probe";
 

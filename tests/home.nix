@@ -109,6 +109,12 @@ pkgs.runCommand "check-home" {
   rg -q "bind -n C-p previous-window" home/modules/terminal/tmux.nix
   rg -q ']4;7;#e0e0e0' assets/wallust-templates/sequences
   rg -q ']4;8;#2e2e2e' assets/wallust-templates/sequences
+  rg -q 'FZF_DEFAULT_OPTS_FILE' home/modules/cli/utilities.nix
+  rg -q 'fzf/colors' home/modules/cli/utilities.nix
+  rg -q 'template = "fzf"' home/modules/programs/wallust.nix
+  rg -q 'pkill -USR2 -x opencode' home/modules/programs/wallust.nix
+  test -f assets/wallust-templates/fzf
+  rg -q -F -- '--color=fg:{{color7}}' assets/wallust-templates/fzf
   rg -q "detectContrast" lib/color.nix
   rg -q -F "inherit (color) detectContrast" home/modules/styles/pills.nix
   no_match -q 'prev_fg|prev_bg' home/modules/styles/pills.nix
