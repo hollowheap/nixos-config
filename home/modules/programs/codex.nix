@@ -97,7 +97,7 @@ in
 
   programs.wallust.settings.templates.codex = {
     template = "bat.tmTheme";
-    target = "${config.xdg.configHome}/codex/themes/wallust.tmTheme";
+    target = "${config.home.homeDirectory}/.codex/themes/wallust.tmTheme";
   };
 
   home.file = mkIf config.programs.codex.enable (

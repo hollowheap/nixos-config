@@ -179,9 +179,14 @@ in
     cli = {
       attention.notifications = true;
       session.sidebar = "hide";
-      theme.name = "system";
+      theme.name = "wallust";
     };
     inherit context;
+  };
+
+  programs.wallust.settings.templates.opencode = {
+    template = "opencode.json";
+    target = "${config.xdg.configHome}/opencode/themes/wallust.json";
   };
 
   home.file = {

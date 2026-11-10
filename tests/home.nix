@@ -114,8 +114,31 @@ pkgs.runCommand "check-home" {
   rg -q 'fzf/colors' home/modules/cli/utilities.nix
   rg -q 'template = "fzf"' home/modules/programs/wallust.nix
   rg -q 'pkill -USR2 -x opencode' home/modules/programs/wallust.nix
+  rg -q 'theme.name = "wallust"' home/modules/programs/opencode.nix
+  rg -q '.codex/themes/wallust.tmTheme' home/modules/programs/codex.nix
+  no_match -q '.config/codex/themes' home/modules/programs/codex.nix
+  rg -q 'template = "opencode.json"' home/modules/programs/opencode.nix
+  test -f assets/wallust-templates/opencode.json
+  rg -q -F '"syntaxKeyword": "{{color5}}"' assets/wallust-templates/opencode.json
   test -f assets/wallust-templates/fzf
   rg -q -F -- '--color=fg:{{color7}}' assets/wallust-templates/fzf
+  for template in bat.tmTheme btop.theme crush.json delta.gitconfig flavor.toml fzf ghostty lazygit.yml nvim-colors.lua opencode.json sequences; do
+    test -f "assets/wallust-templates/$template"
+  done
+  rg -q 'template = "bat.tmTheme"' home/modules
+  rg -q 'template = "btop.theme"' home/modules
+  rg -q 'template = "crush.json"' home/modules
+  rg -q 'template = "delta.gitconfig"' home/modules
+  rg -q 'template = "flavor.toml"' home/modules
+  rg -q 'template = "ghostty"' home/modules
+  rg -q 'template = "lazygit.yml"' home/modules
+  rg -q 'template = "nvim-colors.lua"' home/modules
+  rg -q 'template = "opencode.json"' home/modules
+  rg -q 'hooks\.bat' home/modules
+  rg -q 'hooks\.btop' home/modules
+  rg -q 'hooks\.ghostty' home/modules
+  rg -q 'hooks\.nvim' home/modules
+  rg -q 'pkill -USR2 -x opencode' home/modules
   rg -q "detectContrast" lib/color.nix
   rg -q -F "inherit (color) detectContrast" home/modules/styles/pills.nix
   no_match -q 'prev_fg|prev_bg' home/modules/styles/pills.nix
