@@ -56,7 +56,7 @@ let
   statuslineContent = builtins.toJSON {
     extensions = [
       "mode-guard"
-      "budgets"
+      "usage"
     ];
     options = {
       componentSeparator = " ";
@@ -119,6 +119,16 @@ let
       ];
       x = [
         (config.styles.pills.pi.right {
+          icon = "󰧑";
+          component = {
+            type = "thinking";
+          };
+          accent = "bright-green";
+          bold = false;
+        })
+      ];
+      y = [
+        (config.styles.pills.pi.right {
           icon = "󰕲";
           component = {
             type = "tokens";
@@ -128,8 +138,6 @@ let
           accent = "bright-blue";
           bold = false;
         })
-      ];
-      y = [
         (config.styles.pills.pi.right {
           icon = "󰍛";
           component = {
@@ -139,9 +147,18 @@ let
           bold = false;
         })
         (config.styles.pills.pi.right {
+          icon = "󰃖";
+          component = {
+            type = "cost";
+            decimals = 3;
+          };
+          accent = "bright-green";
+          bold = false;
+        })
+        (config.styles.pills.pi.right {
           icon = "󰇁";
           component = {
-            type = "budgets";
+            type = "usage";
           };
           accent = "bright-yellow";
           bold = false;

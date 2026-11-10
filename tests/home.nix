@@ -84,6 +84,10 @@ pkgs.runCommand "check-home" {
   rg -q "zen-auth-popups" home/modules/programs/gui/zen-browser.nix
   rg -q "screenshare-picker" home/modules/environment/rules.nix
   rg -q "pi.mode" home/modules/programs/pi-coding-agent.nix
+  rg -q 'type = "thinking"' home/modules/programs/pi-coding-agent.nix
+  rg -q 'type = "cost"' home/modules/programs/pi-coding-agent.nix
+  rg -q 'type = "usage"' home/modules/programs/pi-coding-agent.nix
+  no_match -q '"budgets"' home/modules/programs/pi-coding-agent.nix
   rg -q 'menu no' home/modules/terminal/zsh.nix
   rg -q 'matcher-list' home/modules/terminal/zsh.nix
   rg -q -F '"$character"' home/modules/terminal/starship.nix
