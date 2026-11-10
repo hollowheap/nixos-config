@@ -8,7 +8,7 @@
 
 ## Rules
 
-- Use shared rendering from config.ai.render (modelFor, effortFor, agentBodyFor, context, mkSkillDir); keep harness-specific tool and model mapping in the program module.
+- Use shared rendering from config.ai.render (modelFor, effortFor, agentBodyFor, mkSkillDir); keep harness-specific tool, model, and context mapping in the program module.
 - Render config.ai.hooks into native hook files; append `--harness <name>` to every shared hook command.
 - Keep shared hook behavior in pkgs/ai-hooks; renderers only map canonical events and native output envelopes.
 - Use PreToolUse for blocking policy, SessionStart for context/repomap refresh, and Stop for verification gates.

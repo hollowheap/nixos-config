@@ -19,18 +19,28 @@ let
     mapAttrsToList (name: agent: "- ${name}: ${agent.description}") config.ai.agents
   );
 
+  piModelFor = agent: let
+    model = agent.models.pi or agent.tier;
+  in
+    if model == "low" then
+      "opencode-go/beam-free"
+    else if model == "medium" || model == "high" then
+      "opencode-go/deepseek-v4.1-flash"
+    else
+      model;
+
   agentFiles = mapAttrsToList (name: agent: {
     name = "${configDir}/agents/${name}.md";
     value.text = ''
       ---
       name: ${name}
       description: ${builtins.toJSON agent.description}
-      model: ${aiRender.modelFor "pi" agent}
+      model: ${piModelFor agent}
       effort: ${aiRender.effortFor "pi" agent}
       mode: ${if agent.capabilities.write then "ask" else "plan"}
       ---
 
-      ${aiRender.agentBodyFor "pi" agent}
+      ${aiRender.agentBodyFor agent}
     '';
   }) config.ai.agents;
 

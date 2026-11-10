@@ -136,7 +136,7 @@ ${skillPermSection}
       ${toolsText}
       ${perms}---
 
-      ${aiRender.agentBodyFor "opencode" agent}
+      ${aiRender.agentBodyFor agent}
     '';
 
   mkSkill = aiRender.mkSkillDir {
@@ -145,7 +145,7 @@ ${skillPermSection}
     invocation = name: "@${name}";
   };
 
-  context = aiRender.context "opencode";
+  context = "";
 in
 {
   programs.opencode = {

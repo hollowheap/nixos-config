@@ -66,7 +66,7 @@ let
         ---
 
         # Instructions
-        ${aiRender.agentBodyFor "antigravity" agent}
+        ${aiRender.agentBodyFor agent}
       '';
     };
 

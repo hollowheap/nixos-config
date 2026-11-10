@@ -71,7 +71,7 @@ let
       value.source = tomlFormat.generate "${name}.toml" {
         inherit name;
         inherit (agent) description;
-        developer_instructions = aiRender.agentBodyFor "codex" agent;
+        developer_instructions = aiRender.agentBodyFor agent;
         model = aiRender.modelFor "codex" agent;
         model_reasoning_effort = aiRender.effortFor "codex" agent;
       };

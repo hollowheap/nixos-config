@@ -35,7 +35,7 @@ let
       ${lib.removeSuffix "\n" frontmatter}
       ---
 
-      ${aiRender.agentBodyFor "copilot" agent}
+      ${aiRender.agentBodyFor agent}
     '';
 
   mkSkill = aiRender.mkSkillDir {

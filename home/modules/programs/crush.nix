@@ -19,7 +19,7 @@ let
       ## Agent: ${name}
       ${agent.description}
 
-      ${aiRender.agentBodyFor "crush" agent}
+      ${aiRender.agentBodyFor agent}
 
       Crush runs a single agent. Do recon, research, and review directly; ignore
       delegation instructions elsewhere in the skills.

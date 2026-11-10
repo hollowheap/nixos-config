@@ -254,7 +254,7 @@
 - [ ] D66 [R28]: Render every harness through `agentBodyFor` and `ai.tiers`.
   - Context: Seven renderers send empty instructions, and four hardcode models or effort values.
   - Alternatives: maintain per-harness prompts and model maps.
-  - Consequences: `config.ai.render.agentBodyFor` is the only agent-body path; `modelFor` and `effortFor` gain adapter branches for every harness, with `models.<harness>` overrides; hardcoded model tables are removed.
+  - Consequences: `config.ai.render.agentBodyFor` is the only agent-body path; `modelFor` and `effortFor` resolve from `ai.tiers` with `models.<harness>` overrides; adapters own their tier-to-model mapping.
   - Resolves: Q12
 
 ### Data & Contracts

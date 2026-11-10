@@ -34,10 +34,6 @@
 
   aiRenderBase = import ../../lib/ai-render.nix {inherit lib pkgs;};
 
-  harnessDroppedDisciplines = {};
-
-  harnessDroppedRules = {};
-
   agentSubmodule = submodule (
     {config, ...}: {
       options = {
@@ -486,7 +482,7 @@ in {
 
   config.programs.mcp.enable = true;
   config.ai.render = rec {
-    inherit (aiRenderBase) hookCommandLine mkSkillDir opencodeGoModelFor renderSkillInvocation;
+    inherit (aiRenderBase) hookCommandLine mkSkillDir renderSkillInvocation;
 
     capabilityNames = [
       "read"
@@ -517,13 +513,12 @@ in {
         nonEmpty
       );
 
-    renderDisciplines = {dropped ? {}}: disciplines:
+    renderDisciplines = disciplines:
       concatStringsSep "\n" (
         filter (s: s != "") (
           mapAttrsToList (
-            name: d: let
-              dropList = dropped.${name} or [];
-              kept = filterAttrs (rName: text: text != null && !(builtins.elem rName dropList)) d.rules;
+            _name: d: let
+              kept = filterAttrs (_: text: text != null) d.rules;
             in
               concatStringsSep "\n" (
                 filter (s: s != "") (map formatRuleLines (lib.attrValues kept))
@@ -538,13 +533,6 @@ in {
         filter (s: s != "") (map (rule: formatRuleLines rule.text) rules)
       );
 
-    renderDiscipline = {
-      dropped ? {},
-      heading ? "#",
-      separator ? "\n\n",
-    }: name: discipline:
-      aiRenderBase.renderDiscipline {inherit dropped heading separator;} name discipline;
-
     rulesText = rules: agent: let
       matched =
         if agent.role == "subagent"
@@ -558,15 +546,10 @@ in {
     modelFor = harness: agent: let
       tier = cfg.tiers.${agent.tier};
       harnessModel = agent.models.${harness} or tier.models.${harness} or null;
-      rawModel =
-        if harnessModel != null
-        then harnessModel
-        else agent.model;
-      piModel = agent.models.pi or agent.tier;
     in
-      if harness == "pi" || harness == "pi-coding-agent"
-      then opencodeGoModelFor {} piModel
-      else rawModel;
+      if harnessModel != null
+      then harnessModel
+      else agent.model;
 
     effortFor = harness: agent: let
       tier = cfg.tiers.${agent.tier};
@@ -580,21 +563,18 @@ in {
       then null
       else eff;
 
-    agentBodyFor = harness: agent: let
+    agentBodyFor = agent: let
       agentPrompt =
         if agent.prompt != ""
         then agent.prompt
         else agent.instructions;
-      harnessDrops = harnessDroppedDisciplines.${harness} or [];
       agentDrops = agent.dropDisciplines or [];
-      allDrops = harnessDrops ++ agentDrops;
       matchingDisciplines =
         filterAttrs (
-          name: d: d.target == agent.role && !(builtins.elem name allDrops)
+          name: d: d.target == agent.role && !(builtins.elem name agentDrops)
         )
         cfg.disciplines;
-      harnessDropRules = harnessDroppedRules.${harness} or {};
-      disciplinesBlock = renderDisciplines {dropped = harnessDropRules;} matchingDisciplines;
+      disciplinesBlock = renderDisciplines matchingDisciplines;
       matchedRules = agentRules agent;
       rulesBlock = renderRules matchedRules;
       sections = filter (s: s != "") [
@@ -604,17 +584,6 @@ in {
       ];
     in
       concatStringsSep "\n\n" sections;
-
-    agentBody = agent: agentBodyFor "" agent;
-
-    context = harness:
-      if harness == "opencode"
-      then ""
-      else let
-        primaryDisciplines = filterAttrs (_: d: d.target == "primary") cfg.disciplines;
-        harnessDropRules = harnessDroppedRules.${harness} or {};
-      in
-        renderDisciplines {dropped = harnessDropRules;} primaryDisciplines;
   };
 
   config.assertions =

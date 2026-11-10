@@ -53,7 +53,7 @@ let
       ${lib.removeSuffix "\n" frontmatter}
       ---
 
-      ${aiRender.agentBodyFor "claude-code" agent}
+      ${aiRender.agentBodyFor agent}
     '';
 
   mkSkill = aiRender.mkSkillDir {
@@ -89,7 +89,7 @@ in
 
     package = lib.mkIf (cfg.systemPrompt != "") claudePackage;
 
-    context = aiRender.agentBodyFor "claude-code" config.ai.agents.engineer;
+    context = aiRender.agentBodyFor config.ai.agents.engineer;
 
     settings = {
       model = config.ai.tiers.high.models.claude-code or "opus";

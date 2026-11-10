@@ -213,7 +213,7 @@ let
         {
           name = slugToTitle name;
           inherit (agent) description;
-          prompt = aiRender.agentBodyFor "kiro" agent;
+          prompt = aiRender.agentBodyFor agent;
           tools = kiroToolsFor agent;
           resources = skillResources ++ repomapResource;
           includeMcpJson = caps.mcp;
