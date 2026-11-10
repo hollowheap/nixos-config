@@ -1,74 +1,12 @@
 { config, lib, ... }:
 let
   pills = config.styles.pills.starship;
-
-  noRuntimeModules = [
-    "buf"
-    "bun"
-    "c"
-    "cmake"
-    "cobol"
-    "cpp"
-    "crystal"
-    "daml"
-    "dart"
-    "deno"
-    "dotnet"
-    "elixir"
-    "elm"
-    "erlang"
-    "fennel"
-    "fortran"
-    "gleam"
-    "golang"
-    "gradle"
-    "haskell"
-    "haxe"
-    "helm"
-    "java"
-    "julia"
-    "kotlin"
-    "lua"
-    "maven"
-    "meson"
-    "mojo"
-    "nim"
-    "nodejs"
-    "ocaml"
-    "odin"
-    "opa"
-    "perl"
-    "php"
-    "pixi"
-    "pulumi"
-    "purescript"
-    "python"
-    "quarto"
-    "raku"
-    "red"
-    "rlang"
-    "ruby"
-    "rust"
-    "scala"
-    "solidity"
-    "swift"
-    "typst"
-    "vagrant"
-    "vlang"
-    "xmake"
-    "zig"
-  ];
-
-  runtimePillSettings = lib.genAttrs noRuntimeModules (_: {
-    style = "4";
-    format = pills.mode { text = "$symbol"; accent = "$style"; } + " ";
-  });
 in
 {
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
-    settings = runtimePillSettings // {
+    settings = {
       format = lib.concatStrings [
         "$username"
         "$directory"

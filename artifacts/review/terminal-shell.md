@@ -46,6 +46,7 @@ bind -n M-p previous-window
 - Confidence: verified
 
 ### F3: starship language pills interpolate `$style` into `bg:` and produce invalid styles
+- Status: stale. The current `runtimePillSettings` sets `style = "4"` for every runtime pill, so `bg:$style` resolves to `bg:4`. The generated `starship.toml` loads under starship 1.27.0 with no stderr. Do not reapply the old `$style` proposal or reopen this finding.
 - Current: `runtimePillSettings` sets `format = pills.mode { text = "$symbol"; accent = "$style"; }` for 55 modules (`starship.nix:62-64`); `pills.mode` emits `[$symbol]($style)[ $symbol ](bg:$style fg:0 bold)` (`styles/pills.nix:379`).
 - Gap: starship style grammar allows `bg:<color>` only; a color is a name, `#hex`, or `0-255` (`starship.rs/advanced-config/`). Default module styles are modifier+color, e.g. `bold green`, `bold cyan`, `bold 149`.
 - Failure/impact: `$style` expands to `bold green`, yielding `bg:bold green`. The pill background is dropped, the module logs an invalid-style warning to `~/.cache/starship/session_*.log` on every prompt, and the prompt layout collapses for every language project.
@@ -241,6 +242,7 @@ programs.ssh.enable = true;
 - Confidence: verified
 
 ### F18: dead starship options and an accidental conditional group
+- Status: stale. `$fill` is now referenced, the symbol overrides and `min_time` are gone, and the git status parens are escaped. Do not reapply the old option cleanup or reopen this finding.
 - Current: `fill.symbol = " "` (`starship.nix:78`) with no `$fill` in `format` or `right_format`; `git_branch.symbol` (`:101`) and `nix_shell.symbol` (`:138`) unused because `format` hard-codes icons; `git_status.format` wraps the pill in bare `(` `)` (`:110,114`); `cmd_duration.min_time = 2000` restates the default (`:129`).
 - Gap: `$fill` only works when referenced; parenthesized format text is a conditional group, so literal parens must be escaped; `$symbol` is ignored when `format` does not use it.
 - Failure/impact: fill config is inert; the intended parentheses around git status never render; symbol edits do nothing.
