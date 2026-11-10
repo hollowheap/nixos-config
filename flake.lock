@@ -130,11 +130,11 @@
     "iridescent": {
       "flake": false,
       "locked": {
-        "lastModified": 1794115920,
-        "narHash": "sha256-8b7/7c5COM/XxApsEESgscP5gJRDl/Up+KTaWSqTH14=",
+        "lastModified": 1794288935,
+        "narHash": "sha256-/UWa1dH8H2KLmhh3H2Gs6auqYHsY0ORtHLo57nom4Ls=",
         "owner": "hollowheap",
         "repo": "iridescent",
-        "rev": "7345ebaaadfe4e8908c3c06df24e9fc7d13de119",
+        "rev": "621784910e66dcb72308fe92ae9223b1af9cc487",
         "type": "github"
       },
       "original": {

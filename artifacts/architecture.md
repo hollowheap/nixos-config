@@ -43,7 +43,7 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 
 - Flake composition uses `flake.nix` plus `import-tree`; Home Manager is standalone and NixOS remains separately applied.
 - Desktop composition uses Hyprland, UWSM, Noctalia, and Wallust with shared `desktop.*` options.
-- AI harnesses use Home Manager renderers over one `ai.*` schema; every renderer uses `aiRender.agentBodyFor` and the `ai.tiers` model/effort table. OpenCode, Pi, Codex, Kiro, Crush, Copilot, Antigravity, and Hermes are adapters, not sources of shared policy.
+- AI harnesses use Home Manager renderers over one `ai.*` schema; every renderer uses `aiRender.agentBodyFor` and the `ai.tiers` model/effort table. OpenCode, Pi, Codex, Kiro, Crush, Copilot, Antigravity, Hermes, and Claude Code are adapters, not sources of shared policy.
 - Neovim uses `nvf` with domain modules under `home/modules/programs/nvim`.
 - Skills are Markdown bodies plus Nix-owned metadata; no harness owns a private skill schema.
 

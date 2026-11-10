@@ -32,6 +32,7 @@ let
           allowUnfreePredicate =
             pkg:
             builtins.elem (inputs.nixpkgs.lib.getName pkg) [
+              "claude-code"
               "antigravity-cli"
               "codex"
               "crush"
@@ -94,9 +95,26 @@ let
     ) (builtins.attrNames home.config.home.file)
   );
 
+  fileEntryCount =
+    fragment:
+    builtins.length (
+      builtins.filter (
+        name:
+        inputs.nixpkgs.lib.hasInfix fragment name
+        && builtins.length (
+          inputs.nixpkgs.lib.splitString "/" (inputs.nixpkgs.lib.last (inputs.nixpkgs.lib.splitString fragment name))
+        ) == 1
+      ) (builtins.attrNames home.config.home.file)
+    );
+
+  claudeAgentCount = builtins.length (
+    builtins.attrNames (
+      inputs.nixpkgs.lib.filterAttrs (_: agent: agent.role == "subagent") home.config.ai.agents
+    )
+  );
+
   checkSkillsRendered =
-    pkgs.runCommand "check-skills-rendered" {
-      nativeBuildInputs = [ pkgs.ripgrep ];
+    pkgs.runCommand "check-skills-rendered" {      nativeBuildInputs = [ pkgs.ripgrep ];
     } ''
       set -euo pipefail
       ${inputs.nixpkgs.lib.concatStringsSep "\n" (
@@ -119,8 +137,15 @@ let
       )}
       test ${toString (fileSkillCount ".pi/agent/skills/")} -eq ${toString skillCount}
       test ${toString (fileSkillCount ".kiro/skills/")} -eq ${toString skillCount}
+      test ${toString (fileEntryCount "/.claude/skills/")} -eq ${toString skillCount}
+      test ${toString (fileEntryCount "/.claude/agents/")} -eq ${toString claudeAgentCount}
       touch $out
     '';
+
+  fovea = inputs.nix-on-droid.lib.nixOnDroidConfiguration {
+    pkgs = import inputs.nixpkgs-unstable { system = "aarch64-linux"; };
+    modules = [ ../nix-on-droid.nix ];
+  };
 in
 {
   nixosConfigurations = osConfigurations;
@@ -136,10 +161,7 @@ in
     skills-rendered = checkSkillsRendered;
   };
 
-  nixOnDroidConfigurations.fovea = inputs.nix-on-droid.lib.nixOnDroidConfiguration {
-    pkgs = import inputs.nixpkgs-unstable { system = "aarch64-linux"; };
-    modules = [ ../nix-on-droid.nix ];
-  };
+  nixOnDroidConfigurations.fovea = fovea;
 
   devShells = import ./devshells.nix inputs;
 }

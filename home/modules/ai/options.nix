@@ -332,6 +332,7 @@ in {
             opencode = "opencode-go/deepseek-v4.1-flash";
             codex = "gpt-6-luna";
             kiro = "claude-opus-5.5";
+            "claude-code" = "opus";
             antigravity = "Gemini 4 Argon (Medium)";
             crush = "deepseek-v4.1-flash";
           };
@@ -349,6 +350,7 @@ in {
             opencode = "opencode-go/deepseek-v4.1-flash";
             codex = "gpt-6-luna";
             kiro = "claude-haiku-5.5";
+            "claude-code" = "sonnet";
             antigravity = "Gemini 3.8 Flash (High)";
             crush = "deepseek-v4.1-flash";
           };
@@ -366,6 +368,7 @@ in {
             opencode = "opencode-go/beam-free";
             codex = "gpt-6-luna";
             kiro = "claude-haiku-5.5";
+            "claude-code" = "haiku";
             antigravity = "Gemini 3.8 Flash (High)";
             crush = "beam-free";
           };

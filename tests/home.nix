@@ -62,11 +62,16 @@ pkgs.runCommand "check-home" {
   ! test -e pkgs/ui-probe.nix
   ! test -e assets/skills/opal
   rg -q "inputs.opal.packages" home/modules/cli/utilities.nix
+  rg -q "libnotify" home/modules/cli/utilities.nix
+  rg -q "programs.claude-code" home/modules/programs/claude-code.nix
+  rg -q "web-dispatcher" home/modules/programs/default-apps.nix
+  rg -q "music.youtube.com" home/modules/programs/default-apps.nix
   rg -q "username = \"hollowheap\"" home/hollowheap.nix
   rg -q "desktop.touch = true" home/hollowheap.nix
   rg -q "readDir ../home" flake/default.nix
   rg -q "genAttrs homeUserNames" flake/default.nix
   rg -q "config.desktop.primaryScale" home/modules/programs/hyprland/hyprland.nix
+  rg -q "focus_on_activate" home/modules/programs/hyprland/hyprland.nix
   rg -q "bind = map mkArgs" home/modules/programs/hyprland/keybinds.nix
   rg -q "desktop.touchscreen" home/modules/environment/touch.nix
   rg -q "desktop.touchscreen.devices" home/modules/programs/hyprland/hyprland.nix
@@ -79,6 +84,9 @@ pkgs.runCommand "check-home" {
   rg -q "zen-auth-popups" home/modules/programs/gui/zen-browser.nix
   rg -q "screenshare-picker" home/modules/environment/rules.nix
   rg -q "pi.mode" home/modules/programs/pi-coding-agent.nix
+  rg -q 'menu no' home/modules/terminal/zsh.nix
+  rg -q 'matcher-list' home/modules/terminal/zsh.nix
+  rg -q -F '"$fill"' home/modules/terminal/starship.nix
   rg -q -e "-builtin:tool-search" home/modules/programs/pi-coding-agent.nix
   rg -q -e "-builtin:mcp" home/modules/programs/pi-coding-agent.nix
   rg -q -e "-builtin:llama.cpp" home/modules/programs/pi-coding-agent.nix
