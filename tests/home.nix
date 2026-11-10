@@ -134,7 +134,7 @@ pkgs.runCommand "check-home" {
   no_match -q '.config/codex/themes' home/modules/programs/codex.nix
   rg -q 'template = "opencode.json"' home/modules/programs/opencode.nix
   test -f assets/wallust-templates/opencode.json
-  rg -q -F '"syntaxKeyword": "{{color5}}"' assets/wallust-templates/opencode.json
+  rg -q -F '"syntaxKeyword": "{{color4}}"' assets/wallust-templates/opencode.json
   test -f assets/wallust-templates/fzf
   rg -q -F -- '--color=fg:{{color7}}' assets/wallust-templates/fzf
   for template in bat.tmTheme btop.theme crush.json delta.gitconfig flavor.toml fzf ghostty lazygit.yml nvim-colors.lua opencode.json sequences; do
