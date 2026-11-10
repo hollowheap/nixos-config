@@ -73,6 +73,7 @@
 
     sessionVariables = {
       LS_COLORS = "di=01;34:ln=01;36:ex=01;32";
+      ZLE_RPROMPT_INDENT = "0";
     };
 
     fastSyntaxHighlighting.enable = true;

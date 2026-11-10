@@ -87,6 +87,7 @@ pkgs.runCommand "check-home" {
   rg -q 'menu no' home/modules/terminal/zsh.nix
   rg -q 'matcher-list' home/modules/terminal/zsh.nix
   rg -q -F '"$fill"' home/modules/terminal/starship.nix
+  rg -q 'ZLE_RPROMPT_INDENT = "0"' home/modules/terminal/zsh.nix
   rg -q -e "-builtin:tool-search" home/modules/programs/pi-coding-agent.nix
   rg -q -e "-builtin:mcp" home/modules/programs/pi-coding-agent.nix
   rg -q -e "-builtin:llama.cpp" home/modules/programs/pi-coding-agent.nix
