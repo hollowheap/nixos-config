@@ -91,9 +91,15 @@ pkgs.runCommand "check-home" {
   no_match -q 'type = "clock"' home/modules/programs/pi-coding-agent.nix
   rg -q 'type = "version"' home/modules/programs/pi-coding-agent.nix
   no_match -q 'hollowpi-dashboard' home/modules/programs/pi-coding-agent.nix
+  rg -q 'wallust/sequences' pkgs/hollowpi-colorscript.nix
+  rg -q 'phase' pkgs/hollowpi-colorscript.nix
+  no_match -q '38;2;94;129;172' pkgs/hollowpi-colorscript.nix
   rg -q 'menu no' home/modules/terminal/zsh.nix
   rg -q 'matcher-list' home/modules/terminal/zsh.nix
   rg -q -F '"$character"' home/modules/terminal/starship.nix
+  rg -q -F '{#90}' home/modules/cli/fastfetch.nix
+  rg -q -F '{#30}' home/modules/cli/fastfetch.nix
+  no_match -F -q '{#39}' home/modules/cli/fastfetch.nix
   rg -q 'ZLE_RPROMPT_INDENT = "0"' home/modules/terminal/zsh.nix
   rg -q -e "-builtin:tool-search" home/modules/programs/pi-coding-agent.nix
   rg -q -e "-builtin:mcp" home/modules/programs/pi-coding-agent.nix

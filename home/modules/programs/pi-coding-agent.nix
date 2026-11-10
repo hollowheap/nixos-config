@@ -44,7 +44,7 @@ let
             type = "terminal";
             command = "${pkgs.hollowpi-colorscript}/bin/hollowpi-colorscript";
             args = [ ];
-            intervalMs = 3600000;
+            intervalMs = 150;
             align = "center";
             gap = 1;
           }
