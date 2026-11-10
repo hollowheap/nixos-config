@@ -1,1 +1,1 @@
---color=fg:{{color7}},bg:{{color0}},hl:{{color5}},fg+:{{color15}},bg+:{{color8}},hl+:{{color13}},info:{{color6}},prompt:{{color4}},pointer:{{color5}},marker:{{color3}},spinner:{{color2}},header:{{color6}},border:{{color8}},preview-fg:{{color7}},preview-bg:{{color0}}
+--color=fg:#e0e0e0,bg:#000000,hl:{{color5}},fg+:#ffffff,bg+:#2e2e2e,hl+:{{color13}},info:{{color6}},prompt:{{color4}},pointer:{{color5}},marker:{{color3}},spinner:{{color2}},header:{{color6}},border:#2e2e2e,preview-fg:#e0e0e0,preview-bg:#000000
