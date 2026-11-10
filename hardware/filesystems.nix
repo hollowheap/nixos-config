@@ -25,5 +25,9 @@ _:
 
   zramSwap.enable = true;
 
-  services.btrfs.autoScrub.enable = true;
+  services.btrfs.autoScrub = {
+    enable = true;
+    interval = "weekly";
+    limit = "50M";
+  };
 }

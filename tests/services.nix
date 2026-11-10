@@ -20,6 +20,13 @@ pkgs.runCommand "check-services" {
   rg -q "caddy_env" roles/server/system/caddy.nix
   no_match -q "SSL_CERT_FILE" roles/server/system/caddy.nix
   rg -q "vaultwarden_env" roles/server/system/vaultwarden.nix
+  rg -q "smartd.enable = true" modules/services/system-services.nix
+  rg -q "max-delete 10" home/modules/services/rclone.nix
+  rg -q "rcloneDirs" home/modules/services/rclone.nix
+  rg -q "timeout 30s" home/modules/services/rclone.nix
+  rg -q 'interval = "weekly"' hardware/filesystems.nix
+  rg -q 'limit = "50M"' hardware/filesystems.nix
+  rg -q "delete-older-than 14d" home/modules/services/store-hygiene.nix
   rg -q "tls internal" roles/server/system/vaultwarden.nix
   rg -q "tls internal" roles/server/system/headscale.nix
   rg -q "backupDir" roles/server/system/vaultwarden.nix

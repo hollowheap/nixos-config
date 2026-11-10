@@ -71,6 +71,7 @@ in
     harlequin
     tdf
     uiProbe
+    libnotify
   ];
 
   home.file.".opal/bin/ui-probe".source = "${uiProbe}/bin/ui-probe";

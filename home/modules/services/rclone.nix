@@ -29,7 +29,7 @@ let
         "-/run/wrappers/bin/fusermount3 -u ${config.home.homeDirectory}/Drive/${remote}"
         "${pkgs.coreutils}/bin/mkdir -p ${config.home.homeDirectory}/Drive/${remote}"
       ];
-      ExecStart = "${pkgs.rclone}/bin/rclone mount ${remote}: ${config.home.homeDirectory}/Drive/${remote} --vfs-cache-mode full --vfs-cache-max-age 24h --vfs-cache-max-size ${cfg.vfsCacheMaxSize} --dir-cache-time 1h --log-level NOTICE";
+      ExecStart = "${pkgs.rclone}/bin/rclone mount ${remote}: ${config.home.homeDirectory}/Drive/${remote} --vfs-cache-mode full --vfs-cache-max-age 24h --vfs-cache-max-size ${cfg.vfsCacheMaxSize} --dir-cache-time 1h --timeout 30s --contimeout 10s --low-level-retries 3 --log-level NOTICE";
       ExecStop = "/run/wrappers/bin/fusermount3 -u ${config.home.homeDirectory}/Drive/${remote}";
       Restart = "on-failure";
       RestartSec = "10s";
@@ -50,9 +50,9 @@ let
       ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${config.home.homeDirectory}/Drive/${remote} ${config.home.homeDirectory}/.cache/rclone";
       ExecStart =
         if cfg.mode == "bisync" then
-          "${pkgs.rclone}/bin/rclone bisync ${config.home.homeDirectory}/Drive/${remote} ${remote}: --resilient --conflict-resolve newer --transfers 4 --checkers 8 --log-level NOTICE"
+          "${pkgs.rclone}/bin/rclone bisync ${config.home.homeDirectory}/Drive/${remote} ${remote}: --resilient --recover --max-lock 2m --conflict-resolve newer --transfers 4 --checkers 8 --log-level NOTICE"
         else
-          "${pkgs.rclone}/bin/rclone sync ${remote}: ${config.home.homeDirectory}/Drive/${remote} --fast-list --transfers 4 --checkers 8 --log-level NOTICE";
+          "${pkgs.rclone}/bin/rclone sync ${remote}: ${config.home.homeDirectory}/Drive/${remote} --fast-list --max-delete 10 --backup-dir ${config.home.homeDirectory}/Drive/.rclone-backup/${remote} --transfers 4 --checkers 8 --log-level NOTICE";
 
       NoNewPrivileges = true;
       ProtectSystem = "strict";
@@ -125,6 +125,14 @@ in
       pkgs.rclone
       pkgs.fuse3
     ];
+
+    # Create targets before the sandboxed units run; ProtectHome makes their
+    # own mkdir fail on a fresh profile.
+    home.activation.rcloneDirs = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      lib.concatMapStrings (remote: ''
+        ${pkgs.coreutils}/bin/mkdir -p "${config.home.homeDirectory}/Drive/${remote}" "${config.home.homeDirectory}/.cache/rclone"
+      '') cfg.remotes
+    );
 
     systemd.user.services =
       if cfg.mode == "mount" then

@@ -23,6 +23,8 @@ pkgs.runCommand "check-hardware" {
   rg -q "traits = \[" hosts/lacuna/hardware.nix
   rg -q '"serial"' hosts/lacuna/hardware.nix
   rg -q 'dialout' hardware/serial.nix
+  rg -q 'enableRedistributableFirmware' hardware/cpu.nix
+  no_match -q 'enableRedistributableFirmware' hardware/bluetooth.nix
   rg -q "hybrid-gpu" hosts/acervus/default.nix
   no_match -q "hybrid-gpu" hosts/lacuna/hardware.nix
   rg -q "desktop.touch = true" hardware/touch.nix

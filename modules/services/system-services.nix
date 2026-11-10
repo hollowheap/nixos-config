@@ -13,6 +13,7 @@
       };
     };
     fwupd.enable = true;
+    smartd.enable = true;
   };
 
   networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
