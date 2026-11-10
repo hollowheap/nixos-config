@@ -48,6 +48,10 @@ let
             align = "center";
             gap = 1;
           }
+          {
+            type = "version";
+            gap = 1;
+          }
         ];
       };
     }
@@ -161,17 +165,6 @@ let
             type = "usage";
           };
           accent = "bright-yellow";
-          bold = false;
-        })
-      ];
-      z = [
-        (config.styles.pills.pi.right {
-          icon = "󱑂";
-          component = {
-            type = "clock";
-            format = "HH:mm";
-          };
-          accent = "bright-magenta";
           bold = false;
         })
       ];

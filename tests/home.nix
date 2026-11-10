@@ -88,6 +88,9 @@ pkgs.runCommand "check-home" {
   rg -q 'type = "cost"' home/modules/programs/pi-coding-agent.nix
   rg -q 'type = "usage"' home/modules/programs/pi-coding-agent.nix
   no_match -q '"budgets"' home/modules/programs/pi-coding-agent.nix
+  no_match -q 'type = "clock"' home/modules/programs/pi-coding-agent.nix
+  rg -q 'type = "version"' home/modules/programs/pi-coding-agent.nix
+  no_match -q 'hollowpi-dashboard' home/modules/programs/pi-coding-agent.nix
   rg -q 'menu no' home/modules/terminal/zsh.nix
   rg -q 'matcher-list' home/modules/terminal/zsh.nix
   rg -q -F '"$character"' home/modules/terminal/starship.nix
