@@ -70,8 +70,8 @@ in {
       ++ (
         if config.desktop.touch
         then
-          if pkgs.hyprland.version != "0.57.0"
-          then throw "hyprgrass pin targets Hyprland 0.57.0; update pkgs/hyprland-plugins/hyprgrass.nix"
+          if !(lib.elem pkgs.hyprland.version [ "0.57.0" "0.57.1" ])
+          then throw "hyprgrass has no pin for Hyprland ${pkgs.hyprland.version}; update pkgs/hyprland-plugins/hyprgrass.nix"
           else [pkgs.hyprlandPlugins.hyprgrass]
         else []
       );
