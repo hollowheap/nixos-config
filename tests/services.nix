@@ -23,6 +23,8 @@ pkgs.runCommand "check-services" {
   rg -q "smartd.enable = true" modules/services/system-services.nix
   rg -q "max-delete 10" home/modules/services/rclone.nix
   rg -q "rcloneDirs" home/modules/services/rclone.nix
+  rg -q 'backupDir remote' home/modules/services/rclone.nix
+  rg -U -q 'ReadWritePaths = \[[^]]*backupDir' home/modules/services/rclone.nix
   rg -q "timeout 30s" home/modules/services/rclone.nix
   rg -q 'interval = "weekly"' hardware/filesystems.nix
   rg -q 'limit = "50M"' hardware/filesystems.nix

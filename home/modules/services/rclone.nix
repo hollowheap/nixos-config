@@ -13,6 +13,7 @@ let
     enum
     ;
   cfg = config.services.rcloneSync;
+  backupDir = remote: "${config.home.homeDirectory}/Drive/.rclone-backup/${remote}";
 
   mkMountService = remote: {
     Unit = {
@@ -47,18 +48,18 @@ let
     };
     Service = {
       Type = "oneshot";
-      ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${config.home.homeDirectory}/Drive/${remote} ${config.home.homeDirectory}/.cache/rclone";
       ExecStart =
         if cfg.mode == "bisync" then
           "${pkgs.rclone}/bin/rclone bisync ${config.home.homeDirectory}/Drive/${remote} ${remote}: --resilient --recover --max-lock 2m --conflict-resolve newer --transfers 4 --checkers 8 --log-level NOTICE"
         else
-          "${pkgs.rclone}/bin/rclone sync ${remote}: ${config.home.homeDirectory}/Drive/${remote} --fast-list --max-delete 10 --backup-dir ${config.home.homeDirectory}/Drive/.rclone-backup/${remote} --transfers 4 --checkers 8 --log-level NOTICE";
+          "${pkgs.rclone}/bin/rclone sync ${remote}: ${config.home.homeDirectory}/Drive/${remote} --fast-list --max-delete 10 --backup-dir ${backupDir remote} --transfers 4 --checkers 8 --log-level NOTICE";
 
       NoNewPrivileges = true;
       ProtectSystem = "strict";
       ProtectHome = "read-only";
       ReadWritePaths = [
         "${config.home.homeDirectory}/Drive/${remote}"
+        (backupDir remote)
         "${config.home.homeDirectory}/.config/rclone"
         "${config.home.homeDirectory}/.cache/rclone"
       ];
@@ -130,7 +131,7 @@ in
     # own mkdir fail on a fresh profile.
     home.activation.rcloneDirs = lib.hm.dag.entryAfter [ "writeBoundary" ] (
       lib.concatMapStrings (remote: ''
-        ${pkgs.coreutils}/bin/mkdir -p "${config.home.homeDirectory}/Drive/${remote}" "${config.home.homeDirectory}/.cache/rclone"
+        ${pkgs.coreutils}/bin/mkdir -p "${config.home.homeDirectory}/Drive/${remote}" "${backupDir remote}" "${config.home.homeDirectory}/.cache/rclone"
       '') cfg.remotes
     );
 
