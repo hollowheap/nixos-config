@@ -1,17 +1,59 @@
-{ ... }:
 {
+  config,
+  pkgs,
+  ...
+}:
+let
+  zen = config.programs.zen-browser.package;
+
+  webDispatcher = pkgs.writeShellScriptBin "web-dispatcher" ''
+    set -euo pipefail
+    url="''${1:-}"
+
+    case "$url" in
+      *://music.youtube.com|*://music.youtube.com/*)
+        exec ${pkgs.pear-desktop}/bin/pear-desktop "$url"
+        ;;
+      *)
+        exec ${zen}/bin/zen-twilight --name zen-twilight "$url"
+        ;;
+    esac
+  '';
+in
+{
+  xdg.desktopEntries.web-dispatcher = {
+    name = "Web Dispatcher";
+    exec = "${webDispatcher}/bin/web-dispatcher %u";
+    icon = "zen-twilight";
+    terminal = false;
+    categories = [
+      "Network"
+      "WebBrowser"
+    ];
+    mimeType = [
+      "text/html"
+      "text/xml"
+      "application/xhtml+xml"
+      "application/vnd.mozilla.xul+xml"
+      "x-scheme-handler/http"
+      "x-scheme-handler/https"
+      "x-scheme-handler/about"
+      "x-scheme-handler/unknown"
+    ];
+  };
+
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
       # Web / Browser
-      "text/html" = "zen-twilight.desktop";
-      "text/xml" = "zen-twilight.desktop";
-      "application/xhtml+xml" = "zen-twilight.desktop";
-      "application/vnd.mozilla.xul+xml" = "zen-twilight.desktop";
-      "x-scheme-handler/http" = "zen-twilight.desktop";
-      "x-scheme-handler/https" = "zen-twilight.desktop";
-      "x-scheme-handler/about" = "zen-twilight.desktop";
-      "x-scheme-handler/unknown" = "zen-twilight.desktop";
+      "text/html" = "web-dispatcher.desktop";
+      "text/xml" = "web-dispatcher.desktop";
+      "application/xhtml+xml" = "web-dispatcher.desktop";
+      "application/vnd.mozilla.xul+xml" = "web-dispatcher.desktop";
+      "x-scheme-handler/http" = "web-dispatcher.desktop";
+      "x-scheme-handler/https" = "web-dispatcher.desktop";
+      "x-scheme-handler/about" = "web-dispatcher.desktop";
+      "x-scheme-handler/unknown" = "web-dispatcher.desktop";
 
       # PDF Documents
       "application/pdf" = "zen-twilight.desktop";

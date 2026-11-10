@@ -140,7 +140,9 @@
       # Common settings
       zstyle ':completion:*' group-name ""
       zstyle ':completion:*' verbose yes
-      zstyle ':completion:*' completer _complete _match _history
+      zstyle ':completion:*' completer _complete _ignored _match
+      zstyle ':completion:*' menu no
+      zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
       zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS} # Enable list colors
       zstyle ':completion:*' list-prompt '%S%M matches %s'
 
