@@ -10,12 +10,10 @@ in
       format = lib.concatStrings [
         "$username"
         "$directory"
-        "$fill"
         "$character"
       ];
       right_format = "$git_branch$git_status$nix_shell$cmd_duration";
       add_newline = false;
-      fill.symbol = " ";
       line_break.disabled = true;
 
       character = {
