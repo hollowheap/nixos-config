@@ -8,6 +8,13 @@ Scope: input/gestures
 - Biggest missing option: no shared input policy in `modules/options/desktop.nix`; keyboard layout lives only in Home Manager (`home/modules/environment/compositor.nix:89`), so greeter and console hardcode `us` separately.
 - Seam worth changing: move touch hardware defaults (Wacom HID names, `eDP-1`) out of `home/modules/environment/touch.nix:30-33` into a shared `modules/options/desktop.nix` option supplied by `hardware/touch.nix`.
 
+## Reconciliation (2026-11-09)
+
+- F1–F7 verified resolved: `touchpad.natural_scroll = true`, the hyprgrass ABI guard is present, native three-finger gestures are enabled, touch output derives from `primaryOutput`, transform fields are exposed, wvkbd uses USR1/USR2 with `release_pressed_on_close`, and keyboard layout comes from `desktop.input` in the greeter, console, and compositor.
+- F8 stale: no verified dynamic per-device touchpad toggle in the 0.56 Lua config; the existing bind stays.
+- F9 stale: gesture and bind options remain `listOf unspecified`; typed submodules would catch typos but are a separate refactor.
+- Open questions stale except the inversion cause, which is now fixed by `natural_scroll`.
+
 ## Option sweep (pointer/touchpad)
 Defaults below from https://wiki.hypr.land/configuring/core/config-options (retrieved 2026-10-29). "Set here" means a literal in this repo.
 

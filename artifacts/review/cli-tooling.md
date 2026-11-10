@@ -8,6 +8,14 @@ Scope: CLI tooling
 - Biggest missing option: `programs.git.signing.key` plus `programs.gpg.settings.default-key`; second is `programs.btop.settings.color_theme`, because the generated btop theme is currently dead config.
 - Seam worth changing: one module must own `SSH_AUTH_SOCK`/credential/signing policy; today `auth-agents.nix`, `git.nix`, and `ssh.nix` disagree.
 
+## Reconciliation (2026-11-09)
+
+- F1–F4 and F6–F10 verified in the current tree.
+- F5 is covered by Home Manager's own `batCache` activation after `linkGeneration`; the Wallust hook is a second rebuild.
+- F11 accepted: optional tools stay on `nix run`.
+- The open questions are stale: rbw is the sole SSH agent, pinentry falls back to curses, global hooks invoke repository-local hooks, maintenance covers `~/repos`, and the 24-hour rbw lock is intentional.
+- Remaining: `btop-cuda` is not host-conditional (accepted); fastfetch cost per interactive shell is unmeasured and belongs to V10.
+
 ## Findings
 
 ### F1: Signing chain has no explicit key, short agent TTL, and GUI-only pinentry
@@ -98,7 +106,7 @@ home.activation.batCache = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
 - Source: https://github.com/sharkdp/bat/blob/master/src/assets/assets_metadata.rs, https://github.com/sharkdp/bat#adding-new-themes
 - Default check: bat's stock theme auto-selection is replaced by `theme = "wallust"`; default auto light/dark is intentionally lost.
 - Confidence: verified.
-- Status: Resolved: bat cache is rebuilt by the Wallust hook.
+- Status: Resolved: Home Manager rebuilds the cache after `linkGeneration` on every activation; Wallust also rebuilds it.
 
 ### F6: btop generates a wallust theme but never selects it
 - Current: `home/modules/cli/btop.nix:3-14`

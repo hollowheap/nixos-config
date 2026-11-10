@@ -8,6 +8,15 @@ Scope: Termux/fovea
 - Biggest missing option: `home-manager.config` wired to a platform-neutral home subset, with `home-manager-path` overridden (the bundled HM is from 2024).
 - Seam worth changing: one `pkgs`/HM factory plus platform-gated home modules; stop hardcoding `/home/hollowheap`, the rbw socket, and `pkgs.ai-skills` assumptions.
 
+## Reconciliation (2026-11-09)
+
+- F2 resolved: `nix.extraOptions` enables `nix-command` and `flakes`.
+- F3 resolved: storage, wake-lock, wake-unlock, and settings-reload helpers are enabled.
+- F4 resolved: `age` and `sops` are no longer installed, so there is no false secrets capability.
+- F5 partially resolved: `checks.x86_64-linux.nix-on-droid` asserts the config text. Evaluating `activationPackage` needs impure mode (`builtins.storePath`), so the full build stays a device-side `nix-on-droid switch`.
+- F1 stale: Home Manager integration is deferred until fovea has its own `home/fovea.nix`, git identity, and signing decision.
+- Open questions stay open; they define that identity decision.
+
 ## Findings
 ### F1: No Home Manager integration; desktop config cannot be reused as-is
 - Current: `nix-on-droid.nix:1-14` sets only `system.stateVersion` and six packages. `flake/default.nix:94-97` passes no `home-manager-path`, no `extraSpecialArgs`, and no HM module.

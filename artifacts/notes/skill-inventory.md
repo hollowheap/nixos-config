@@ -11,7 +11,7 @@ Persistent inventory and distillation map for every skill in the repo. Coverage:
 | `specify` | Specification | Accepted `R/D`, architecture | `specs.md` with verify and H4 architecture groups | Public invariants; no open Q | merge candidate with `plan` |
 | `plan` | Delivery planning | Specs, review gate | `tasks.md` atomic tasks | One spec per task; no breakdown in tasks | merge candidate with `specify` |
 | `implement` | Construction | Next task, spec, decision, architecture | Code, tests, task completion, code review | Test-first for non-trivial work; minimal vertical implementation | keep |
-| `review` | Review | Diff/slice/robust scope, RDST, architecture | Findings, `Vxx` when persistent, optional Q | Diff/slice/robust profiles; simplicity always on; security/performance optional lenses | keep |
+| `review` | Review | Diff/slice/robust scope, RDST, architecture | Findings, `Vxx` when persistent, optional Q | Diff/slice/robust profiles; simplicity always on; backend/security/performance/ui lenses; lens ledger | keep |
 | `update` | Maintenance | Code reality, all artifacts | Reconciled architecture/RDST/review | Reconcile after verification; no ghost state | keep |
 | `init` | Bootstrap | Repo manifests, commands, seams | `AGENTS.md`, `context.md`, `architecture.md` | Verified commands and seams only | keep one-time |
 | `deslop` | Remediation | Explicit request, review evidence | Removed accidental complexity | Delete/inline; never add abstraction | keep explicit-only |

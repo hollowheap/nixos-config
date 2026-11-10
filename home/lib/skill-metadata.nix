@@ -36,7 +36,7 @@
     agents = [ "engineer" "worker" ];
   };
   "implement" = {
-    description = "Implement the next task test-first.";
+    description = "Worker implements the next task test-first.";
     agents = [ "engineer" "worker" ];
   };
   "init" = {
@@ -44,7 +44,7 @@
     agents = [ "architect" "engineer" ];
   };
   "merge-worktree" = {
-    description = "Integrate a completed worker worktree.";
+    description = "Integrate a completed worktree.";
     agents = [ "engineer" "worker" ];
   };
   "modular-design" = {

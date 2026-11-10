@@ -8,6 +8,12 @@ Scope: editor toolchain
 - Biggest missing option: no session/auto-restore owner, while nvf disables swap and backup by default → a crash loses unsaved buffers with no recovery path.
 - Seam worth changing: `home/lib/toolchains.nix` is documented as the editor toolchain map, but only its `linters` block is consumed; the rest is decorative drift.
 
+## Reconciliation (2026-11-09)
+
+- F1–F10 verified resolved in the current tree: nvf is the sole provider, diagnostics, format-on-save, sessions, clipboard, and search options are enabled, keymap conflicts are nulled, `<leader>sn` calls the notifications picker, and the decorative toolchain map is deleted.
+- Open questions answered: nvf is the sole editor; format-on-save is on except for Markdown; the toolchain map was removed instead of consumed.
+- Accepted: Go and Rust still have no editor modules; that closure cost stays out of scope.
+
 ## Findings
 
 ### F1: Two packages provide `nvim`

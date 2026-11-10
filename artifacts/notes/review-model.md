@@ -5,7 +5,7 @@ in `github:hollowheap/iridescent`):
 
 - Profiles, review IDs, Q writes, and token budgets: `SKILL.md` and `references/profiles.md`.
 - Always-on simplicity checks: `references/simplicity.md`.
-- Optional UI, backend, security, and performance lenses: `references/{ui,backend,security,performance}.md`.
+- Lenses and the lens ledger: `references/{backend,security,performance,ui}.md` and `references/profiles.md`.
 
 Review writes findings, not phase gates. `artifacts/reviews.md` maps persistent
 `Vxx` IDs to review files. `deslop` remediation is owned by `skills/deslop/SKILL.md`

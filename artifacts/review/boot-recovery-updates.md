@@ -15,7 +15,9 @@ Scope: boot, recovery, updates
 - F3 partially resolved: `sbctl` is in system packages; key creation, backup, and enrollment remain manual.
 - F7 partially resolved: `min-free = 5G` and the duplicate store optimisation are settled; automatic updates remain a preference.
 - Rejected defaults applied: `useOSProber`, `enableCryptodisk`, `initrd.verbose`, `rd.udev.log_level`, the fallback-shell parameter, and redundant initrd modules are removed.
-- Open: F1/F2 (UKI and recovery key), F5 (panic/watchdog), F6 (headless recovery), F8 (fwupd signing).
+- Open: F1/F2 (UKI and recovery key), F6 (headless recovery).
+- F5 stale: no panic/watchdog change without boot counting; the current hang risk is accepted.
+- F8 stale: Secure Boot is disabled (`SecureBoot` efivar is 0); revisit if it is enabled.
 
 ## Findings
 

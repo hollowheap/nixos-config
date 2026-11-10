@@ -19,6 +19,16 @@ Scope: system services/network
 - F9: partially resolved. A daily user timer checks Caddy, Headscale, Vaultwarden, ddclient, and `/var` headroom; failures raise a desktop notification. Certificate-expiry and dead-man alerting remain open.
 - F10: open. No second age recipient yet.
 
+## Reconciliation (2026-11-09)
+
+- F2, F3, F4, F5, F6, F7, F8, F11 re-verified in the current tree.
+- F1 stale: local Vaultwarden, Headscale, and Caddy backups run daily; off-host copy and a restore drill need a backup destination.
+- F5 stale in part: ACLs are explicit but every node still reaches both vhosts; segmentation needs node tags, which live in runtime Headscale state.
+- F6 stale: `100.64.0.1` and `fd7a:115c:a1e0::1` stay static and must be updated if the node re-registers.
+- F9 stale: certificate-expiry and dead-man alerting remain open.
+- F10 stale: a second age recipient remains a personal decision.
+- `caddy_ca_key` is retained as dead encrypted material until the next secrets rotation.
+
 ## Findings
 ### F1: No backup or restore path for vault, coordination DB, or CA state
 - Current: `roles/server/system/vaultwarden.nix:13`, `roles/server/system/headscale.nix:13`; no `services.vaultwarden.backupDir`, no restic/borg anywhere.

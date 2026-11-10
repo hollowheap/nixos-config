@@ -8,6 +8,14 @@ Scope: terminal/shell
 - Biggest missing option: fzf-tab's required `zstyle ':completion:*' menu no`, plus `matcher-list`/`_ignored`; completion is weaker than the plugin expects.
 - Seam worth changing: fzf config is duplicated in `zsh.nix:176-181` and `cli/utilities.nix:7-48`; the zsh copy silently wins, so two owners drift.
 
+## Reconciliation (2026-11-09)
+
+- F1–F4 and F6–F17 verified resolved: fzf-tab uses `fzf-tmux`, the home test expects `C-p`, starship pills use a color-only style, autosuggestions have a visible highlight, LS_COLORS and system completions are linked, tmux history/focus/status are set, clipboard has a fallback, direnv is silent, aliases resolve, startup probes are lazy, vi motions work, fzf has one owner, SSH has one agent, and tmux is 3.8.
+- F5 resolved: `menu no`, `matcher-list`, and `_ignored` are set for fzf-tab.
+- F18 resolved: `$fill` is now part of the prompt format.
+- F19 resolved: a `precmd` title hook is present.
+- Open questions stale: no tmux autostart, history path stays under `dotDir`, zoxide `--cmd cd` is intentional, and `$all` in `git_status` is intentional.
+
 ## Findings
 
 ### F1: fzf-tab popup command does not exist on PATH

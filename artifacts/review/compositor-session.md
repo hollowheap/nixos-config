@@ -8,6 +8,13 @@ Scope: compositor/session
 - Biggest missing option: `misc:allow_session_lock_restore`; a crashed lock client currently leaves a dead, unrestartable lock screen.
 - Seam worth changing: run Noctalia as a supervised user unit instead of `exec-once`, and derive monitor `cm`/HDR from `desktop.hdr` instead of hardcoding `srgb`.
 
+## Reconciliation (2026-11-09)
+
+- F1, F2, F3, F5, F6, F7, F8, F9, F10, F11, F12, F14, F15, F16 verified resolved in the current tree.
+- F13 resolved: `misc.focus_on_activate = true`.
+- F4 stale: `services.gnome-keyring` is disabled deliberately, so clipboard history stays memory-only and no Secret Service is offered. Revisit if persisted clipboard history or libsecret storage is required.
+- The open questions stay UNVERIFIED; they need a running compositor, not static config.
+
 ## Findings
 
 ### F1: Greeter `output.name` pin defeats lid handling and multi-monitor login

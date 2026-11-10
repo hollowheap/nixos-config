@@ -8,6 +8,14 @@ Scope: hardware/power/storage
 - Biggest missing option: no suspend-then-hibernate/hibernate-resume policy; lid close suspends until the battery dies. Battery charge thresholds are also absent.
 - Seam worth changing: storage policy is hardcoded in shared `hardware/filesystems.nix`, duplicating disko and assuming lacuna’s `/.swapvol` layout.
 
+## Reconciliation (2026-11-09)
+
+- F1 resolved: `hardware.enableRedistributableFirmware` moved to `hardware/cpu.nix`, which both hosts import; Bluetooth no longer owns it.
+- F2 resolved: the shared trait no longer declares `swapDevices`; disko owns the lacuna swapfile.
+- F5 resolved: `services.smartd.enable = true` in `modules/services/system-services.nix`.
+- F8 resolved by V04: HDR monitors get `cm = "hdr"`, `supports_hdr = 1`, and 10-bit output.
+- Stale/deferred: F3/F4 need hibernate-resume and battery-threshold hardware confirmation; F6/F7 wait on the ambiguous Nvidia host ownership; F9 needs a declared country; F10 needs an OpenRGB profile; F11 depends on how the dGPU is wired.
+
 ## Findings
 ### F1: Firmware capability owned by Bluetooth trait; acervus has no firmware
 - Current: `hardware/bluetooth.nix:5` enables `hardware.enableRedistributableFirmware`; `hosts/acervus/default.nix:9-13` imports wifi, filesystems, and hybrid-gpu, but not bluetooth.

@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   ai.rules = [
     {
       name = "recon";
@@ -37,7 +36,7 @@
     {
       name = "delegate";
       requires.delegate = true;
-      text = "Keep main context minimal: edit known targets directly. Delegate unknown paths to Scout, research to Researcher, tasks to Worker, and review to Code Reviewer. Primary agents never invoke other primary agents; complete the assigned slice, halt, and hand off to user. Cap to 2 concurrent subagents per phase; halt and yield after 2 consecutive subagent failures or aborts. Pass self-contained context.";
+      text = "Keep main context minimal: edit known targets directly. Delegate unknown paths to Scout, research to Researcher, tasks to Worker, and review to Code Reviewer. Primary agents never invoke other primary agents; complete the assigned slice, halt, and hand off to user. Halt and yield after 2 consecutive subagent failures or aborts. Pass self-contained context.";
     }
   ];
 }

@@ -8,6 +8,20 @@ Scope: user services/sync
 - **Biggest missing option:** `--max-delete` / `--backup-dir` on sync mode. rclone's default is `-1` (unlimited deletes), so one bad remote state erases `~/Drive/<remote>` on the next 30-minute tick.
 - **Seam worth changing:** every user job is hand-rolled and silent. There is no shared unit builder with `Restart=`, sandboxing, and `OnFailure=` notification; backups and GC also belong in system scope because user timers stop with the user manager.
 
+## Reconciliation (2026-11-09)
+
+- F3 resolved: sync mode caps deletes at 10 and writes a backup directory.
+- F4 resolved: `home.activation.rcloneDirs` creates targets before the sandboxed units run.
+- F6 resolved: mount gets 30s timeout, 10s connect timeout, and 3 retries.
+- F10 resolved: user GC keeps 14 days to match the system policy; `min-free`/`max-free` are set.
+- F11 resolved: weekly scrub with a 50M limit.
+- Adjacent `notify-send` resolved: `libnotify` is in `home.packages`.
+- F5 partial: `--recover --max-lock` are set; the first `--resync` stays manual.
+- F1 stale: no restic home backup until a destination and password exist.
+- F2 stale: `rclone.conf` remains out-of-band.
+- F7, F8 stale: `playerctld` and udiskie defaults are kept for ad-hoc use.
+- F9 stale in part: one SSH agent is resolved; the 24-hour vault lock is accepted.
+
 ## Findings
 
 ### F1: No backup or restore drill exists

@@ -8,6 +8,12 @@ Scope: GUI applications
 - Biggest missing option: OBS virtual camera has no declarative enablement; `programs.obs-studio.enableVirtualCamera` is system-only and absent, so “Start Virtual Camera” cannot work (`home/modules/programs/gui/obs-studio.nix:3-10`).
 - Seam worth changing: app modules should own package, MIME registration, and host capability together; today `packages.nix` owns the Pear package, `default-apps.nix` hardcodes desktop IDs, and Zen separately manages `xdg.mimeApps`.
 
+## Reconciliation (2026-11-09)
+
+- F1, F3–F11 verified resolved in the current tree: MIME handlers point at installed editors, viewers, and mpv; Widevine is enabled; OBS virtual camera, GameMode, MangoHud, rtkit, and printing/SANE are wired; Ghostty binds are restored; Vesktop has no dangling theme and sets audio fallbacks.
+- F2 partially resolved: telemetry policy, unified folders, and external GnuPG are set. Calendar and feed accounts remain empty and are stale until real accounts are declared in the gitignored local accounts file.
+- Open questions stale: the MIME and DoH maps are now explicit, and Noctalia no longer owns a Vesktop theme.
+
 ## Findings
 
 ### F1: Thunderbird account emits a serverless, placeholder account

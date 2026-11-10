@@ -8,6 +8,15 @@ Scope: theme hooks
 - Biggest missing option: lifecycle coverage — no `started` hook and no Home Manager activation render, so generated theme files are absent on first boot and stale after rebuild.
 - Seam worth changing: replace ad-hoc `programs.wallust.settings.templates` entries with one `styles.theme.consumers` registry carrying template, target, reload, order, and mode.
 
+## Reconciliation (2026-11-09)
+
+- F2, F5, F6, F7, F8, F10, F11, F12 verified resolved: activation and `started` render, btop selects Wallust, icon accent is replayed, fzf uses `base16`, Codex reads the Wallust `.tmTheme`, font fallbacks and Noctalia font are wired, XDG paths are consistent, and the Hyprland theme surface includes nogroup borders and shadows.
+- F1 stale: the dual palette authority remains deliberate — Wallust salience for terminals, Noctalia M3 for GTK/icons/RGB.
+- F3 stale: dark-only is intentional; light templates are out of scope.
+- F4 stale: a consumer registry is a larger refactor; per-module templates work today.
+- F9 stale: neutral literals remain across templates; moving to pinned ANSI slots is a separate template pass.
+- Open questions stale: `theme.mode = "dark"` is permanent for now, and the hooks are verified present.
+
 ## Findings
 
 ### F1: Split palette authority produces two accent colors
