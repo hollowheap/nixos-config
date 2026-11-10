@@ -19,12 +19,16 @@ pkgs.runCommand "check-hardware" {
   test -f hardware/nvidia.nix
   test -f hardware/touch.nix
   test -f hardware/serial.nix
+  test -f hardware/firmware.nix
 
   rg -q "traits = \[" hosts/lacuna/hardware.nix
   rg -q '"serial"' hosts/lacuna/hardware.nix
+  rg -q '"firmware"' hosts/lacuna/hardware.nix
   rg -q 'dialout' hardware/serial.nix
-  rg -q 'enableRedistributableFirmware' hardware/cpu.nix
+  rg -q 'enableRedistributableFirmware' hardware/firmware.nix
+  no_match -q 'enableRedistributableFirmware' hardware/cpu.nix
   no_match -q 'enableRedistributableFirmware' hardware/bluetooth.nix
+  rg -q 'hardware/firmware.nix' hosts/acervus/default.nix
   rg -q "hybrid-gpu" hosts/acervus/default.nix
   no_match -q "hybrid-gpu" hosts/lacuna/hardware.nix
   rg -q "desktop.touch = true" hardware/touch.nix

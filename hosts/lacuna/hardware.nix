@@ -5,6 +5,7 @@ let
     "bluetooth"
     "cpu"
     "filesystems"
+    "firmware"
     "graphics"
     "rgb"
     "serial"

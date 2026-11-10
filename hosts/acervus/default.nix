@@ -8,6 +8,7 @@
     ../../profiles/laptop
     ../../hardware/cpu.nix
     ../../hardware/filesystems.nix
+    ../../hardware/firmware.nix
     ../../hardware/hybrid-gpu.nix
     ../../hardware/wifi.nix
   ];
