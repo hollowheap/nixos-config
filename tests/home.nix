@@ -64,6 +64,8 @@ pkgs.runCommand "check-home" {
   rg -q "inputs.opal.packages" home/modules/cli/utilities.nix
   rg -q "libnotify" home/modules/cli/utilities.nix
   rg -q "programs.claude-code" home/modules/programs/claude-code.nix
+  rg -q 'systemPrompt' home/modules/programs/claude-code.nix
+  rg -q 'append-system-prompt-file' home/modules/programs/claude-code.nix
   rg -q "web-dispatcher" home/modules/programs/default-apps.nix
   rg -q "music.youtube.com" home/modules/programs/default-apps.nix
   rg -q "username = \"hollowheap\"" home/hollowheap.nix

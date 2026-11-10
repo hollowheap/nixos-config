@@ -1,10 +1,19 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
   aiRender = config.ai.render;
+  cfg = config.programs.claude-code;
+
+  systemPromptFile = pkgs.writeText "claude-system-prompt.md" cfg.systemPrompt;
+  claudePackage = pkgs.writeShellScriptBin "claude" ''
+    exec ${pkgs.claude-code}/bin/claude \
+      ${if cfg.systemPromptMode == "replace" then "--system-prompt-file" else "--append-system-prompt-file"} \
+      ${systemPromptFile} "$@"
+  '';
 
   claudeTools =
     agent:
@@ -53,9 +62,32 @@ let
   };
 in
 {
-  programs.claude-code = {
+  options.programs.claude-code = {
+    systemPrompt = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      example = "Follow the workspace instructions in AGENTS.md.";
+      description = ''
+        System prompt passed to Claude Code through --append-system-prompt-file.
+        Set systemPromptMode to "replace" to pass --system-prompt-file instead.
+        This is separate from context, which writes CLAUDE.md.
+      '';
+    };
+    systemPromptMode = lib.mkOption {
+      type = lib.types.enum [
+        "append"
+        "replace"
+      ];
+      default = "append";
+      description = "Append the system prompt to Claude Code's built-in prompt or replace it.";
+    };
+  };
+
+  config.programs.claude-code = {
     enable = true;
     enableMcpIntegration = true;
+
+    package = lib.mkIf (cfg.systemPrompt != "") claudePackage;
 
     context = aiRender.agentBodyFor "claude-code" config.ai.agents.engineer;
 
