@@ -17,6 +17,8 @@ pkgs.runCommand "check-home" {
   test -f home/hollowheap.nix
   test -f home/modules/programs/nvim/lsp.nix
   rg -q "yamllint" home/modules/programs/nvim/lsp.nix
+  test -f pkgs/hollow-nv-colorscript.nix
+  rg -q "hollow-nv-colorscript" home/modules/programs/nvim/snacks.nix
   test -f home/modules/ai/options.nix
   test -f home/modules/ai/agents.nix
   test -f home/modules/programs/thunderbird-accounts.nix

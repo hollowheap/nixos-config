@@ -64,9 +64,9 @@ in
             sections = [
               {
                 section = "terminal";
-                cmd = "${pkgs.hollowheap-colorscript}/bin/hollowheap-colorscript";
+                cmd = "${pkgs.hollow-nv-colorscript}/bin/hollow-nv-colorscript";
                 align = "center";
-                height = 8;
+                height = 6;
               }
               {
                 icon = " ";
