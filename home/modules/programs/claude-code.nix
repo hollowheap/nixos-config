@@ -25,9 +25,8 @@ let
     ++ lib.optionals caps.web [
       "WebFetch"
       "WebSearch"
-    ];
-
-  subagents = lib.filterAttrs (_: agent: agent.role == "subagent") config.ai.agents;
+    ]
+    ++ lib.optionals (caps.delegate && agent.role == "primary") [ "Agent" ];
 
   mkAgent =
     name: agent:
@@ -119,7 +118,7 @@ in
       };
     };
 
-    agents = builtins.mapAttrs mkAgent subagents;
+    agents = builtins.mapAttrs mkAgent config.ai.agents;
     skills = builtins.mapAttrs mkSkill config.ai.skills;
   };
 }

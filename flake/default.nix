@@ -107,11 +107,7 @@ let
       ) (builtins.attrNames home.config.home.file)
     );
 
-  claudeAgentCount = builtins.length (
-    builtins.attrNames (
-      inputs.nixpkgs.lib.filterAttrs (_: agent: agent.role == "subagent") home.config.ai.agents
-    )
-  );
+  claudeAgentCount = builtins.length (builtins.attrNames home.config.ai.agents);
 
   checkSkillsRendered =
     pkgs.runCommand "check-skills-rendered" {      nativeBuildInputs = [ pkgs.ripgrep ];
