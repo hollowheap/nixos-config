@@ -10,6 +10,6 @@
 	line-numbers-minus-style = "{{color4}}"
 	line-numbers-plus-style = "{{color3}}"
 	line-numbers-right-style = "{{color13}}"
-	line-numbers-zero-style = "{{color8}}"
+	line-numbers-zero-style = "#2e2e2e"
 	minus-emph-style = "normal {{color4}}"
 	plus-emph-style = "syntax {{color3}}"

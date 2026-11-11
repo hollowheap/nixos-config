@@ -139,6 +139,7 @@ pkgs.runCommand "check-home" {
   rg -q -F '"border": "#2e2e2e"' assets/wallust-templates/opencode.json
   test -f assets/wallust-templates/fzf
   rg -q -F -- '--color=fg:#e0e0e0' assets/wallust-templates/fzf
+  no_match -q '\{\{\s*color(7|8)\b' assets/wallust-templates
   for template in bat.tmTheme btop.theme crush.json delta.gitconfig flavor.toml fzf ghostty lazygit.yml nvim-colors.lua opencode.json sequences; do
     test -f "assets/wallust-templates/$template"
   done
