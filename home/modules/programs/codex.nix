@@ -81,7 +81,20 @@ in
   programs.codex = {
     enable = true;
     enableMcpIntegration = true;
-    package = pkgs.codex;
+    package = pkgs.codex.overrideAttrs (old: {
+      # nixpkgs exports AWS_LC_SYS_USE_SYSTEM=1 and pkg-config flags for
+      # zstd, oniguruma, and sqlite without adding the libraries; build
+      # vendored aws-lc and add the system inputs.
+      preBuild = (old.preBuild or "") + ''
+        export AWS_LC_SYS_USE_SYSTEM=0
+      '';
+      buildInputs = (old.buildInputs or []) ++ [
+        pkgs.zstd
+        pkgs.zlib
+        pkgs.oniguruma
+        pkgs.sqlite
+      ];
+    });
     skills = mapAttrs mkSkillDir config.ai.skills;
     mutableSettings = true;
     settings = {
