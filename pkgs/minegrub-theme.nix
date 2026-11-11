@@ -10,7 +10,7 @@ stdenvNoCC.mkDerivation {
   src = fetchFromGitHub {
     owner = "Lxtharia";
     repo = "minegrub-theme";
-    rev = "dev";
+    rev = "cdd067ebc31ac59e24ae3c99e5b0f05a18eb8a1d";
     hash = "sha256-JPu+WSXX4TaQnue+UKGMmv2YYCbM5t9Bwwm0fp6lJXc=";
   };
 
