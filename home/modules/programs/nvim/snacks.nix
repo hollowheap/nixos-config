@@ -64,7 +64,7 @@ in
             sections = [
               {
                 section = "terminal";
-                cmd = "${pkgs.hollow-nv-colorscript}/bin/hollow-nv-colorscript";
+                cmd = "${pkgs.hollow-nv-colorscript}/bin/hollow-nv-colorscript --animate";
                 align = "center";
                 height = 6;
               }

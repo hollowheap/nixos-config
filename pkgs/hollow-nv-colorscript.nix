@@ -1,62 +1,98 @@
 {
-  coreutils,
+  python3,
   writeShellScriptBin,
 }:
 writeShellScriptBin "hollow-nv-colorscript" ''
-  set -eu
+  exec ${python3}/bin/python3 - "$@" <<'PY'
+  import colorsys
+  import os
+  import re
+  import sys
+  import time
 
-  C[0]="#000000"
-  C[1]="#e06c75"
-  C[2]="#85b452"
-  C[3]="#e5c07b"
-  C[4]="#6ca0dc"
-  C[5]="#b388ff"
-  C[6]="#66c2cd"
-  C[7]="#e0e0e0"
-  C[8]="#2e2e2e"
-  C[9]="#ee5c95"
-  C[10]="#914760"
-  C[11]="#9e2b4b"
-  C[12]="#5e81ac"
-  C[13]="#8f88ac"
-  C[14]="#b48ead"
-  C[15]="#ffffff"
+  art = [
+      "  ▄▄▄  ▄▄▄       ▄▄ ▄▄                      ▄▄     ▄▄▄ ▄▄▄",
+      "  █▀██  ██         ██ ██                     ██▄   ██▀ █▀██  ██▀▀",
+      "    ██  ██         ██ ██                     ███▄  ██    ██  ██",
+      "    ██████   ▄███▄ ██ ██ ▄███▄▀█▄ █▄ ██▀     ██ ▀█▄██    ██  ██",
+      "    ██  ██   ██ ██ ██ ██ ██ ██ ██▄██▄██      ██   ▀██    ██▄ ██",
+      "  ▀██▀  ▀██▄▄▀███▀▄██▄██▄▀███▀  ▀██▀██▀    ▀██▀    ██     ▀███▀",
+  ]
 
-  seq="''${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences"
-  if [ -f "$seq" ]; then
-    while IFS= read -r entry; do
-      case "$entry" in
-        *']4;'*)
-          slot="''${entry#*]4;}"
-          slot="''${slot%%;*}"
-          hex="''${entry##*#}"
-          hex="''${hex:0:6}"
-          case "$slot" in
-            0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15) C[$slot]="#$hex" ;;
-          esac
-          ;;
-      esac
-    done < <(${coreutils}/bin/tr '\a' '\n' < "$seq")
-  fi
+  defaults = [
+      "#000000", "#e06c75", "#85b452", "#e5c07b",
+      "#6ca0dc", "#b388ff", "#66c2cd", "#e0e0e0",
+      "#2e2e2e", "#ee5c95", "#914760", "#9e2b4b",
+      "#5e81ac", "#8f88ac", "#b48ead", "#ffffff",
+  ]
+  palette = list(defaults)
 
-  hex_rgb() {
-    local value="''${1#\#}"
-    printf '%d;%d;%d' "0x''${value:0:2}" "0x''${value:2:2}" "0x''${value:4:2}"
-  }
-
-  lines=(
-    '   ▄▄▄  ▄▄▄       ▄▄ ▄▄                      ▄▄     ▄▄▄ ▄▄▄      '
-    '  █▀██  ██         ██ ██                     ██▄   ██▀ █▀██  ██▀▀'
-    '    ██  ██         ██ ██                     ███▄  ██    ██  ██  '
-    '    ██████   ▄███▄ ██ ██ ▄███▄▀█▄ █▄ ██▀     ██ ▀█▄██    ██  ██  '
-    '    ██  ██   ██ ██ ██ ██ ██ ██ ██▄██▄██      ██   ▀██    ██▄ ██  '
-    '  ▀██▀  ▀██▄▄▀███▀▄██▄██▄▀███▀  ▀██▀██▀    ▀██▀    ██     ▀███▀  '
+  seq = os.path.join(
+      os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")),
+      "wallust/sequences",
   )
-  accent=(12 12 13 13 14 14)
-  index=0
-  for line in "''${lines[@]}"; do
-    color="''${accent[$index]}"
-    printf '\033[38;2;%sm%s\033[0m\n' "$(hex_rgb "''${C[$color]}")" "$line"
-    index=$((index + 1))
-  done
+  if os.path.exists(seq):
+      data = open(seq, "rb").read().decode("utf-8", "ignore")
+      for entry in data.split("\x07"):
+          match = re.search(r"\]4;(\d+);#([0-9a-fA-F]{6})", entry)
+          if match:
+              palette[int(match.group(1))] = "#" + match.group(2)
+
+  def rgb(value):
+      value = value.lstrip("#")
+      return tuple(int(value[index:index + 2], 16) / 255 for index in (0, 2, 4))
+
+  def hsv(value):
+      return colorsys.rgb_to_hsv(*rgb(value))
+
+  colors = list(palette)
+  colors.sort(key=lambda value: hsv(value)[0])
+
+  segments = 6
+  gradient = []
+  for index, color in enumerate(colors):
+      next_color = colors[(index + 1) % len(colors)]
+      h0, s0, v0 = hsv(color)
+      h1, s1, v1 = hsv(next_color)
+      if h1 < h0:
+          h1 += 1.0
+      for step in range(segments):
+          amount = step / segments
+          hue = h0 + (h1 - h0) * amount
+          sat = s0 + (s1 - s0) * amount
+          val = v0 + (v1 - v0) * amount
+          gradient.append(tuple(round(channel * 255) for channel in colorsys.hsv_to_rgb(hue % 1.0, sat, val)))
+
+  def frame(phase):
+      output = []
+      for row, line in enumerate(art):
+          current = []
+          for col, char in enumerate(line):
+              if char == " ":
+                  current.append(" ")
+                  continue
+              red, green, blue = gradient[(row + col + phase) % len(gradient)]
+              current.append(f"\x1b[38;2;{red};{green};{blue}m{char}")
+          output.append("".join(current) + "\x1b[0m")
+      return "\n".join(output) + "\n"
+
+  if "--animate" not in sys.argv[1:]:
+      sys.stdout.write(frame(0))
+      sys.exit(0)
+
+  sys.stdout.write("\x1b[?25l")
+  phase = 0
+  try:
+      while True:
+          sys.stdout.write(frame(phase))
+          sys.stdout.write("\x1b[6A")
+          sys.stdout.flush()
+          phase = (phase + 1) % steps
+          time.sleep(0.15)
+  except KeyboardInterrupt:
+      pass
+  finally:
+      sys.stdout.write("\x1b[?25h")
+      sys.stdout.flush()
+  PY
 ''
