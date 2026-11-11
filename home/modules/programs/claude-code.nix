@@ -6,14 +6,6 @@
 }:
 let
   aiRender = config.ai.render;
-  cfg = config.programs.claude-code;
-
-  systemPromptFile = pkgs.writeText "claude-system-prompt.md" cfg.systemPrompt;
-  claudePackage = pkgs.writeShellScriptBin "claude" ''
-    exec ${pkgs.claude-code}/bin/claude \
-      ${if cfg.systemPromptMode == "replace" then "--system-prompt-file" else "--append-system-prompt-file"} \
-      ${systemPromptFile} "$@"
-  '';
 
   claudeTools =
     agent:
@@ -60,34 +52,57 @@ let
     prefix = "claude-code";
     skills = config.ai.skills;
   };
+
+  claudeHookEvent =
+    event:
+    {
+      session-start = "SessionStart";
+      user-prompt = "UserPromptSubmit";
+      pre-tool = "PreToolUse";
+      post-tool = "PostToolUse";
+      stop = "Stop";
+      session-end = "SessionEnd";
+      pre-compact = "PreCompact";
+    }.${event} or null;
+
+  mkClaudeHook =
+    name: hook:
+    let
+      event = claudeHookEvent hook.event;
+      handler = {
+        type = "command";
+        command = "${aiRender.hookCommandLine hook}${lib.optionalString (hook.event == "pre-tool") " --format block"}";
+        inherit (hook) timeout;
+      };
+    in
+    if
+      !hook.enabled
+      || event == null
+      || (hook.harnesses != [ ] && !(builtins.elem "claude-code" hook.harnesses))
+    then
+      null
+    else
+      {
+        inherit event;
+        spec =
+          if event == "PreToolUse" || event == "PostToolUse" then
+            { hooks = [ handler ]; } // lib.optionalAttrs (hook.matcher != null) { inherit (hook) matcher; }
+          else
+            { hooks = [ handler ]; };
+      };
+
+  claudeHookEntries = builtins.filter (entry: entry != null) (
+    lib.mapAttrsToList mkClaudeHook config.ai.hooks
+  );
+
+  claudeHooks = builtins.mapAttrs (_event: entries: map (entry: entry.spec) entries) (
+    builtins.groupBy (entry: entry.event) claudeHookEntries
+  );
 in
 {
-  options.programs.claude-code = {
-    systemPrompt = lib.mkOption {
-      type = lib.types.lines;
-      default = "";
-      example = "Follow the workspace instructions in AGENTS.md.";
-      description = ''
-        System prompt passed to Claude Code through --append-system-prompt-file.
-        Set systemPromptMode to "replace" to pass --system-prompt-file instead.
-        This is separate from context, which writes CLAUDE.md.
-      '';
-    };
-    systemPromptMode = lib.mkOption {
-      type = lib.types.enum [
-        "append"
-        "replace"
-      ];
-      default = "append";
-      description = "Append the system prompt to Claude Code's built-in prompt or replace it.";
-    };
-  };
-
   config.programs.claude-code = {
     enable = true;
     enableMcpIntegration = true;
-
-    package = lib.mkIf (cfg.systemPrompt != "") claudePackage;
 
     context = aiRender.agentBodyFor config.ai.agents.engineer;
 
@@ -95,6 +110,7 @@ in
       model = config.ai.tiers.high.models.claude-code or "opus";
       includeCoAuthoredBy = false;
       permissions.deny = map (pattern: "Bash(${pattern})") config.ai.guards.bashDeny;
+      hooks = claudeHooks;
       env = {
         DISABLE_TELEMETRY = "1";
         DISABLE_ERROR_REPORTING = "1";
