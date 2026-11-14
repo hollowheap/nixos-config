@@ -143,6 +143,24 @@ in
         "--output"
         "artifacts/repomap.md"
       ];
+      harnesses = [
+        "opencode"
+        "kiro"
+      ];
+      timeout = 15;
+    };
+
+    post-tool-claude-code = {
+      event = "post-tool";
+      command = "${pkgs.repomap}/bin/repomap";
+      args = [
+        "--max-lines"
+        "2000"
+        "--output"
+        "artifacts/repomap.md"
+      ];
+      matcher = "Edit|Write|MultiEdit|NotebookEdit";
+      harnesses = [ "claude-code" ];
       timeout = 15;
     };
   };

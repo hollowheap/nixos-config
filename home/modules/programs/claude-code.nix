@@ -108,13 +108,20 @@ in
     settings = {
       model = config.ai.tiers.high.models.claude-code or "opus";
       includeCoAuthoredBy = false;
-      permissions.deny = map (pattern: "Bash(${pattern})") config.ai.guards.bashDeny;
+      disableClaudeAiConnectors = true;
+      permissions = {
+        defaultMode = "auto";
+        deny = (map (pattern: "Bash(${pattern})") config.ai.guards.bashDeny) ++ [
+          "mcp__claude_ai_Claude_Docs"
+        ];
+      };
       hooks = claudeHooks;
       env = {
         DISABLE_TELEMETRY = "1";
         DISABLE_ERROR_REPORTING = "1";
         DISABLE_AUTOUPDATER = "1";
         CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
+        ENABLE_CLAUDEAI_MCP_SERVERS = "false";
       };
     };
 
