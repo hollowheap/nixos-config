@@ -62,9 +62,19 @@ in
           "<leader>as" = "Toggle suggestion";
 
           "<leader>l" = "+LSP";
+          "<leader>g" = "+Git";
+          "<leader>gs" = "Stage hunk";
+          "<leader>gr" = "Reset hunk";
+          "<leader>gS" = "Stage buffer";
+          "<leader>gu" = "Undo stage hunk";
+          "<leader>gp" = "Preview hunk inline";
+          "<leader>gb" = "Blame line";
+          "<leader>gd" = "Diff buffer";
+          "<leader>gt" = "Toggle line blame";
 
           "<leader>s" = "+Search";
           "<leader>sx" = "+Diagnostics";
+          "<leader>su" = "Undo history tree";
 
           "<leader>w" = "+Window";
           "<leader>v" = "+Visits";
@@ -72,6 +82,7 @@ in
           "<leader>q" = "+Quit";
 
           "<leader>t" = "+Toggle";
+          "<leader>tc" = "Toggle Treesitter Context";
           "<leader>tz" = "Toggle Zen Mode";
           "<leader>td" = "Toggle Scope Dimming";
           "<leader>tZ" = "Toggle Zoom";
@@ -206,8 +217,9 @@ in
         nop({ "n", "v" }, lhs)
       end
 
-      -- r is the +Operator prefix; map bare r to <Nop> so it never triggers default replace-char
+      -- r is the +Operator prefix and s is the +Surround prefix; map bare r/s to <Nop>
       set({ "n", "v" }, "r", "<Nop>", { noremap = true, desc = "+Operator" })
+      set({ "n", "v" }, "s", "<Nop>", { noremap = true, desc = "+Surround" })
 
       -- gi and go are mapped in normal mode to jumplist newer/older; clear in visual mode
       nop("v", "gi")
@@ -341,12 +353,18 @@ in
         desc = "Delete without yank (backwards)";
       }
 
-      # The r family
+      # The r and s families
       {
         key = "r";
         mode = modes.nv;
         action = "<Nop>";
         desc = "Operator";
+      }
+      {
+        key = "s";
+        mode = modes.nv;
+        action = "<Nop>";
+        desc = "Surround";
       }
       {
         key = "rr";
@@ -659,7 +677,14 @@ in
         desc = "Go to declaration [snacks]";
       }
 
-      # Toggles under <leader>t (Zen & Twilight)
+      # Toggles under <leader>t (Zen, Dim, Zoom, Treesitter Context)
+      {
+        key = "<leader>tc";
+        lua = true;
+        action = "function() require('treesitter-context').toggle() end";
+        mode = "n";
+        desc = "Toggle Treesitter Context";
+      }
       {
         key = "<leader>tz";
         lua = true;
@@ -775,11 +800,104 @@ in
         desc = "Registers [snacks]";
       }
       {
+        key = "<leader>su";
+        lua = true;
+        action = "function() Snacks.picker.undo() end";
+        mode = "n";
+        desc = "Undo History Tree [snacks]";
+      }
+      {
         key = "<leader>sp";
         lua = true;
         action = "function() Snacks.profiler.pick() end";
         mode = "n";
         desc = "Profiler Picker [snacks]";
+      }
+
+      # Git Hunk & Blame actions under <leader>g
+      {
+        key = "<leader>gs";
+        lua = true;
+        action = "function() require('gitsigns').stage_hunk() end";
+        mode = "n";
+        desc = "Stage hunk";
+      }
+      {
+        key = "<leader>gs";
+        lua = true;
+        action = "function() require('gitsigns').stage_hunk({ vim.fn.line('.'), vim.fn.line('v') }) end";
+        mode = "v";
+        desc = "Stage selected hunk lines";
+      }
+      {
+        key = "<leader>gr";
+        lua = true;
+        action = "function() require('gitsigns').reset_hunk() end";
+        mode = "n";
+        desc = "Reset hunk";
+      }
+      {
+        key = "<leader>gr";
+        lua = true;
+        action = "function() require('gitsigns').reset_hunk({ vim.fn.line('.'), vim.fn.line('v') }) end";
+        mode = "v";
+        desc = "Reset selected hunk lines";
+      }
+      {
+        key = "<leader>gS";
+        lua = true;
+        action = "function() require('gitsigns').stage_buffer() end";
+        mode = "n";
+        desc = "Stage buffer";
+      }
+      {
+        key = "<leader>gu";
+        lua = true;
+        action = "function() require('gitsigns').undo_stage_hunk() end";
+        mode = "n";
+        desc = "Undo stage hunk";
+      }
+      {
+        key = "<leader>gp";
+        lua = true;
+        action = "function() require('gitsigns').preview_hunk_inline() end";
+        mode = "n";
+        desc = "Preview hunk inline";
+      }
+      {
+        key = "<leader>gb";
+        lua = true;
+        action = "function() Snacks.git.blame_line() end";
+        mode = "n";
+        desc = "Blame line [snacks]";
+      }
+      {
+        key = "<leader>gd";
+        lua = true;
+        action = "function() require('gitsigns').diffthis() end";
+        mode = "n";
+        desc = "Diff buffer against index";
+      }
+      {
+        key = "<leader>gt";
+        lua = true;
+        action = "function() require('gitsigns').toggle_current_line_blame() end";
+        mode = "n";
+        desc = "Toggle inline line blame";
+      }
+
+      # Avante session & history under <leader>a
+      {
+        key = "<leader>an";
+        mode = "n";
+        action = "<cmd>AvanteChatNew<cr>";
+        desc = "New chat session";
+      }
+      {
+        key = "<leader>ah";
+        mode = "n";
+        action = "<cmd>AvanteHistory<cr>";
+        desc = "Select history";
       }
 
       # Window Management under <leader>w and Smart-Splits
@@ -990,6 +1108,7 @@ in
       local wk = require("which-key")
       wk.add({
         { "r", group = "Operator" },
+        { "s", group = "Surround" },
         { "rc", group = "Comment" },
         { "rcc", desc = "Comment line" },
         { "rd", desc = "Go to definition" },

@@ -4,6 +4,22 @@
     debugger = {
       nvim-dap = {
         enable = true;
+        mappings = {
+          continue = null;
+          restart = null;
+          terminate = null;
+          runLast = null;
+          toggleRepl = null;
+          hover = null;
+          toggleBreakpoint = null;
+          runToCursor = null;
+          stepInto = null;
+          stepOut = null;
+          stepOver = null;
+          stepBack = null;
+          goUp = null;
+          goDown = null;
+        };
         ui = {
           enable = true;
           autoStart = false;
@@ -23,13 +39,18 @@
     binds.whichKey.register = {
       "<leader>d" = "+Debugger";
       "<leader>db" = "Toggle Breakpoint";
+      "<leader>dB" = "Float breakpoints";
       "<leader>dc" = "Continue / Start";
+      "<leader>de" = "Float REPL";
       "<leader>di" = "Step Into";
       "<leader>do" = "Step Over";
       "<leader>dO" = "Step Out";
+      "<leader>ds" = "Float scopes";
+      "<leader>dS" = "Float stacks";
       "<leader>dt" = "Terminate Debugger";
       "<leader>dr" = "Restart Debugger";
       "<leader>du" = "Toggle DAP UI";
+      "<leader>dw" = "Float watches";
       "<leader>dp" = "Toggle Profiler";
       "<leader>dP" = "Profiler Scratch";
     };

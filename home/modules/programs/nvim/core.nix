@@ -18,7 +18,6 @@ in
         '';
 
         extraPackages = [
-          pkgs.yamllint
           pkgs.trash-cli
           pkgs.wl-clipboard
         ];
@@ -34,20 +33,30 @@ in
             ft = [ "help" ];
             lazy = true;
             package = helpview-nvim;
+            setupModule = "helpview";
+            setupOpts = { };
           };
           "mega.cmdparse" = {
-            lazy = true;
+            lazy = false;
             package = mega-cmdparse;
           };
           "mega.logging" = {
-            lazy = true;
+            lazy = false;
             package = mega-logging;
           };
           "tiny-glimmer.nvim" = {
             lazy = false;
             package = pkgs.vimPlugins.tiny-glimmer-nvim;
             setupModule = "tiny-glimmer";
-            setupOpts = { };
+            setupOpts = {
+              overwrite = {
+                undo.enabled = true;
+                redo = {
+                  enabled = true;
+                  default_mapping = "U";
+                };
+              };
+            };
           };
         };
 

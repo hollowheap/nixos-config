@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   ...
 }:
@@ -7,50 +8,14 @@ let
 in
 {
   programs.nvf.settings.vim = {
-    languages = {
-      enableDAP = true;
-      enableExtraDiagnostics = true;
-      enableFormat = true;
-      enableTreesitter = true;
-
-      bash.enable = true;
-      clang.enable = true;
-      clang.dap.enable = true;
-      json.enable = true;
-      lua.enable = true;
-      nix.enable = true;
-      python.enable = true;
-      python.dap.enable = true;
-      toml.enable = true;
-      tsx.enable = true;
-      typescript.enable = true;
-      yaml.enable = true;
-      zsh.enable = true;
-      markdown.enable = true;
-      markdown.extensions.markview-nvim.enable = true;
-    };
+    languages = config.toolchain.nvfLanguages;
 
     spellcheck = {
       enable = true;
-      ignoredFiletypes = [
-        "toggleterm"
-        "nix"
-        "lua"
-        "python"
-        "c"
-        "cpp"
-        "typescript"
-        "typescriptreact"
-        "yaml"
-        "zsh"
-        "json"
-        "toml"
-        "bash"
-        "sh"
-      ];
+      ignoredFiletypes = config.toolchain.spellcheckIgnoredFiletypes;
     };
 
-    formatter.conform-nvim.setupOpts.formatters_by_ft.markdown = [ ];
+    formatter.conform-nvim.setupOpts.formatters_by_ft = config.toolchain.formattersByFt;
 
     lsp = {
       enable = true;
@@ -71,10 +36,7 @@ in
         signatureHelp = null;
       };
       servers = {
-        nil.nix.flake = {
-          autoArchive = true;
-          autoEvalInputs = true;
-        };
+        nil = config.toolchain.lspServers.nil.settings;
       };
     };
 
@@ -91,12 +53,10 @@ in
         update_in_insert = false;
         severity_sort = true;
       };
+      # Consumes config.toolchain.lintersByFt (including yamllint and zsh)
       nvim-lint = {
         enable = true;
-        linters_by_ft = {
-          yaml = [ "yamllint" ];
-          zsh = [ "zsh" ];
-        };
+        linters_by_ft = config.toolchain.lintersByFt;
       };
     };
 
@@ -114,9 +74,24 @@ in
 
     autocmds = [
       {
+        event = [
+          "BufReadPost"
+          "InsertLeave"
+        ];
+        group = "UserAutocmds";
+        desc = "Trigger nvim-lint on buffer read and insert leave";
+        callback = mkLuaInline ''
+          function(ev)
+            if _G.nvf_lint and vim.bo[ev.buf].buftype == "" then
+              _G.nvf_lint(ev.buf)
+            end
+          end
+        '';
+      }
+      {
         event = [ "LspAttach" ];
         group = "UserLspKeys";
-        desc = "Configure LSP buffer options, delete buffer-local gO, and enable linked editing";
+        desc = "Configure LSP buffer options, delete buffer-local gO, and enable linked editing and inlay hints";
         callback = mkLuaInline ''
           function(ev)
             vim.bo[ev.buf].tagfunc = nil
@@ -130,27 +105,9 @@ in
             if client and client:supports_method("textDocument/linkedEditingRange", ev.buf) then
               vim.lsp.linked_editing_range.enable(true, { client_id = client.id })
             end
-          end
-        '';
-      }
-      {
-        event = [ "LspAttach" ];
-        group = "UserAutocmds";
-        desc = "Highlight LSP references";
-        callback = mkLuaInline ''
-          function(ev)
-            local client = vim.lsp.get_client_by_id(ev.data.client_id)
-            if not client or not client:supports_method("textDocument/documentHighlight") then
-              return
+            if client and client:supports_method("textDocument/inlayHint", ev.buf) then
+              vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
             end
-            vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-              buffer = ev.buf,
-              callback = vim.lsp.buf.document_highlight,
-            })
-            vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-              buffer = ev.buf,
-              callback = vim.lsp.buf.clear_references,
-            })
           end
         '';
       }

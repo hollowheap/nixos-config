@@ -10,7 +10,6 @@ in
   programs.nvf.settings.vim = {
     utility = {
       smart-splits.enable = true;
-      grug-far-nvim.enable = true;
       snacks-nvim = {
         enable = true;
         setupOpts = {

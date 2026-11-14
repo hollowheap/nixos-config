@@ -1,4 +1,7 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 {
   programs.nvf.settings.vim = {
     extraPackages = [
@@ -16,6 +19,9 @@
           "markdown"
           "norg"
         ];
+        before = ''
+          require("lz.n").trigger_load("image.nvim")
+        '';
         package = pkgs.vimPlugins.diagram-nvim;
         setupModule = "diagram";
         setupOpts = {
@@ -73,21 +79,21 @@
       {
         key = "<leader>mr";
         lua = true;
-        action = "function() require('diagram').render() end";
+        action = "function() require('lz.n').trigger_load('diagram.nvim'); require('diagram').render() end";
         mode = "n";
         desc = "Render diagrams";
       }
       {
         key = "<leader>mc";
         lua = true;
-        action = "function() require('diagram').clear() end";
+        action = "function() require('lz.n').trigger_load('diagram.nvim'); require('diagram').clear() end";
         mode = "n";
         desc = "Clear diagrams";
       }
       {
         key = "<leader>mh";
         lua = true;
-        action = "function() require('diagram').show_diagram_hover() end";
+        action = "function() require('lz.n').trigger_load('diagram.nvim'); require('diagram').show_diagram_hover() end";
         mode = "n";
         desc = "Diagram hover preview";
       }

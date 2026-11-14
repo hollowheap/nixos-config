@@ -41,7 +41,6 @@ in
 
       nvim-highlight-colors.enable = true;
       colorful-menu-nvim.enable = true;
-      illuminate.enable = true;
       modes-nvim.enable = true;
     };
 

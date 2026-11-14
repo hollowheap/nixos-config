@@ -13,15 +13,6 @@
           };
         };
       };
-      "highlight-undo.nvim" = {
-        lazy = false;
-        package = pkgs.vimPlugins.highlight-undo-nvim;
-        setupModule = "highlight-undo";
-        setupOpts = {
-          duration = 300;
-          hlgroup = "HighlightUndo";
-        };
-      };
     };
   };
 }

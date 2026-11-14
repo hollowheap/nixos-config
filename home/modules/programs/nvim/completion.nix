@@ -1,15 +1,25 @@
 {
+  lib,
   pkgs,
   ...
 }:
 {
   programs.nvf.settings.vim = {
+    luaConfigRC.blinkCompatPreload = lib.hm.dag.entryBefore [ "lazyConfigs" ] ''
+      package.preload["cmp"] = function()
+        return require("blink.compat")
+      end
+    '';
+
     lazy.plugins = {
       "blink.compat" = {
         lazy = false;
         package = pkgs.vimPlugins.blink-compat;
         setupModule = "blink.compat";
         setupOpts = { };
+      };
+      "supermaven-nvim" = {
+        event = [ "InsertEnter" ];
       };
     };
 
@@ -33,8 +43,13 @@
       supermaven-nvim = {
         enable = true;
         setupOpts = {
-          disable_keymaps = true;
+          disable_keymaps = false;
           disable_inline_completion = false;
+          keymaps = {
+            accept_suggestion = "<M-l>";
+            clear_suggestion = "<C-]>";
+            accept_word = "<M-w>";
+          };
         };
       };
     };
@@ -59,13 +74,13 @@
           ];
         };
         sources = {
-          default = [
+          default = lib.mkForce [
             "lsp"
             "path"
             "snippets"
             "buffer"
             "supermaven"
-            "avante"
+            "blink-cmp-avante"
           ];
           providers = {
             supermaven = {
@@ -73,11 +88,6 @@
               module = "blink.compat.source";
               score_offset = 100;
               async = true;
-            };
-            avante = {
-              module = "blink-cmp-avante";
-              name = "Avante";
-              opts = { };
             };
           };
         };
@@ -102,7 +112,6 @@
           module = "blink-cmp-avante";
           package = pkgs.vimPlugins.blink-cmp-avante;
         };
-
       };
     };
   };
