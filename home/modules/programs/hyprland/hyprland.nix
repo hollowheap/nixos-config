@@ -7,9 +7,9 @@
   inherit (builtins) concatLists genList;
   inherit (lib.generators) mkLuaInline;
   hypr = import ../../../lib/hyprland.nix {inherit config lib;};
-  inherit (hypr) mkArgs mkDsp mkDspExec mkLuaFn;
+  inherit (hypr) mkArgs mkDsp mkDspExec mkLuaFn mkTouchKeyboard;
 
-  touchKeyboard = "${pkgs.wvkbd-split}/bin/wvkbd-mobintl --landscape-layers landscape,landscapespecial --bg 00000000 -R 8 -L 280";
+  touchKeyboard = mkTouchKeyboard pkgs;
   touchCommands = {
     toggle-touch-keyboard = "pkill -SIGRTMIN wvkbd-mobintl || uwsm app -- ${touchKeyboard}";
     show-touch-keyboard = "pkill -USR2 wvkbd-mobintl || uwsm app -- ${touchKeyboard}";
@@ -66,6 +66,7 @@ in {
       [
         pkgs.hyprlandPlugins.hypr-dynamic-cursors
         pkgs.hyprlandPlugins.hyprglass
+        pkgs.hyprlandPlugins.hyprtasking
       ]
       ++ (
         if config.desktop.touch
@@ -79,6 +80,10 @@ in {
     settings = {
       colors = {
         _var = mkLuaInline ''          (function()
+                    local function to_argb(c, alpha)
+                      local hex = type(c) == "string" and c:match("(%x%x%x%x%x%x)") or "000000"
+                      return tonumber((alpha or "ff") .. hex, 16)
+                    end
                     local ok, m = pcall(require, "noctalia")
                     if ok and type(m) == "table" and type(m.colors) == "table" then
                       if type(m.apply_theme) == "function" then m.apply_theme() end
@@ -87,6 +92,9 @@ in {
                         inactive_border = m.colors.surface,
                         active_shadow = m.colors.surface,
                         inactive_shadow = m.colors.surface,
+                        bg_color = to_argb(m.colors.surface, "ff"),
+                        label_color = to_argb(m.colors.on_surface, "ff"),
+                        label_background = to_argb(m.colors.surface, "cc"),
                       }
                     end
                     return {
@@ -94,6 +102,9 @@ in {
                       inactive_border = "rgba(ffffff88)",
                       active_shadow = "rgba(000000ee)",
                       inactive_shadow = "rgba(000000aa)",
+                      bg_color = 0xff000000,
+                      label_color = 0xffffffff,
+                      label_background = 0xcc000000,
                     }
                   end)()'';
       };
@@ -164,11 +175,31 @@ in {
         )
         config.desktop.touchscreen.devices;
 
-      gesture = lib.mkIf config.desktop.touch [
+      gesture = [
         {
           fingers = 3;
           direction = "horizontal";
           action = "workspace";
+        }
+        {
+          fingers = 3;
+          direction = "up";
+          action = "fullscreen";
+        }
+        {
+          fingers = 3;
+          direction = "down";
+          action = "float";
+        }
+        {
+          fingers = 4;
+          direction = "horizontal";
+          action = "move";
+        }
+        {
+          fingers = 4;
+          direction = "down";
+          action = "close";
         }
       ];
 
@@ -226,6 +257,8 @@ in {
 
           border_size = 0;
           col = {
+            active_border = mkLuaInline "colors.active_border";
+            inactive_border = mkLuaInline "colors.inactive_border";
             nogroup_border = mkLuaInline "colors.inactive_border";
             nogroup_border_active = mkLuaInline "colors.active_border";
           };
@@ -328,25 +361,6 @@ in {
         };
       };
 
-      "plugin\.hyprglass\.config" = {
-        blur_strength = .5;
-        blur_iterations = 3;
-        lens_distortion = 1;
-        refraction_strength = 2;
-        chromatic_aberration = 0.9;
-        fresnel_strength = 1;
-        specular_strength = 1;
-        xray = true;
-        dark = {
-          brightness = 1;
-          adaptive_dim = .05;
-        };
-        light = {
-          brightness = 1;
-          adaptive_boost = .05;
-        };
-      };
-
       animation = mkArgs [
         {
           enabled = true;
@@ -405,5 +419,60 @@ in {
 
       window_rule = map mapWindowRule config.desktop.windowRules;
     };
+
+    # Guard plugin-specific Lua configuration so an unloaded or paused plugin
+    # cannot abort hyprland.lua before submaps and later rules are registered.
+    extraConfig = ''
+      if hl.plugin.hyprglass then
+        hl.plugin.hyprglass.config({
+          blur_strength = 0.5,
+          blur_iterations = 3,
+          lens_distortion = 1,
+          refraction_strength = 2,
+          chromatic_aberration = 0.9,
+          fresnel_strength = 1,
+          specular_strength = 1,
+          xray = true,
+          layers = { enabled = false },
+          dark = { brightness = 1, adaptive_dim = 0.05 },
+          light = { brightness = 1, adaptive_boost = 0.05 },
+        })
+      end
+
+      if hl.plugin.hyprtasking then
+        hl.config({
+          plugin = {
+            hyprtasking = {
+              layout = "linear",
+              bg_color = colors.bg_color,
+              gap_size = ${toString config.desktop.compositor.margin.inner},
+              border_size = 2,
+              exit_on_hovered = false,
+              warp_on_move_window = 1,
+              close_overview_on_reload = false,
+              jump = {
+                enabled = false,
+                label_color = colors.label_color,
+                label_background = colors.label_background,
+              },
+              gestures = {
+                enabled = true,
+                -- Disable 3-finger overview swipes so Hyprland's native 3-finger gestures remain intact.
+                move_fingers = 0,
+                open_fingers = 4,
+                open_distance = 300,
+                open_positive = true,
+              },
+              linear = {
+                top = false,
+                height = 300,
+                scroll_speed = 1.0,
+                blur = false,
+              },
+            },
+          },
+        })
+      end
+    '';
   };
 }

@@ -22,7 +22,7 @@ let
 
   # Recursively process directories into nested attrsets, and .nix files into packages
   processDir =
-    scope: dir:
+    scopeName: scope: dir:
     let
       dirContents = builtins.readDir dir;
 
@@ -47,15 +47,21 @@ let
           attrName = kebabToCamel name;
           subScope = scope.${attrName} or { };
           mergedSubScope = if builtins.isAttrs subScope then subScope else { };
-          subAttrSet = processDir mergedSubScope itemPath;
+          subAttrSet = processDir attrName mergedSubScope itemPath;
         in
         lib.nameValuePair attrName (mergedSubScope // subAttrSet)
       else
         let
           pkgName = lib.removeSuffix ".nix" name;
         in
-        lib.nameValuePair pkgName (pkgs.callPackage itemPath { })
+        lib.nameValuePair pkgName (
+          pkgs.callPackage itemPath (
+            lib.optionalAttrs (scopeName != null) {
+              ${scopeName} = scope;
+            }
+          )
+        )
     ) validItems;
 in
-processDir pkgs ./.
+processDir null pkgs ./.
 

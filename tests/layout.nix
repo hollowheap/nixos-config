@@ -15,7 +15,7 @@ pkgs.runCommand "check-layout" {
   test ! -e profiles/laptop/configuration.nix
 
   test -f roles/desktop/system/default.nix
-  test -f home/modules/programs/gui/pear-desktop.nix
+  test -f home/modules/programs/gui/zen-browser.nix
   test -f roles/server/system/default.nix
   test -f boot/grub.nix
   test -f boot/tpm.nix
@@ -28,7 +28,9 @@ pkgs.runCommand "check-layout" {
 
   test -f hosts/lacuna/hardware.nix
   test -f hosts/acervus/default.nix
+  test -f hosts/acervus/disko.nix
   test -f hosts/acervus/hardware-configuration.nix
+  rg -q './disko.nix' hosts/acervus/default.nix
   test -f nix-on-droid.nix
 
   test -f home/hollowheap.nix

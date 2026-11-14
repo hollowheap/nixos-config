@@ -1,9 +1,10 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   security.rtkit.enable = true;
 
   services = {
+    logind.settings.Login.HandlePowerKey = lib.mkDefault "ignore";
     printing.enable = true;
 
     avahi = {

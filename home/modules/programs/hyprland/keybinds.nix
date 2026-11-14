@@ -4,9 +4,10 @@ let
   inherit (builtins) concatLists genList;
   inherit (lib.trivial) mod;
   hypr = import ../../../lib/hyprland.nix { inherit config lib; };
-  inherit (hypr) mkArgs mkDsp mkDspExec mkLuaFn catalogBinds;
+  inherit (hypr) mkArgs mkDsp mkDspExec mkLuaFn catalogBinds mkTouchKeyboard;
   inherit (config) launchApp;
   act = name: mkDspExec config.desktop.actions.${name}.command;
+  touchKeyboard = mkTouchKeyboard pkgs;
 in
 {
   home.packages = [ pkgs.wvkbd-split ];
@@ -59,7 +60,40 @@ in
           ]
           [
             "SUPER + Q"
-            (mkDsp "window.close()")
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+                hl.plugin.hyprtasking.killhovered()
+              else
+                hl.dispatch(hl.dsp.window.close())
+              end
+            '')
+          ]
+          [
+            "SUPER + TAB"
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking then
+                hl.plugin.hyprtasking.toggle("cursor")
+              else
+                hl.dispatch(hl.dsp.focus({ workspace = "previous_per_monitor" }))
+              end
+            '')
+          ]
+          [
+            "SUPER + SHIFT + TAB"
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking then
+                hl.plugin.hyprtasking.toggle("all")
+              end
+            '')
+          ]
+          [
+            "escape"
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+                hl.plugin.hyprtasking.toggle("all")
+              end
+            '')
+            { non_consuming = true; }
           ]
           [
             "SUPER + mouse:272"
@@ -100,10 +134,6 @@ in
             (act "launcher")
           ]
           [
-            "SUPER + TAB"
-            (mkDsp "focus({ workspace = \"previous_per_monitor\" })")
-          ]
-          [
             "ALT + TAB"
             (act "window-switcher")
           ]
@@ -123,7 +153,13 @@ in
           ]
           [
             "SUPER + H"
-            (mkDsp "focus({ direction = \"l\" })")
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+                hl.plugin.hyprtasking.move("left")
+              else
+                hl.dispatch(hl.dsp.focus({ direction = "l" }))
+              end
+            '')
           ]
           [
             "SUPER + J"
@@ -135,7 +171,13 @@ in
           ]
           [
             "SUPER + L"
-            (mkDsp "focus({ direction = \"r\" })")
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+                hl.plugin.hyprtasking.move("right")
+              else
+                hl.dispatch(hl.dsp.focus({ direction = "r" }))
+              end
+            '')
           ]
 
           # Window swapping
@@ -150,7 +192,23 @@ in
           ]
           [
             "SUPER + SHIFT + H"
-            (mkDsp "window.swap({ direction = \"l\" })")
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+                hl.plugin.hyprtasking.movewindow("left")
+              else
+                hl.dispatch(hl.dsp.window.swap({ direction = "l" }))
+              end
+            '')
+          ]
+          [
+            "SUPER + CTRL + H"
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+                hl.plugin.hyprtasking.movewindow("left")
+              else
+                hl.dispatch(hl.dsp.window.move({ workspace = "r-1" }))
+              end
+            '')
           ]
           [
             "SUPER + SHIFT + J"
@@ -164,6 +222,16 @@ in
             "SUPER + SHIFT + L"
             (act "lock")
           ]
+          [
+            "SUPER + CTRL + L"
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+                hl.plugin.hyprtasking.movewindow("right")
+              else
+                hl.dispatch(hl.dsp.window.move({ workspace = "r+1" }))
+              end
+            '')
+          ]
 
           # Workspace navigation
           [
@@ -176,11 +244,23 @@ in
           ]
           [
             "SUPER + P"
-            (mkDsp "focus({ workspace = \"r-1\" })")
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+                hl.plugin.hyprtasking.move("left")
+              else
+                hl.dispatch(hl.dsp.focus({ workspace = "r-1" }))
+              end
+            '')
           ]
           [
             "SUPER + N"
-            (mkDsp "focus({ workspace = \"r+1\" })")
+            (mkLuaFn ''
+              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+                hl.plugin.hyprtasking.move("right")
+              else
+                hl.dispatch(hl.dsp.focus({ workspace = "r+1" }))
+              end
+            '')
           ]
 
           # Media and Brightness Keys
@@ -236,6 +316,10 @@ in
             (act "media-next")
             { locked = true; }
           ]
+          [
+            "XF86PowerOff"
+            (act "session")
+          ]
 
           # Other shortcuts
           [
@@ -267,7 +351,7 @@ in
           ]
           [
             "switch:on:Lenovo Yoga Tablet Mode Control switch"
-            (mkDspExec "pkill -USR2 wvkbd-mobintl || uwsm app -- ${pkgs.wvkbd-split}/bin/wvkbd-mobintl --landscape-layers landscape,landscapespecial --bg 00000000 -R 8 -L 280")
+            (mkDspExec "pkill -USR2 wvkbd-mobintl || uwsm app -- ${touchKeyboard}")
             { locked = true; }
           ]
           [

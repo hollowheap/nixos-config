@@ -32,6 +32,8 @@ hyprlandPlugins.mkHyprlandPlugin {
 
   dontUseCmakeConfigure = true;
 
+  env.NIX_CFLAGS_COMPILE = "-O3 -march=x86-64-v3 -flto=auto";
+
   installPhase = ''
     runHook preInstall
 

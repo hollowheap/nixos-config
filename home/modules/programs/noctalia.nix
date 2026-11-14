@@ -85,6 +85,7 @@
           fi
 
           hyprctl reload config-only 2>/dev/null || true
+          ${pkgs.procps}/bin/pkill wvkbd-mobintl 2>/dev/null || true
         fi
       ''}";
     };

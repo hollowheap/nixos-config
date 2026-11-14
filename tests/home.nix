@@ -16,7 +16,7 @@ pkgs.runCommand "check-home" {
 
   test -f home/hollowheap.nix
   test -f home/modules/programs/nvim/lsp.nix
-  rg -q "yamllint" home/modules/programs/nvim/lsp.nix
+  rg -q "yamllint" home/modules/core/toolchain.nix
   test -f pkgs/hollow-nv-colorscript.nix
   rg -q "hollow-nv-colorscript --animate" home/modules/programs/nvim/snacks.nix
   test -f home/modules/ai/options.nix
@@ -38,8 +38,8 @@ pkgs.runCommand "check-home" {
   ! test -e home/modules/core/env.nix
   test -f home/modules/programs/default-apps.nix
   test -f home/modules/programs/default-apps-options.nix
-  test -f home/modules/programs/gui/pear-desktop-options.nix
-  test -f home/modules/programs/gui/pear-desktop.nix
+  ! test -e home/modules/programs/gui/pear-desktop-options.nix
+  ! test -e home/modules/programs/gui/pear-desktop.nix
   test -f home/modules/programs/gaming/prismlauncher.nix
   test -f home/modules/programs/codex.nix
   test -f home/modules/cli/gpg.nix
@@ -66,9 +66,8 @@ pkgs.runCommand "check-home" {
   rg -q "inputs.opal.packages" home/modules/cli/utilities.nix
   rg -q "libnotify" home/modules/cli/utilities.nix
   rg -q "programs.claude-code" home/modules/programs/claude-code.nix
-  rg -q "hooks = claudeHooks" home/modules/programs/claude-code.nix
-  rg -q "web-dispatcher" home/modules/programs/default-apps.nix
-  rg -q "music.youtube.com" home/modules/programs/default-apps.nix
+  rg -q "renderGroupedHooks" home/modules/programs/claude-code.nix
+  rg -q "music.youtube.com" home/modules/programs/gui/zen-browser.nix
   rg -q "username = \"hollowheap\"" home/hollowheap.nix
   rg -q "desktop.touch = true" home/hollowheap.nix
   rg -q "readDir ../home" flake/default.nix
@@ -79,6 +78,7 @@ pkgs.runCommand "check-home" {
   rg -q "desktop.touchscreen" home/modules/environment/touch.nix
   rg -q "desktop.touchscreen.devices" home/modules/programs/hyprland/hyprland.nix
   rg -q "toggle-touch-keyboard" home/modules/environment/touch.nix
+  rg -q "fingers = 2;" home/modules/environment/touch.nix
   no_match -q "wvkbd" home/modules/environment/touch.nix
   no_match -q "LIBVA_DRIVER_NAME" home/modules/environment/session.nix
   rg -q "LIBVA_DRIVER_NAME" hardware/nvidia.nix
@@ -94,9 +94,10 @@ pkgs.runCommand "check-home" {
   no_match -q 'type = "clock"' home/modules/programs/pi-coding-agent.nix
   rg -q 'type = "version"' home/modules/programs/pi-coding-agent.nix
   no_match -q 'hollowpi-dashboard' home/modules/programs/pi-coding-agent.nix
-  rg -q 'wallust/sequences' pkgs/hollowpi-colorscript.nix
-  rg -q 'phase' pkgs/hollowpi-colorscript.nix
-  no_match -q '38;2;94;129;172' pkgs/hollowpi-colorscript.nix
+  rg -q 'wallust/sequences' pkgs/wallust-colorscript.py
+  rg -q 'phase' pkgs/wallust-colorscript.py
+  no_match -q '38;2;94;129;172' pkgs/hollowpi-colorscript.nix pkgs/hollowheap-colorscript.nix pkgs/wallust-colorscript.py
+  no_match -q '#000000|#ffffff|#e0e0e0|#2e2e2e' pkgs/wallust-colorscript.py
   rg -q 'menu no' home/modules/terminal/zsh.nix
   rg -q 'matcher-list' home/modules/terminal/zsh.nix
   rg -q -F '"$character"' home/modules/terminal/starship.nix
@@ -133,6 +134,12 @@ pkgs.runCommand "check-home" {
   rg -q 'theme.name = "wallust"' home/modules/programs/opencode.nix
   rg -q '.codex/themes/wallust.tmTheme' home/modules/programs/codex.nix
   no_match -q '.config/codex/themes' home/modules/programs/codex.nix
+  rg -q 'template = "claude-code.json"' home/modules/programs/claude-code.nix
+  rg -q 'theme = "custom:wallust"' home/modules/programs/claude-code.nix
+  test -f assets/wallust-templates/claude-code.json
+  rg -q -F '"claude": "{{color12}}"' assets/wallust-templates/claude-code.json
+  rg -q -F '"text": "#e0e0e0"' assets/wallust-templates/claude-code.json
+  rg -q -F '"userMessageBackground": "#1a1a1a"' assets/wallust-templates/claude-code.json
   rg -q 'template = "opencode.json"' home/modules/programs/opencode.nix
   test -f assets/wallust-templates/opencode.json
   rg -q -F '"syntaxKeyword": "{{color4}}"' assets/wallust-templates/opencode.json
@@ -141,11 +148,12 @@ pkgs.runCommand "check-home" {
   test -f assets/wallust-templates/fzf
   rg -q -F -- '--color=fg:#e0e0e0' assets/wallust-templates/fzf
   no_match -q '\{\{\s*color(7|8)\b' assets/wallust-templates
-  for template in bat.tmTheme btop.theme crush.json delta.gitconfig flavor.toml fzf ghostty lazygit.yml nvim-colors.lua opencode.json sequences; do
+  for template in bat.tmTheme btop.theme claude-code.json crush.json delta.gitconfig flavor.toml fzf ghostty lazygit.yml nvim-colors.lua opencode.json sequences; do
     test -f "assets/wallust-templates/$template"
   done
   rg -q 'template = "bat.tmTheme"' home/modules
   rg -q 'template = "btop.theme"' home/modules
+  rg -q 'template = "claude-code.json"' home/modules
   rg -q 'template = "crush.json"' home/modules
   rg -q 'template = "delta.gitconfig"' home/modules
   rg -q 'template = "flavor.toml"' home/modules

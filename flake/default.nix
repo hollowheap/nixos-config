@@ -40,9 +40,6 @@ let
               "github-copilot-cli"
               "kiro-cli"
               "kiro-cli-unwrapped"
-              "chromium"
-              "chromium-unwrapped"
-              "widevine-cdm"
             ];
         };
         overlays = [
@@ -52,7 +49,7 @@ let
       extraSpecialArgs = { inherit inputs; };
       modules = [
         inputs.zen-browser.homeModules.twilight
-        inputs.nvf.homeManagerModules.default
+        inputs.nvf.homeModules.default
         (../home + "/${name}.nix")
       ];
     }
@@ -70,6 +67,7 @@ let
         inputs.sops-nix.nixosModules.sops
         inputs.noctalia-greeter.nixosModules.default
         inputs.minecraft-plymouth-theme.nixosModules.default
+        inputs.double-minegrub-menu.nixosModules.default
         ../hosts/${name}/default.nix
         (hostConfig name)
       ];
@@ -109,6 +107,74 @@ let
 
   claudeAgentCount = builtins.length (builtins.attrNames home.config.ai.agents);
 
+  agentNameFromFile = file: inputs.nixpkgs.lib.removeSuffix ".md" (baseNameOf file);
+
+  claudeAgentFiles = inputs.nixpkgs.lib.filterAttrs (
+    name: _:
+    inputs.nixpkgs.lib.hasInfix "/.claude/agents/" name && inputs.nixpkgs.lib.hasSuffix ".md" name
+  ) home.config.home.file;
+
+  piAgentFiles = inputs.nixpkgs.lib.filterAttrs (
+    name: _:
+    inputs.nixpkgs.lib.hasInfix "${home.config.programs.pi-coding-agent.configDir}/agents/" name
+    && inputs.nixpkgs.lib.hasSuffix ".md" name
+  ) home.config.home.file;
+
+  claudeAgentChecks = inputs.nixpkgs.lib.mapAttrsToList (
+    file: entry:
+    let
+      name = agentNameFromFile file;
+      tier = home.config.ai.agents.${name}.tier;
+      model = home.config.ai.agents.${name}.models."claude-code"
+        or home.config.ai.tiers.${tier}.models."claude-code";
+    in
+    ''
+      test "$(head -n 1 "${entry.source}")" = "---"
+      sed -n '2p' "${entry.source}" | grep -Fq '"name":"${name}"'
+      sed -n '2p' "${entry.source}" | grep -Fq '"description":'
+      sed -n '2p' "${entry.source}" | grep -Fq '"model":"${model}"'
+      sed -n '2p' "${entry.source}" | grep -Fq '"omitClaudeMd":true'
+    ''
+  ) claudeAgentFiles;
+
+  piAgentChecks = inputs.nixpkgs.lib.mapAttrsToList (
+    file: entry:
+    let
+      name = agentNameFromFile file;
+      tier = home.config.ai.agents.${name}.tier;
+      model = home.config.ai.agents.${name}.models.pi or home.config.ai.tiers.${tier}.models.pi;
+    in
+    ''
+      test "$(head -n 1 "${entry.source}")" = "---"
+      grep -Fq 'name: ${name}' "${entry.source}"
+      grep -Fq 'model: ${model}' "${entry.source}"
+    ''
+  ) piAgentFiles;
+
+  checkAiRendered =
+    pkgs.runCommand "check-ai-rendered" {
+      nativeBuildInputs = [
+        pkgs.coreutils
+        pkgs.gnugrep
+        pkgs.gnused
+        pkgs.jq
+      ];
+    } ''
+      set -euo pipefail
+      ${inputs.nixpkgs.lib.concatStringsSep "\n" claudeAgentChecks}
+      ${inputs.nixpkgs.lib.concatStringsSep "\n" piAgentChecks}
+
+      hook="${home.config.ai.hooks.pre-tool.command}"
+      deny="$(printf '%s' '{"tool_name":"Bash","tool_input":{"command":"git commit --no-verify -m x"}}' | "$hook" --format claude-json)"
+      printf '%s' "$deny" | jq -e '.hookSpecificOutput.hookEventName == "PreToolUse"' >/dev/null
+      printf '%s' "$deny" | jq -e '.hookSpecificOutput.permissionDecision == "deny"' >/dev/null
+      printf '%s' "$deny" | jq -e '.hookSpecificOutput.permissionDecisionReason | length > 0' >/dev/null
+
+      allow="$(printf '%s' '{"tool_name":"Read","tool_input":{}}' | "$hook" --format claude-json)"
+      test -z "$allow"
+      touch $out
+    '';
+
   checkSkillsRendered =
     pkgs.runCommand "check-skills-rendered" {      nativeBuildInputs = [ pkgs.ripgrep ];
     } ''
@@ -142,6 +208,11 @@ let
     pkgs = import inputs.nixpkgs-unstable { system = "aarch64-linux"; };
     modules = [ ../nix-on-droid.nix ];
   };
+
+  luksEnrollPkg = pkgs.callPackage ../pkgs/luks-enroll.nix { };
+  installHostPkg = pkgs.callPackage ../pkgs/install-host.nix {
+    disko = inputs.disko.packages.x86_64-linux.disko;
+  };
 in
 {
   nixosConfigurations = osConfigurations;
@@ -150,10 +221,27 @@ in
 
   inherit homeConfigurations;
 
+  packages.x86_64-linux = {
+    install-host = installHostPkg;
+    luks-enroll = luksEnrollPkg;
+  };
+
+  apps.x86_64-linux = {
+    install = {
+      type = "app";
+      program = "${installHostPkg}/bin/install-host";
+    };
+    luks-enroll = {
+      type = "app";
+      program = "${luksEnrollPkg}/bin/luks-enroll";
+    };
+  };
+
   checks.x86_64-linux = (import ../tests {
     inherit pkgs;
     src = inputs.self;
   }) // {
+    ai-rendered = checkAiRendered;
     skills-rendered = checkSkillsRendered;
   };
 

@@ -46,15 +46,7 @@ in
         {
           pattern = {
             kind = "swipe";
-            fingers = 3;
-            direction = "vertical";
-          };
-          action = "workspace";
-        }
-        {
-          pattern = {
-            kind = "swipe";
-            fingers = 3;
+            fingers = 2;
             direction = "horizontal";
           };
           action = "workspace";
@@ -62,7 +54,7 @@ in
         {
           pattern = {
             kind = "swipe";
-            fingers = 4;
+            fingers = 2;
             direction = "up";
           };
           action = "fullscreen";
@@ -70,10 +62,34 @@ in
         {
           pattern = {
             kind = "swipe";
-            fingers = 4;
+            fingers = 2;
             direction = "down";
           };
           action = "float";
+        }
+        {
+          pattern = {
+            kind = "swipe";
+            fingers = 3;
+            direction = "horizontal";
+          };
+          action = "move";
+        }
+        {
+          pattern = {
+            kind = "swipe";
+            fingers = 3;
+            direction = "down";
+          };
+          action = "close";
+        }
+        {
+          pattern = {
+            kind = "swipe";
+            fingers = 3;
+            direction = "up";
+          };
+          action = "window-switcher";
         }
         {
           pattern = {
@@ -82,6 +98,22 @@ in
             direction = "down";
           };
           action = "launcher";
+        }
+        {
+          pattern = {
+            kind = "edge";
+            origin = "left";
+            direction = "right";
+          };
+          action = "window-switcher";
+        }
+        {
+          pattern = {
+            kind = "edge";
+            origin = "right";
+            direction = "left";
+          };
+          action = "session";
         }
       ];
       description = "Abstract touch gestures consumed by the compositor.";
@@ -93,15 +125,15 @@ in
         {
           pattern = {
             kind = "edge";
-            origin = "d";
-            direction = "u";
+            origin = "down";
+            direction = "up";
           };
           action = "toggle-touch-keyboard";
         }
         {
           pattern = {
             kind = "longpress";
-            fingers = 3;
+            fingers = 2;
           };
           action = {
             dispatcher = "window.drag()";
@@ -113,9 +145,7 @@ in
             kind = "tap";
             fingers = 3;
           };
-          action = {
-            dispatcher = "window.float()";
-          };
+          action = "toggle-touch-keyboard";
         }
       ];
       description = "Abstract touch binds consumed by the compositor.";

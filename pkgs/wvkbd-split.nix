@@ -1,26 +1,16 @@
 { wvkbd, python3 }:
 wvkbd.overrideAttrs (old: {
   nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ python3 ];
+  env = (old.env or { }) // {
+    NIX_CFLAGS_COMPILE = "-O3 -march=x86-64-v3 -flto=auto";
+  };
   postPatch = (old.postPatch or "") + ''
     python3 - <<'EOF'
 with open("main.c", "r") as f:
     mc = f.read()
-mc = mc.replace("static struct wl_compositor *compositor;", "struct wl_compositor *compositor;", 1)
-mc = mc.replace(
-    "static uint32_t anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM |\n                         ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |\n                         ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT;",
-    "static uint32_t anchor = ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM;",
-    1,
-)
-mc = mc.replace(
-    "keyboard.w = available_width;",
-    "keyboard.w = (uint32_t)(available_width * 0.85);",
-    1,
-)
-mc = mc.replace(
-    "zwlr_layer_surface_v1_set_size(layer_surface, 0, height);",
-    "zwlr_layer_surface_v1_set_size(layer_surface, keyboard.w, height);",
-    1,
-)
+old_comp = "static struct wl_compositor *compositor;"
+assert old_comp in mc, "compositor declaration not found in main.c"
+mc = mc.replace(old_comp, "struct wl_compositor *compositor;", 1)
 with open("main.c", "w") as f:
     f.write(mc)
 
@@ -78,7 +68,7 @@ split_landscape = """static struct key keys_landscape[] = {
   {"3", "#", 1.0, Code, KEY_3},
   {"4", "$", 1.0, Code, KEY_4},
   {"5", "%", 1.0, Code, KEY_5},
-  {"", "", 2.0, Pad},
+  {"", "", 14.0, Pad},
   {"6", "^", 1.0, Code, KEY_6},
   {"7", "&", 1.0, Code, KEY_7},
   {"8", "*", 1.0, Code, KEY_8},
@@ -93,7 +83,7 @@ split_landscape = """static struct key keys_landscape[] = {
   {"e", "E", 1.0, Code, KEY_E, &layouts[ComposeE]},
   {"r", "R", 1.0, Code, KEY_R, &layouts[ComposeR]},
   {"t", "T", 1.0, Code, KEY_T, &layouts[ComposeT]},
-  {"", "", 2.0, Pad},
+  {"", "", 14.0, Pad},
   {"y", "Y", 1.0, Code, KEY_Y, &layouts[ComposeY]},
   {"u", "U", 1.0, Code, KEY_U, &layouts[ComposeU]},
   {"i", "I", 1.0, Code, KEY_I, &layouts[ComposeI]},
@@ -108,7 +98,7 @@ split_landscape = """static struct key keys_landscape[] = {
   {"d", "D", 1.0, Code, KEY_D, &layouts[ComposeD]},
   {"f", "F", 1.0, Code, KEY_F, &layouts[ComposeF]},
   {"g", "G", 1.0, Code, KEY_G, &layouts[ComposeG]},
-  {"", "", 2.0, Pad},
+  {"", "", 14.0, Pad},
   {"h", "H", 1.0, Code, KEY_H, &layouts[ComposeH]},
   {"j", "J", 1.0, Code, KEY_J, &layouts[ComposeJ]},
   {"k", "K", 1.0, Code, KEY_K, &layouts[ComposeK]},
@@ -123,7 +113,7 @@ split_landscape = """static struct key keys_landscape[] = {
   {"c", "C", 1.0, Code, KEY_C, &layouts[ComposeC]},
   {"v", "V", 1.0, Code, KEY_V, &layouts[ComposeV]},
   {"b", "B", 1.0, Code, KEY_B, &layouts[ComposeB]},
-  {"", "", 2.0, Pad},
+  {"", "", 14.0, Pad},
   {"n", "N", 1.0, Code, KEY_N, &layouts[ComposeN]},
   {"m", "M", 1.0, Code, KEY_M, &layouts[ComposeM]},
   {",", "<", 1.0, Code, KEY_COMMA, &layouts[ComposeMath]},
@@ -137,7 +127,7 @@ split_landscape = """static struct key keys_landscape[] = {
   {"Alt", "Alt", 1.0, Mod, Alt, .scheme = 1},
   {"Cmp", "Cmp", 1.0, Compose, .scheme = 1},
   {"", "Tab", 2.0, Code, KEY_SPACE},
-  {"", "", 2.0, Pad},
+  {"", "", 14.0, Pad},
   {"", "Tab", 2.0, Code, KEY_SPACE},
   {"←", "←", 1.0, Code, KEY_LEFT, .scheme = 1},
   {"↓", "↓", 1.0, Code, KEY_DOWN, .scheme = 1},
@@ -155,7 +145,7 @@ static struct key keys_landscape_special[] = {
   {"3", "#", 1.0, Code, KEY_3},
   {"4", "$", 1.0, Code, KEY_4},
   {"5", "%", 1.0, Code, KEY_5},
-  {"", "", 2.0, Pad},
+  {"", "", 14.0, Pad},
   {"6", "^", 1.0, Code, KEY_6},
   {"7", "&", 1.0, Code, KEY_7},
   {"8", "*", 1.0, Code, KEY_8},
@@ -170,7 +160,7 @@ static struct key keys_landscape_special[] = {
   {"-", "_", 1.0, Code, KEY_MINUS},
   {"=", "+", 1.0, Code, KEY_EQUAL},
   {"🙂", "🙂", 1.0, Layout, 0, &layouts[Emoji]},
-  {"", "", 2.0, Pad},
+  {"", "", 14.0, Pad},
   {"[", "{", 1.0, Code, KEY_LEFTBRACE},
   {"]", "}", 1.0, Code, KEY_RIGHTBRACE},
   {"\\\\", "|", 1.0, Code, KEY_BACKSLASH},
@@ -185,7 +175,7 @@ static struct key keys_landscape_special[] = {
   {"⇊", "⇊", 1.0, Code, KEY_PAGEDOWN, .scheme = 1},
   {"⇥", "⇥", 1.0, Code, KEY_END, .scheme = 1},
   {"CpL", "CpL", 1.0, Mod, CapsLock, .scheme = 1},
-  {"", "", 2.0, Pad},
+  {"", "", 14.0, Pad},
   {"<", "«", 1.0, Code, KEY_COMMA, 0, AltGr},
   {">", "»", 1.0, Code, KEY_DOT, 0, AltGr},
   {",", "'", 1.0, Code, KEY_COMMA, &layouts[ComposeMath]},
@@ -199,7 +189,7 @@ static struct key keys_landscape_special[] = {
   {"Sup", "Sup", 1.0, Mod, Super, .scheme = 1},
   {"Alt", "Alt", 1.0, Mod, Alt, .scheme = 1},
   {"", "Tab", 2.0, Code, KEY_SPACE},
-  {"", "", 2.0, Pad},
+  {"", "", 14.0, Pad},
   {"", "Tab", 2.0, Code, KEY_SPACE},
   {"AGr", "AGr", 1.0, Mod, AltGr, .scheme = 1},
   {"←", "←", 1.0, Code, KEY_LEFT, .scheme = 1},
