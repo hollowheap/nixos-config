@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, inputs, lib, pkgs, ... }:
 let
   mkLockedAttrs = builtins.mapAttrs (
     _: value: {
@@ -6,6 +6,14 @@ let
       Status = "locked";
     }
   );
+
+  vanillaZen = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.twilight;
+
+  zenDebug = pkgs.writeShellScriptBin "zen-debug" ''
+    profile_dir="''${XDG_CACHE_HOME:-$HOME/.cache}/zen-debug-profile"
+    mkdir -p "$profile_dir"
+    exec ${vanillaZen}/bin/zen-twilight --no-remote --profile "$profile_dir" "$@"
+  '';
 in
 {
   desktop.windowRules = [
@@ -79,11 +87,20 @@ in
       Homepage = "none";
       FirefoxHome = false;
       DisablePocket = true;
+      DisableFirefoxAccounts = true;
+      DisableProfileImport = true;
       DontCheckDefaultBrowser = true;
       DisableAppUpdate = true;
       NoDefaultBookmarks = true;
       OverrideFirstRunPage = "";
       OverridePostUpdatePage = "";
+
+      FirefoxSuggest = {
+        WebSuggestions = false;
+        SponsoredSuggestions = false;
+        ImproveSuggest = false;
+        Locked = true;
+      };
 
       # Noise & popup suppression
       UserMessaging = {
@@ -137,18 +154,32 @@ in
             "Description" = "Search Wikipedia";
           }
           {
-            "Name" = "MDN";
-            "URLTemplate" = "https://developer.mozilla.org/en-US/search?q={searchTerms}";
-            "IconURL" = "https://developer.mozilla.org/favicon.ico";
-            "Alias" = "@mdn";
-            "Description" = "Search MDN Web Docs";
+            "Name" = "MyNixOS";
+            "URLTemplate" = "https://mynixos.com/search?q={searchTerms}";
+            "IconURL" = "https://mynixos.com/favicon.ico";
+            "Alias" = "@mn";
+            "Description" = "Search NixOS, Nixpkgs, and Home Manager";
           }
           {
-            "Name" = "Stack Overflow";
-            "URLTemplate" = "https://stackoverflow.com/search?q={searchTerms}";
-            "IconURL" = "https://stackoverflow.com/favicon.ico";
-            "Alias" = "@so";
-            "Description" = "Search Stack Overflow";
+            "Name" = "Noogle";
+            "URLTemplate" = "https://noogle.dev/q?term={searchTerms}";
+            "IconURL" = "https://noogle.dev/favicon.png";
+            "Alias" = "@ng";
+            "Description" = "Search Nix library functions";
+          }
+          {
+            "Name" = "Hugging Face";
+            "URLTemplate" = "https://huggingface.co/search/full-text?q={searchTerms}";
+            "IconURL" = "https://huggingface.co/favicon.ico";
+            "Alias" = "@hf";
+            "Description" = "Search Hugging Face models, datasets, and papers";
+          }
+          {
+            "Name" = "Google Scholar";
+            "URLTemplate" = "https://scholar.google.com/scholar?q={searchTerms}";
+            "IconURL" = "https://scholar.google.com/favicon.ico";
+            "Alias" = "@gs";
+            "Description" = "Search academic papers on Google Scholar";
           }
         ];
         Remove = [
@@ -172,8 +203,7 @@ in
             "uBlock0@raymondhill.net" = "ublock-origin";
             "{762f9885-5a13-4abd-9c77-433dcd38b8fd}" = "return-youtube-dislikes";
             "enhancerforyoutube@maximerf.addons.mozilla.org" = "enhanced-for-youtube";
-            "gdpr@cavi.au.dk" = "consent-o-matic";
-            "{91aa3897-2634-4a8a-9092-279db23a7689}" = "zen-internet";
+            "addon@darkreader.org" = "darkreader";
             "{446900e4-71c2-419f-a6a7-df9c091e268b}" = "bitwarden-password-manager";
           };
 
@@ -185,17 +215,13 @@ in
         "browser.fixup.alternate.enabled" = false;
         "browser.sessionstore.interval" = 60000;
         "browser.helperApps.deleteTempFileOnExit" = true;
+        "browser.download.manager.addToRecentDocs" = false;
+        "middlemouse.contentLoadURL" = false;
+        "dom.popup_allowed_events" = "click dblclick mousedown pointerdown";
 
-        # --- URL Bar & Suggestions (Hybrid: Local First + Live Search, Zero Ads/Telemetry) ---
-        "browser.search.suggest.enabled" = true;
-        "browser.urlbar.suggest.searches" = true;
+        # --- URL Bar & Suggestions (Local First, Zero Ads/Telemetry) ---
         "browser.urlbar.showSearchSuggestionsFirst" = false;
-        "browser.urlbar.suggest.history" = true;
-        "browser.urlbar.suggest.bookmark" = true;
-        "browser.urlbar.suggest.openpage" = true;
         "browser.urlbar.suggest.topsites" = false;
-        "browser.urlbar.suggest.quicksuggest.sponsored" = false;
-        "browser.urlbar.suggest.quicksuggest.nonsponsored" = false;
         "browser.urlbar.trending.featureGate" = false;
         "browser.urlbar.addons.featureGate" = false;
         "browser.urlbar.mdn.featureGate" = false;
@@ -230,18 +256,27 @@ in
 
         # --- Telemetry & Diagnostics ---
         "beacon.enabled" = false;
+        "dom.private-attribution.submission.enabled" = false;
+        "browser.search.serpEventTelemetryCategorization.enabled" = false;
+        "browser.places.interactions.enabled" = false;
 
         # --- Safe Browsing (Preserve local blocklists, disable remote download telemetry) ---
         "browser.safebrowsing.downloads.remote.enabled" = false;
 
-        # --- Certificates & Revocation (CRLite enforcing mode) ---
+        # --- Certificates, TLS & Revocation (CRLite enforcing mode) ---
         "security.pki.crlite_mode" = 2;
         "security.remote_settings.crlite_filters.enabled" = true;
+        "security.ssl.require_safe_negotiation" = true;
+        "security.tls.enable_0rtt_data" = false;
+        "security.cert_pinning.enforcement_level" = 2;
+        "dom.security.https_only_mode_send_http_background_request" = false;
 
-        # --- Geolocation Shunts ---
+        # --- Geolocation & Permission Shunts ---
         "geo.provider.use_gpsd" = false;
         "geo.provider.use_geoclue" = false;
         "permissions.default.geo" = 2;
+        "permissions.default.desktop-notification" = 2;
+        "permissions.default.xr" = 2;
         "browser.region.network.url" = "";
         "browser.region.update.enabled" = false;
 
@@ -268,7 +303,6 @@ in
     profiles."default" = {
       settings = {
         "browser.ctrlTab.sortByRecentlyUsed" = true;
-        "browser.tabs.hoverPreview.enabled" = true;
 
         # Devtools UI States
         "devtools.everOpened" = true;
@@ -279,11 +313,7 @@ in
         "browser.ml.chat.sidebar" = true;
         "browser.ml.chat.provider" = "https://gemini.google.com";
 
-        "browser.tabs.allow_transparent_browser" = true;
-
-        "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-
-        # Zen Layout Options
+        # Zen Layout Options (non-default overrides only)
         "zen.tabs.show-newtab-vertical" = false;
         "zen.tabs.ctrl-tab.ignore-essential-tabs" = true;
         "zen.tabs.ctrl-tab.ignore-pending-tabs" = true;
@@ -291,13 +321,8 @@ in
         "zen.view.compact.enable-at-startup" = true;
         "zen.view.compact.hide-toolbar" = true;
         "zen.view.compact.flash-toolbar-popup" = true;
-        "zen.view.use-single-toolbar" = true;
-        "zen.urlbar.behavior" = "float";
         "zen.pinned-tab-manager.restore-pinned-tabs-to-pinned-url" = true;
         "zen.welcome-screen.seen" = true;
-        "zen.workspaces.continue-where-left-off" = true;
-        "zen.workspaces.force-container-workspace" = true;
-        "zen.workspaces.separate-essentials" = false;
 
         "nebula-turn-off-zen-menu-icon" = true;
       };
@@ -310,6 +335,20 @@ in
         {
           id = "key_quitApplication";
           disabled = true;
+        }
+        {
+          id = "zen-workspace-backward";
+          key = "[";
+          modifiers = {
+            alt = true;
+          };
+        }
+        {
+          id = "zen-workspace-forward";
+          key = "]";
+          modifiers = {
+            alt = true;
+          };
         }
       ]
       ++ (builtins.genList (
@@ -325,8 +364,7 @@ in
             alt = true;
           };
         }
-      ) 8);
-      keyboardShortcutsVersion = 21;
+      ) 4);
 
       containersForce = true;
       containers = {
@@ -469,6 +507,13 @@ in
                 isEssential = true;
                 container = containers.Entertainment.id;
               };
+              "YouTube Music" = {
+                url = "https://music.youtube.com";
+                id = pinUuid 6;
+                position = 410;
+                isEssential = true;
+                container = containers.Entertainment.id;
+              };
             };
             routes = {
               "youtube" = {
@@ -479,6 +524,9 @@ in
               };
               "youtube-short" = {
                 reference = "youtu.be";
+              };
+              "youtube-music" = {
+                reference = "music.youtube.com";
               };
             };
           };
@@ -527,6 +575,21 @@ in
         ];
       };
     };
+  };
+
+  home.packages = [ zenDebug ];
+
+  xdg.desktopEntries.zen-debug = {
+    name = "Zen Browser (Debug)";
+    comment = "Un-hardened, extension-free Zen Browser profile for web debugging";
+    exec = "${zenDebug}/bin/zen-debug %U";
+    icon = "zen-twilight";
+    terminal = false;
+    categories = [
+      "Network"
+      "WebBrowser"
+      "Development"
+    ];
   };
 
   # zen-browser-flake sorts .tabs/.folders/.groups by .index but leaves .spaces in Nix attrset (alphabetical) order.

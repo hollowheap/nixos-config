@@ -16,9 +16,7 @@
   home.packages = with pkgs; [
     nautilus
     libreoffice
-    pear-desktop
     telegram-desktop
-    (chromium.override { enableWideVine = true; })
     gnome-text-editor
     mpv
     loupe
