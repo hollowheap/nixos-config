@@ -24,14 +24,18 @@ pkgs.runCommand "check-boot" {
   rg -q 'min-free = "5G"' modules/system/nix.nix
 
   rg -q 'sbctl' modules/system/packages.nix
-  rg -q 'c10fd20713db2f002645a4c709b153964cac77cd' pkgs/double-minegrub-menu.nix
-  rg -q -F '[ -f /theme/mainmenu.cfg ]' boot/minegrub.nix
+  rg -q 'double-minegrub-menu.nixosModules.default' flake/default.nix
+  rg -q 'enable = true;' boot/minegrub.nix
+  test ! -e pkgs/double-minegrub-menu.nix
 
   no_match -q 'shell_on_fail' boot/kernel.nix
   no_match -q 'rd.udev.log_level' boot/kernel.nix
   no_match -q 'initrd.verbose' boot/kernel.nix
   no_match -q 'dm-snapshot' boot/tpm.nix
   no_match -q 'tpm_tis' boot/tpm.nix
+  rg -q '/var/lib/sbctl/keys/db/db.key' boot/secure-boot.nix
+  test -f pkgs/install-host.nix
+  test -f pkgs/luks-enroll.nix
 
   touch $out
 ''
