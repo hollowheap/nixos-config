@@ -174,6 +174,14 @@ let
           (lib.filesystem.listFilesRecursive dir)
       );
 
+  parseAgents =
+    raw:
+    builtins.filter (s: s != "") (
+      map lib.trim (
+        lib.splitString "," (builtins.replaceStrings [ "[" "]" "\"" "'" ] [ "" "" "" "" ] raw)
+      )
+    );
+
   readSkill = name:
     let
       dir = src + "/${name}";
@@ -185,10 +193,16 @@ let
       content = lib.trim fm.body;
       references = readReferenceFiles (dir + "/references");
       scripts = readTextFiles (dir + "/scripts");
-      agents = meta.agents or [
-        "engineer"
-        "worker"
-      ];
+      agents =
+        meta.agents or (
+          if fm.data ? agents then
+            parseAgents fm.data.agents
+          else
+            [
+              "engineer"
+              "worker"
+            ]
+        );
       disableModelInvocation =
         meta.disableModelInvocation or (fm.data."disable-model-invocation" or "true") == "true";
     };

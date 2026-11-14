@@ -34,7 +34,7 @@ NixOS flake for `lacuna` and `acervus`, plus a `fovea` nix-on-droid output. The 
 - Modules must stay hardware- and profile-agnostic; imports express capability and duty, never `config.profile` checks.
 - Backend daemons bind loopback or mesh IPs; expose traffic only through Caddy.
 - Verify with a dry-build before switching.
-- The double-minegrub `configfile`/`/theme` path hack in `boot/minegrub.nix` and `pkgs/double-minegrub-menu.nix` is required for the dual-page GRUB menu. Keep the theme path and `mainmenu.cfg` in sync, pin theme sources to a commit, and dry-build before switching.
+- The double-minegrub GRUB menu uses the upstream `double-minegrub-menu` flake input (`nixosModules.default`) configured in `boot/minegrub.nix`; dry-build before switching, and ensure `config_file=mainmenu.cfg` is set in `grubenv`.
 - Declarative TDD: assert module behavior in `tests/<domain>.nix` or `nix eval` first, implement minimal wiring, and verify.
 - Flake eval hygiene: stage untracked files with `git add -N` before running flake checks or evaluations.
-- Skill bodies live in `skills/` (nix-specific base) and in external inputs: `iridescent` (lifecycle), `docmd`, and `opal`; `home/lib/skill-metadata.nix` owns harness metadata, and `lib/ai-skills.nix` merges the external sources with local overrides last.
+- Skill bodies and metadata (`SKILL.md` YAML frontmatter: `name`, `description`, `disable-model-invocation`, `agents`) live in `skills/` and in external inputs (`iridescent`, `docmd`, `opal`); `lib/ai-skills.nix` merges the external sources with local overrides last.
