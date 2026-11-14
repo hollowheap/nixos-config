@@ -24,19 +24,10 @@ let
   mkAgent =
     _name: agent:
     # Copilot CLI currently exposes only `auto`; leave model and effort unset.
-    let
-      frontmatter = lib.generators.toYAML { } {
-        inherit (agent) description;
-        tools = copilotToolsFor agent;
-      };
-    in
-    ''
-      ---
-      ${lib.removeSuffix "\n" frontmatter}
-      ---
-
-      ${aiRender.agentBodyFor agent}
-    '';
+    aiRender.mkMarkdownDoc {
+      inherit (agent) description;
+      tools = copilotToolsFor agent;
+    } (aiRender.agentBodyFor agent);
 
   mkSkill = aiRender.mkSkillDir {
     prefix = "copilot";

@@ -63,7 +63,6 @@
         "design"
         "specify"
         "plan"
-        "modular-design"
       ];
       prompt = "Systems architect: explore trade-offs, formalize RDST artifacts, and design technical solutions. Delegate recon to Scout and research to Researcher; never write application code.";
     };
@@ -101,9 +100,7 @@
         "plan"
         "implement"
         "review"
-        "git-commit"
-        "merge-worktree"
-        "modular-design"
+        "ship-changes"
       ];
       prompt = "Software engineer: implement vertical tasks, refactor code, and verify with tests. Keep context minimal: delegate recon to Scout, research to Researcher, and diff review to Code Reviewer.";
     };
@@ -136,9 +133,7 @@
       skills = [
         "implement"
         "review"
-        "git-commit"
-        "merge-worktree"
-        "modular-design"
+        "ship-changes"
       ];
       prompt = "Task executor: implement one assigned task in an isolated worktree and verify. Delegate recon to Scout, research to Researcher, and review to Code Reviewer. Rebase linearly with signed commits; zero design work.";
     };

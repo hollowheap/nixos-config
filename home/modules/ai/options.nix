@@ -331,6 +331,7 @@ in {
             "claude-code" = "opus";
             antigravity = "Gemini 4 Argon (Medium)";
             crush = "deepseek-v4.1-flash";
+            pi = "opencode-go/deepseek-v4.1-flash";
           };
           efforts = {
             codex = "xhigh";
@@ -347,8 +348,9 @@ in {
             codex = "gpt-6-luna";
             kiro = "claude-haiku-5.5";
             "claude-code" = "sonnet";
-            antigravity = "Gemini 3.8 Flash (High)";
+            antigravity = "Gemini 4 Hydrogen (High)";
             crush = "deepseek-v4.1-flash";
+            pi = "opencode-go/deepseek-v4.1-flash";
           };
           efforts = {
             codex = "xhigh";
@@ -365,8 +367,9 @@ in {
             codex = "gpt-6-luna";
             kiro = "claude-haiku-5.5";
             "claude-code" = "haiku";
-            antigravity = "Gemini 3.8 Flash (High)";
+            antigravity = "Gemini 4 Hydrogen (High)";
             crush = "beam-free";
+            pi = "opencode-go/beam-free";
           };
           efforts = {
             codex = "xhigh";
@@ -406,6 +409,11 @@ in {
             type = nullOr str;
             default = null;
             description = "Optional tool matcher; null matches all tools.";
+          };
+          matchers = mkOption {
+            type = attrsOf str;
+            default = {};
+            description = "Per-harness tool matcher overrides keyed by harness name.";
           };
           timeout = mkOption {
             type = int;
@@ -448,6 +456,20 @@ in {
         ];
         description = "Harness-neutral command patterns denied for write-capable agents; renderers translate to native permission rules.";
       };
+      scoutAllow = mkOption {
+        type = listOf str;
+        default = [
+          "repomap*"
+          "rg*"
+          "fd*"
+          "nix eval*"
+          "nix flake show*"
+          "git status*"
+          "git log*"
+          "git diff*"
+        ];
+        description = "Read-only shell command patterns permitted for the Scout subagent across harnesses.";
+      };
     };
 
     agents = mkOption {
@@ -482,7 +504,27 @@ in {
 
   config.programs.mcp.enable = true;
   config.ai.render = rec {
-    inherit (aiRenderBase) hookCommandLine mkSkillDir renderSkillInvocation;
+    inherit
+      (aiRenderBase)
+      hookCommandLine
+      hooksFor
+      matcherFor
+      mkMarkdownDoc
+      mkSkillDir
+      mkSkillFileEntries
+      renderCrushRcHooks
+      renderGroupedHooks
+      renderKiroHooks
+      renderOpencodeHooks
+      renderSkillInvocation
+      slugToTitle
+      ;
+
+    tierModelFor = harness: tierName:
+      cfg.tiers.${tierName}.models.${harness} or cfg.tiers.${tierName}.model;
+
+    tierEffortFor = harness: tierName:
+      cfg.tiers.${tierName}.efforts.${harness} or cfg.tiers.${tierName}.effort;
 
     capabilityNames = [
       "read"
@@ -513,12 +555,13 @@ in {
         nonEmpty
       );
 
-    renderDisciplines = disciplines:
+    renderDisciplinesWith = dropDisciplineRules: disciplines:
       concatStringsSep "\n" (
         filter (s: s != "") (
           mapAttrsToList (
-            _name: d: let
-              kept = filterAttrs (_: text: text != null) d.rules;
+            name: d: let
+              droppedKeys = dropDisciplineRules.${name} or [];
+              kept = filterAttrs (ruleName: text: text != null && !(builtins.elem ruleName droppedKeys)) d.rules;
             in
               concatStringsSep "\n" (
                 filter (s: s != "") (map formatRuleLines (lib.attrValues kept))
@@ -527,6 +570,8 @@ in {
           disciplines
         )
       );
+
+    renderDisciplines = renderDisciplinesWith {};
 
     renderRules = rules:
       concatStringsSep "\n" (
@@ -563,27 +608,33 @@ in {
       then null
       else eff;
 
-    agentBodyFor = agent: let
+    agentBodyForWith = {
+      dropDisciplines ? [],
+      dropDisciplineRules ? {},
+      dropRules ? [],
+    }: agent: let
       agentPrompt =
         if agent.prompt != ""
         then agent.prompt
         else agent.instructions;
-      agentDrops = agent.dropDisciplines or [];
+      agentDrops = (agent.dropDisciplines or []) ++ dropDisciplines;
       matchingDisciplines =
         filterAttrs (
           name: d: d.target == agent.role && !(builtins.elem name agentDrops)
         )
         cfg.disciplines;
-      disciplinesBlock = renderDisciplines matchingDisciplines;
-      matchedRules = agentRules agent;
+      disciplinesBlock = renderDisciplinesWith dropDisciplineRules matchingDisciplines;
+      matchedRules = builtins.filter (rule: !(builtins.elem rule.name dropRules)) (agentRules agent);
       rulesBlock = renderRules matchedRules;
       sections = filter (s: s != "") [
-        (lib.trim agentPrompt)
         disciplinesBlock
         rulesBlock
+        (lib.trim agentPrompt)
       ];
     in
       concatStringsSep "\n\n" sections;
+
+    agentBodyFor = agentBodyForWith {};
   };
 
   config.assertions =

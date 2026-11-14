@@ -5,62 +5,11 @@
   ...
 }:
 let
-  inherit (lib) mkIf mapAttrsToList optionals concatStringsSep optionalAttrs;
+  inherit (lib) mkIf mapAttrsToList optionals optionalAttrs;
 
   aiRender = config.ai.render;
-  renderSkill = aiRender.renderSkillInvocation { skills = config.ai.skills; };
-
-  slugToTitle =
-    slug:
-    let
-      words = lib.splitString "-" slug;
-      capitalize =
-        w:
-        let
-          len = builtins.stringLength w;
-        in
-        if len == 0 then
-          ""
-        else
-          lib.toUpper (builtins.substring 0 1 w) + builtins.substring 1 (len - 1) w;
-    in
-    concatStringsSep " " (map capitalize words);
-
-  mkSkillFiles =
-    name: skill:
-    [
-      {
-        name = ".kiro/skills/${name}/SKILL.md";
-        value.text = ''
-          ---
-          name: ${name}
-          description: ${builtins.toJSON skill.description}
-          ---
-
-          ${renderSkill skill.content}
-        '';
-      }
-    ]
-    ++ (mapAttrsToList (
-      refName: refContent:
-      if builtins.isAttrs refContent then
-        {
-          name = ".kiro/skills/${name}/references/${refName}";
-          value.source = refContent.source;
-        }
-      else
-        {
-          name = ".kiro/skills/${name}/references/${refName}";
-          value.text = renderSkill refContent;
-        }
-    ) skill.references)
-    ++ (mapAttrsToList (scriptName: scriptContent: {
-      name = ".kiro/skills/${name}/scripts/${scriptName}";
-      value = {
-        text = scriptContent;
-        executable = true;
-      };
-    }) skill.scripts);
+  inherit (aiRender) slugToTitle;
+  scoutShell = config.ai.guards.scoutAllow;
 
   # Kiro built-ins are closed: no drops. Add rule names here once verified.
   kiroToolsFor =
@@ -113,16 +62,6 @@ let
               effect = "deny";
             }
           ];
-      scoutShell = [
-        "repomap*"
-        "rg*"
-        "fd*"
-        "nix eval*"
-        "nix flake show*"
-        "git status*"
-        "git log*"
-        "git diff*"
-      ];
       executeRules =
         if name == "scout" then
           [
@@ -152,39 +91,6 @@ let
       ];
     in
     writeRules ++ (optionals caps.execute executeRules) ++ (optionals caps.delegate delegateRules);
-
-  kiroHookEvent =
-    event:
-    {
-      session-start = "SessionStart";
-      user-prompt = "UserPromptSubmit";
-      pre-tool = "PreToolUse";
-      post-tool = "PostToolUse";
-      stop = "Stop";
-    }.${event} or null;
-
-  mkKiroHook =
-    name: hook:
-    let
-      trigger = kiroHookEvent hook.event;
-    in
-    if
-      !hook.enabled
-      || trigger == null
-      || (hook.harnesses != [ ] && !(builtins.elem "kiro" hook.harnesses))
-    then
-      null
-    else
-      {
-        inherit name trigger;
-        action = {
-          type = "command";
-          command = "${aiRender.hookCommandLine hook}${lib.optionalString (hook.event == "pre-tool") " --format stderr"}";
-        };
-        inherit (hook) timeout;
-        enabled = true;
-      }
-      // optionalAttrs (hook.matcher != null) { inherit (hook) matcher; };
 
   preventOverwriteHook = pkgs.writeShellScript "prevent-overwrite.sh" ''
     PAYLOAD="$(cat)"
@@ -219,7 +125,7 @@ let
           includeMcpJson = caps.mcp;
           model = kiroModel;
         }
-        // (lib.optionalAttrs (rules != [ ]) { permissions.rules = rules; })
+        // (optionalAttrs (rules != [ ]) { permissions.rules = rules; })
       );
     };
 in
@@ -231,7 +137,10 @@ in
 
   home.file = mkIf config.programs.kiro-cli.enable (
     builtins.listToAttrs (
-      (builtins.concatLists (mapAttrsToList mkSkillFiles config.ai.skills))
+      (aiRender.mkSkillFileEntries {
+        baseDir = ".kiro/skills";
+        skills = config.ai.skills;
+      })
       ++ (mapAttrsToList mkKiroAgent config.ai.agents)
     )
     // {
@@ -253,7 +162,7 @@ in
 
       ".kiro/hooks/ai-hooks.json".text = lib.generators.toJSON { } {
         version = "v1";
-        hooks = builtins.filter (hook: hook != null) (mapAttrsToList mkKiroHook config.ai.hooks);
+        hooks = aiRender.renderKiroHooks config.ai.hooks;
       };
     }
   );

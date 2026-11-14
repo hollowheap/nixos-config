@@ -7,7 +7,7 @@ import { join } from "node:path";
 const configDir = process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
 const manifestPath = join(configDir, "opencode", "ai-hooks.json");
 
-type Hook = { command: string; timeout: number };
+type Hook = { command: string; timeout: number; matcher?: string };
 
 let manifestError: string | null = null;
 
@@ -22,24 +22,24 @@ function loadHooks(): Record<string, Hook> {
 
 const hooks = loadHooks();
 
-const WRITE_TOOLS = new Set([
-  "write",
-  "edit",
-  "patch",
-  "apply_patch",
-  "multi_edit",
-  "write_file",
-  "edit_file",
-  "create_file",
-]);
+function matchesTool(hook: Hook, toolName?: string): boolean {
+  if (!hook.matcher) return true;
+  if (!toolName) return false;
+  try {
+    return new RegExp(hook.matcher).test(toolName);
+  } catch {
+    return false;
+  }
+}
 
-function run(name: string, payload: unknown): string | null {
+function run(name: string, payload: { tool_name?: string; [k: string]: unknown }): string | null {
   if (manifestError && name === "pre-tool") {
     throw new Error(`ai-hooks manifest is malformed: ${manifestError}`);
   }
 
   const hook = hooks[name];
   if (!hook) return null;
+  if (!matchesTool(hook, payload.tool_name)) return null;
 
   try {
     const output = execFileSync(hook.command, {
@@ -81,8 +81,7 @@ const plugin: Plugin = async ({ directory }) => ({
       throw new Error(decision.reason ?? "blocked by ai-hooks");
     }
   },
-  "tool.execute.after": async (input, output) => {
-    if (!WRITE_TOOLS.has(input.tool)) return;
+  "tool.execute.after": async (input, _output) => {
     run("post-tool", {
       tool_name: input.tool,
       tool_input: input.args,

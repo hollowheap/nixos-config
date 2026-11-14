@@ -9,6 +9,14 @@ let
 
   aiRender = config.ai.render;
 
+  # Crush built-in prompt covers dirty-worktree preservation and skill loading obedience.
+  bodyFor = aiRender.agentBodyForWith {
+    dropDisciplineRules = {
+      lazy = [ "preserve" ];
+      skills = [ "obey" ];
+    };
+  };
+
   mkSkill = aiRender.mkSkillDir {
     prefix = "crush";
     skills = config.ai.skills;
@@ -19,7 +27,7 @@ let
       ## Agent: ${name}
       ${agent.description}
 
-      ${aiRender.agentBodyFor agent}
+      ${bodyFor agent}
 
       Crush runs a single agent. Do recon, research, and review directly; ignore
       delegation instructions elsewhere in the skills.
@@ -34,12 +42,12 @@ in
       models = {
         large = {
           provider = "opencode-go";
-          model = config.ai.tiers.high.models.crush or config.ai.tiers.high.model;
+          model = aiRender.tierModelFor "crush" "high";
           reasoning_effort = aiRender.effortFor "crush" (config.ai.agents.engineer or { effort = "high"; });
         };
         small = {
           provider = "opencode-go";
-          model = config.ai.tiers.low.models.crush or config.ai.tiers.low.model;
+          model = aiRender.tierModelFor "crush" "low";
         };
       };
       options = {
@@ -49,6 +57,7 @@ in
           "${config.xdg.configHome}/crush/AGENTS.md"
         ];
       };
+      lsp = config.toolchain.crushLsp;
     };
     skills = mapAttrs mkSkill config.ai.skills;
   };
@@ -64,20 +73,7 @@ in
 
       ${instructions}
     '';
-    "crush/crushrc".text = lib.optionalString (
-      builtins.hasAttr "pre-tool" config.ai.hooks
-      && config.ai.hooks.pre-tool.enabled
-      && (
-        config.ai.hooks.pre-tool.harnesses == [ ]
-        || builtins.elem "crush" config.ai.hooks.pre-tool.harnesses
-      )
-    ) ''
-      hook add PreToolUse \
-        --name 'ai-hooks' \
-        --matcher ${lib.escapeShellArg (if config.ai.hooks.pre-tool.matcher != null then config.ai.hooks.pre-tool.matcher else "^bash$")} \
-        --command ${lib.escapeShellArg "${aiRender.hookCommandLine config.ai.hooks.pre-tool} --format deny"} \
-        --timeout ${toString config.ai.hooks.pre-tool.timeout}
-    '';
+    "crush/crushrc".text = aiRender.renderCrushRcHooks config.ai.hooks;
   };
 
   programs.wallust.settings.templates.crush = {

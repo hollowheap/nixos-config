@@ -97,7 +97,7 @@ let
       [ -z "$reason" ] && exit 0
 
       case "$format" in
-        codex-json)
+        codex-json | claude-json)
           jq -nc --arg r "$reason" '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$r}}'
           ;;
         deny)
@@ -143,24 +143,14 @@ in
         "--output"
         "artifacts/repomap.md"
       ];
-      harnesses = [
-        "opencode"
-        "kiro"
-      ];
-      timeout = 15;
-    };
-
-    post-tool-claude-code = {
-      event = "post-tool";
-      command = "${pkgs.repomap}/bin/repomap";
-      args = [
-        "--max-lines"
-        "2000"
-        "--output"
-        "artifacts/repomap.md"
-      ];
-      matcher = "Edit|Write|MultiEdit|NotebookEdit";
-      harnesses = [ "claude-code" ];
+      matchers = {
+        claude-code = "Edit|MultiEdit";
+        antigravity = "edit_file|replace_file_content|multi_replace_file_content";
+        codex = "edit|apply_patch";
+        kiro = "fs_write|write";
+        opencode = "^(edit|patch|apply_patch|multi_edit|edit_file)$";
+        crush = "^(edit|patch)$";
+      };
       timeout = 15;
     };
   };

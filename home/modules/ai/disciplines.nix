@@ -6,7 +6,7 @@
       target = "primary";
       rules = {
         scripts = "Reusable probes and validation scripts live in artifacts/scripts/; throwaway scratch files live in artifacts/scratch/.";
-        output = "Long command output goes to artifacts/logs/ or artifacts/errors/; return the path and a targeted rg or tail command, never the dump.";
+        output = "Pipe noisy command output through head, tail, or rg/grep; redirect long output to artifacts/logs/ or artifacts/errors/ and return the path with a targeted rg or tail command, never the dump.";
       };
     };
 
@@ -15,7 +15,7 @@
       target = "primary";
       rules = {
         yagni = "Satisfy immediate request with minimal diff; reject premature abstractions, helper functions, and speculative generalizations.";
-        preserve = "Preserve existing working code and out-of-context dirty edits; avoid unsolicited refactoring.";
+        preserve = "Preserve existing working code and out-of-context dirty edits; avoid unsolicited refactoring. If unexpected changes appear in files you did not touch, stop and ask the user.";
         halt-on-pass = "Stop immediately once verification passes; never add post-pass polish, extra tests, or unrequested cleanup.";
         early-yield = "Yield turn on ambiguities, undocumented behavior, or after 2 consecutive command failures so user can steer.";
       };
@@ -26,7 +26,9 @@
       target = "primary";
       rules = {
         narrow = "Start from the narrowest known path; use `rg -n --smart-case` with a glob or file type. Never search `/` or `$HOME`.";
+        batch = "Batch independent read and search calls in one turn instead of serializing one file per turn.";
         compact = "Return file:line plus the shortest decisive snippet; cap matches. Put large output in artifacts/logs/ and cite the path.";
+        slice = "Use file-read offset/limit parameters to read only needed sections; never `cat` files in shell, re-read unchanged files, or re-read right after editing unless an external tool modified them.";
         stop = "Stop on the first decisive match; widen scope only after a miss.";
       };
     };
@@ -65,6 +67,7 @@
           Verified: <command → result>
           Next|Blocked: <one line>
         '';
+        review = "When asked for a code review, lead with severity-ordered findings (file:line), risks, and missing tests before any change summary.";
         verbatim = "Paths, commands, and results verbatim; no prose recap outside the formula. Standing user request defers unslop no-restate rule.";
       };
     };
@@ -83,8 +86,8 @@
       description = "Subagent I/O contract and boundaries.";
       target = "subagent";
       rules = {
-        telemetry = "Emit compact fragments only: <path:line> — <symbol> — <note> (Scout) or <path:line>: [sev] <bug>. <fix>. (Reviewer). Code, commands, paths verbatim; zero prose or greetings.";
-        bounded = "Answer only the delegated query using 30-60 line slice reads, rg -n, fd, or nix eval; never dump full files or binary dumps; stop immediately once facts are collected.";
+        telemetry = "Emit compact, self-contained fragments only (parent lacks your context): <path:line> — <symbol> — <note> (Scout) or <path:line>: [sev] <bug>. <fix>. (Reviewer). Report unverified gaps explicitly; never guess.";
+        bounded = "Answer only the delegated query using offset/limit slice reads (30-60 lines), rg -n, fd, or nix eval; pipe long output through head, tail, or rg, never `cat` or re-read full files, and stop once facts are collected.";
         read-only = "Subagents are strictly read-only; never mutate files, stage/commit, or expose secrets.";
       };
     };

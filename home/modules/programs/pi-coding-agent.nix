@@ -8,10 +8,6 @@ let
   inherit (lib) concatStringsSep mapAttrsToList optionalAttrs;
 
   aiRender = config.ai.render;
-  renderSkill = aiRender.renderSkillInvocation {
-    skills = config.ai.skills;
-    invocation = name: "/skill:${name}";
-  };
 
   configDir = config.programs.pi-coding-agent.configDir;
 
@@ -19,15 +15,10 @@ let
     mapAttrsToList (name: agent: "- ${name}: ${agent.description}") config.ai.agents
   );
 
-  piModelFor = agent: let
-    model = agent.models.pi or agent.tier;
-  in
-    if model == "low" then
-      "opencode-go/beam-free"
-    else if model == "medium" || model == "high" then
-      "opencode-go/deepseek-v4.1-flash"
-    else
-      model;
+  # Pi's SYSTEM.md defines codemode parallel batching; drop duplicate search.batch from addendum.
+  bodyFor = aiRender.agentBodyForWith {
+    dropDisciplineRules.search = [ "batch" ];
+  };
 
   agentFiles = mapAttrsToList (name: agent: {
     name = "${configDir}/agents/${name}.md";
@@ -35,12 +26,12 @@ let
       ---
       name: ${name}
       description: ${builtins.toJSON agent.description}
-      model: ${piModelFor agent}
+      model: ${aiRender.modelFor "pi" agent}
       effort: ${aiRender.effortFor "pi" agent}
       mode: ${if agent.capabilities.write then "ask" else "plan"}
       ---
 
-      ${aiRender.agentBodyFor agent}
+      ${bodyFor agent}
     '';
   }) config.ai.agents;
 
@@ -192,44 +183,36 @@ let
     }
   ];
 
-  skills = builtins.concatLists (
-    mapAttrsToList (
-      name: skill:
-      [
-        {
-          name = "${configDir}/skills/${name}/SKILL.md";
-          value.text = ''
-            ---
-            name: ${name}
-            description: ${builtins.toJSON skill.description}
-            ${lib.optionalString skill.disableModelInvocation "disable-model-invocation: true\n"}---
+  # Custom Pi system prompt replacing built-in preamble, tools, rules, and docs.
+  # Pi still appends APPEND_SYSTEM.md, AGENTS.md, skills, cwd, and extension sections.
+  systemPromptFile = [
+    {
+      name = "${configDir}/SYSTEM.md";
+      value.text = ''
+        You are an expert software and NixOS systems engineer operating inside pi.
 
-            ${renderSkill skill.content}
-          '';
-        }
-      ]
-      ++ mapAttrsToList (
-        fileName: content:
-        if builtins.isAttrs content then
-          {
-            name = "${configDir}/skills/${name}/references/${fileName}";
-            value.source = content.source;
-          }
-        else
-          {
-            name = "${configDir}/skills/${name}/references/${fileName}";
-            value.text = renderSkill content;
-          }
-      ) skill.references
-      ++ mapAttrsToList (fileName: content: {
-        name = "${configDir}/skills/${name}/scripts/${fileName}";
-        value = {
-          text = content;
-          executable = true;
-        };
-      }) skill.scripts
-    ) config.ai.skills
-  );
+        <tools>
+        - read: Inspect file slices with offset and limit; never use bash cat or sed.
+        - bash: Run rg, fd, builds, tests, and git; pipe noisy output through head, tail, or rg.
+        - edit: Apply exact text replacements via edits[]. Each edits[].oldText matches the original file (not cumulative); batch disjoint edits into one edit call with minimal unique context.
+        - write: Create new files or write full rewrites only.
+        - codemode: Batch independent tool calls with Promise.allSettled, chain steps, or filter large outputs in JS instead of extra turns.
+        - Additional extension or MCP tools may be available per session.
+        </tools>
+
+        <docs>
+        Read Pi docs only when asked about pi itself: ${pkgs.pi-coding-agent}/lib/node_modules/pi-monorepo/{README.md,docs,examples}
+        </docs>
+      '';
+    }
+  ];
+
+  skills = aiRender.mkSkillFileEntries {
+    baseDir = "${configDir}/skills";
+    skills = config.ai.skills;
+    invocation = name: "/skill:${name}";
+    includeDisableModelInvocation = true;
+  };
 
   authFile = [
     {
@@ -303,6 +286,7 @@ in
         "-builtin:llama.cpp"
       ];
     };
+    appendSystem = bodyFor config.ai.agents.engineer;
     context = ''
       # Available agents (full briefs in agents/*.md)
 
@@ -312,7 +296,7 @@ in
 
   home.file = lib.mkIf config.programs.pi-coding-agent.enable (
     builtins.listToAttrs (
-      skills ++ agentFiles ++ dashboardFile ++ statuslineFile ++ authFile ++ memoryFile
+      skills ++ agentFiles ++ dashboardFile ++ statuslineFile ++ systemPromptFile ++ authFile ++ memoryFile
     )
   );
 }

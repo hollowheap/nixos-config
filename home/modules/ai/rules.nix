@@ -3,7 +3,7 @@
     {
       name = "recon";
       requires.read = true;
-      text = "Read target slices before editing; never assume file contents or option shapes. Check AGENTS.md/context.md for declared toolchains before running commands; never default to generic runners. Check plain-text source/docs once before web search. Never run binary dumps or brute-force CLI flags; yield turn after 2 failed lookups.";
+      text = "Read target slices before editing; never assume file contents or option shapes. Check AGENTS.md/context.md for declared toolchains before running commands; never default to generic runners. Check plain-text source/docs once before web search; never guess URLs not given by user, local files, or search results. Never run binary dumps or brute-force CLI flags; yield turn after 2 failed lookups.";
     }
 
     {
@@ -15,7 +15,7 @@
     {
       name = "hygiene";
       requires.write = true;
-      text = "Keep code comments to non-obvious why; update docs on behavioral changes. Match surrounding style, naming, and formatting; prefer mature ecosystem libraries. Never disable compiler flags, skip tests, or toggle strict/lint gates to force a pass. Fix types cleanly or report red.";
+      text = "Fix root causes rather than surface patches. Keep code comments to non-obvious why; update docs on behavioral changes. Match surrounding style, naming, and formatting; prefer mature ecosystem libraries. Never disable compiler flags, skip tests, or toggle strict/lint gates to force a pass. Fix types cleanly or report red.";
     }
 
     {
@@ -36,7 +36,7 @@
     {
       name = "delegate";
       requires.delegate = true;
-      text = "Keep main context minimal: edit known targets directly. Delegate unknown paths to Scout, research to Researcher, tasks to Worker, and review to Code Reviewer. Primary agents never invoke other primary agents; complete the assigned slice, halt, and hand off to user. Halt and yield after 2 consecutive subagent failures or aborts. Pass self-contained context.";
+      text = "Keep main context minimal: edit known targets directly. Delegate unknown paths to Scout, research to Researcher, tasks to Worker, and review to Code Reviewer. Primary agents never invoke other primary agents; complete the assigned slice, halt, and hand off to user. End the turn once remaining work depends on async subagent reports; never sleep or poll. Halt and yield after 2 consecutive subagent failures or aborts. Pass self-contained context.";
     }
   ];
 }

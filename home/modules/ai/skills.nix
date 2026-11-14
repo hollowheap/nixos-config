@@ -6,14 +6,11 @@
   ...
 }:
 let
-  skillMetadata = import ../../lib/skill-metadata.nix;
-
   readSkills =
     src:
     import ../../../lib/ai-skills.nix {
       inherit lib;
       inherit src;
-      metadata = skillMetadata;
     };
 
   opalSkills = readSkills (inputs.opal.outPath + "/skills");
@@ -44,7 +41,6 @@ let
   scripted = [
     "init"
     "update"
-    "retro"
     "brainstorm"
     "design"
     "specify"
@@ -61,10 +57,6 @@ in
   ai.skills = lib.recursiveUpdate (externalSkills // baseSkills // assetSkills) scriptOverrides;
 
   assertions = [
-    {
-      assertion = lib.all (skill: skill.disableModelInvocation) (lib.attrValues config.ai.skills);
-      message = "All ai.skills must set disableModelInvocation = true.";
-    }
     {
       assertion = lib.all (skill: skill.content != "") (lib.attrValues config.ai.skills);
       message = "Every ai.skills entry must have non-empty content.";

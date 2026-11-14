@@ -40,7 +40,7 @@ let
     name: agent:
     let
       caps = agent.capabilities;
-      yamlFrontmatter = lib.generators.toYAML { } (
+      frontmatter =
         {
           inherit name;
           inherit (agent)
@@ -52,19 +52,14 @@ let
           model = aiRender.modelFor "antigravity" agent;
           tools = agToolsFor agent;
         }
-        // lib.optionalAttrs caps.execute { commandExecutionPolicy = "auto"; }
-        // lib.optionalAttrs (caps.delegate && agent.availableAgents != [ ]) {
+        // optionalAttrs caps.execute { commandExecutionPolicy = "auto"; }
+        // optionalAttrs (caps.delegate && agent.availableAgents != [ ]) {
           agents = agent.availableAgents;
-        }
-      );
+        };
     in
     {
       name = ".gemini/antigravity-cli/agents/${name}/agent.md";
-      value.text = ''
-        ---
-        ${yamlFrontmatter}
-        ---
-
+      value.text = aiRender.mkMarkdownDoc frontmatter ''
         # Instructions
         ${aiRender.agentBodyFor agent}
       '';
@@ -80,48 +75,18 @@ let
   };
 
   # Antigravity built-ins are closed: no drops. Add rule names here once verified.
-  antigravityHookEvent =
-    event:
-    {
+  antigravityHooks = aiRender.renderGroupedHooks {
+    harness = "antigravity";
+    hooks = config.ai.hooks;
+    preToolFormat = "deny";
+    wrapNonToolEvents = false;
+    eventMap = {
       session-start = "SessionStart";
       pre-tool = "PreToolUse";
       post-tool = "PostToolUse";
       stop = "Stop";
-    }.${event} or null;
-
-  mkAntigravityHook =
-    name: hook:
-    let
-      event = antigravityHookEvent hook.event;
-      handler = {
-        type = "command";
-        command = "${aiRender.hookCommandLine hook}${lib.optionalString (hook.event == "pre-tool") " --format deny"}";
-        inherit (hook) timeout;
-      };
-    in
-    if
-      !hook.enabled
-      || event == null
-      || (hook.harnesses != [ ] && !(builtins.elem "antigravity" hook.harnesses))
-    then
-      null
-    else
-      {
-        inherit event;
-        spec =
-          if event == "PreToolUse" || event == "PostToolUse" then
-            { hooks = [ handler ]; } // optionalAttrs (hook.matcher != null) { inherit (hook) matcher; }
-          else
-            handler;
-      };
-
-  antigravityHookEntries = builtins.filter (entry: entry != null) (
-    mapAttrsToList mkAntigravityHook config.ai.hooks
-  );
-
-  antigravityHooks = builtins.mapAttrs (_event: entries: map (entry: entry.spec) entries) (
-    builtins.groupBy (entry: entry.event) antigravityHookEntries
-  );
+    };
+  };
 in
 {
   programs.antigravity-cli = {
@@ -130,7 +95,7 @@ in
     settings = {
       allowNonWorkspaceAccess = true;
       editorMode = "vim";
-      model = config.ai.tiers.high.models.antigravity or config.ai.tiers.high.model;
+      model = aiRender.tierModelFor "antigravity" "high";
       notifications = true;
       pickerGrouping = "grouped";
       runningLightSpeed = "fast";
@@ -156,6 +121,20 @@ in
     };
     skills = mapAttrs mkSkillDir config.ai.skills;
   };
+
+  home.activation.antigravityDirs = mkIf config.programs.antigravity-cli.enable (
+    lib.hm.dag.entryBefore [ "linkGeneration" ] ''
+      for d in skills agents; do
+        ag_dir="$HOME/.gemini/antigravity-cli/$d"
+        cfg_dir="$HOME/.gemini/config/$d"
+        if [ -L "$ag_dir" ] && [ -d "$cfg_dir" ] && [ ! -L "$cfg_dir" ]; then
+          ${pkgs.coreutils}/bin/rm "$ag_dir"
+          ${pkgs.coreutils}/bin/mv "$cfg_dir" "$ag_dir"
+          ${pkgs.coreutils}/bin/ln -s "$ag_dir" "$cfg_dir"
+        fi
+      done
+    ''
+  );
 
   home.file = mkIf config.programs.antigravity-cli.enable (
     builtins.listToAttrs (

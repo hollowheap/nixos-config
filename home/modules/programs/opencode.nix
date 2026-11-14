@@ -26,7 +26,7 @@ let
       webfetch = caps.web;
     };
 
-  opencodeModel = config.ai.tiers.high.models.opencode or config.ai.tiers.high.model;
+  opencodeModel = aiRender.tierModelFor "opencode" "high";
 
   modeFor =
     agent:
@@ -50,7 +50,9 @@ let
         question = builtins.elem "question" agent.skills || builtins.elem "design" agent.skills;
         bash = agent.capabilities.execute || name == "architect";
       };
-      deniedSkills = lib.filterAttrs (_skillName: skill: !(builtins.elem name skill.agents)) config.ai.skills;
+      deniedSkills = lib.filterAttrs (
+        skillName: skill: !(builtins.elem name skill.agents || builtins.elem skillName agent.skills)
+      ) config.ai.skills;
       deniedSkillEntries = mapAttrsToList (skillName: _: "    ${skillName}: \"deny\"") deniedSkills;
       skillPermSection = lib.concatStringsSep "\n" (
         [
@@ -76,22 +78,20 @@ let
         ]
         ++ map (sub: "    ${sub}: \"allow\"") spawnableAgents
       );
+      scoutBashPermSection = lib.concatStringsSep "\n" (
+        [
+          "  bash:"
+          "    \"*\": \"deny\""
+        ]
+        ++ map (pattern: "    ${builtins.toJSON pattern}: \"allow\"") config.ai.guards.scoutAllow
+      );
       perms =
         if agent.role == "subagent" then
           if name == "scout" || name == "Scout" then ''
 permission:
 ${taskPermSection}
   skill: "deny"
-  bash:
-    "*": "deny"
-    "repomap*": "allow"
-    "rg*": "allow"
-    "fd*": "allow"
-    "nix eval*": "allow"
-    "nix flake show*": "allow"
-    "git status*": "allow"
-    "git log*": "allow"
-    "git diff*": "allow"
+${scoutBashPermSection}
 '' else if name == "worker" then ''
 permission:
 ${taskPermSection}
@@ -173,6 +173,8 @@ in
           explore = "deny";
         };
       };
+      lsp = config.toolchain.opencodeLsp;
+      formatter = config.toolchain.opencodeFormatters;
     };
     agents = mapAttrs mkAgent config.ai.agents;
     skills = mapAttrs mkSkill config.ai.skills;
@@ -191,15 +193,7 @@ in
 
   home.file = {
     ".config/opencode/ai-hooks.json".text = builtins.toJSON (
-      builtins.mapAttrs (_name: hook: {
-        command = "${aiRender.hookCommandLine hook}${lib.optionalString (hook.event == "pre-tool") " --format deny"}";
-        inherit (hook) timeout;
-      }) (
-        lib.filterAttrs (
-          _name: hook:
-          hook.enabled && (hook.harnesses == [ ] || builtins.elem "opencode" hook.harnesses)
-        ) config.ai.hooks
-      )
+      aiRender.renderOpencodeHooks config.ai.hooks
     );
     ".config/opencode/plugins/ai-hooks/index.ts".text = builtins.readFile ./opencode-ai-hooks.ts;
   };
