@@ -63,7 +63,6 @@
       signByDefault = true;
     };
     settings = {
-      commit.gpgSign = true;
       tag.gpgSign = true;
       alias = {
         i = "init";
@@ -75,47 +74,84 @@
         a = "add";
         ap = "add --patch";
         c = "commit";
+        amend = "commit --amend --no-edit";
+        reword = "commit --amend";
+        fixup = "commit --fixup";
         st = "stash";
 
         f = "fetch";
         p = "push";
+        pf = "push --force-with-lease --force-if-includes";
         u = "pull";
 
         co = "checkout";
+        sw = "switch";
+        swc = "switch --create";
         br = "branch";
 
         rb = "rebase";
+        rbi = "rebase --interactive";
+        rbc = "rebase --continue";
+        rba = "rebase --abort";
+        rbs = "rebase --update-refs";
 
         l = "log";
+        lg = "log --graph --oneline --decorate";
+        stack = "log --graph --oneline --decorate --boundary @{u}..HEAD";
         rl = "reflog";
       };
-      core = {
-        whitespace = "error";
-      };
-      init.defaultBranch = "main";
+      branch.sort = "-committerdate";
+      column.ui = "auto";
+      commit.verbose = true;
+      core.whitespace = "error";
       diff = {
+        algorithm = "histogram";
+        colorMoved = "default";
+        colorMovedWS = "allow-indentation-change";
         interHunkContext = 10;
+        mnemonicPrefix = true;
         renames = "copies";
       };
-      pull.ff = "only";
-      merge.ff = "only";
-      rebase = {
-        autoStash = true;
-        autoSquash = true;
-        updateRefs = true;
-      };
-      rerere.enabled = true;
       fetch = {
         prune = true;
         pruneTags = true;
+        writeCommitGraph = true;
       };
-      push.autoSetupRemote = true;
+      help.autocorrect = "prompt";
+      init.defaultBranch = "main";
+      log = {
+        date = "iso";
+        follow = true;
+      };
       maintenance.strategy = "incremental";
+      merge = {
+        conflictStyle = "zdiff3";
+        ff = "only";
+      };
+      pull.ff = "only";
+      push = {
+        autoSetupRemote = true;
+        default = "current";
+        useForceIfIncludes = true;
+      };
+      rebase = {
+        abbreviateCommands = true;
+        autoSquash = true;
+        autoStash = true;
+        missingCommitsCheck = "error";
+        stat = true;
+        updateRefs = true;
+      };
+      rerere = {
+        autoUpdate = true;
+        enabled = true;
+      };
       status = {
         branch = true;
         short = true;
         showStash = true;
       };
+      tag.sort = "-version:refname";
       user = {
         name = "Yucky Hito";
         email = "yuckychong@gmail.com";

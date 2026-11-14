@@ -5,11 +5,15 @@ let
 in
 {
   programs = {
-    eza.enable = true;
+    eza = {
+      enable = true;
+      enableZshIntegration = true;
+    };
     ripgrep.enable = true;
     fd.enable = true;
     fzf = {
       enable = true;
+      enableZshIntegration = true;
       tmux = {
         enableShellIntegration = true;
         # fzf-tmux owns popup placement. A global --tmux option makes
@@ -68,6 +72,7 @@ in
 
   home.packages = with pkgs; [
     harlequin
+    lazydocker
     tdf
     uiProbe
     libnotify

@@ -1,60 +1,75 @@
-{ config, pkgs, ... }:
 {
-  home.shellAliases = {
-    "_" = "sudo ";
-    "..." = "cd ../..";
-    "...." = "cd ../../..";
-    bd = ''cd "$OLDPWD"'';
-    cp = "cp -iv";
-    mv = "mv -iv";
-    md = "mkdir -pv";
-    rmd = "rm -rf";
-
-    l = "eza --icons=auto --short-nix -olahH";
-
-    # tree view
-    l1 = "l -TL 1";
-    l2 = "l -TL 2";
-    l3 = "l -TL 3";
-    l4 = "l -TL 4";
-    l5 = "l -TL 5";
-    l6 = "l -TL 6";
-    l7 = "l -TL 7";
-    l8 = "l -TL 8";
-    l9 = "l -TL 9";
-    l0 = "l -TL 10";
-
-    nv = "nvim";
-    g = "git";
-    cat = "bat";
-    diff = "batdiff";
-    man = "batman";
-    sc = "_ systemctl";
-    scu = "systemctl --user";
-
-    nixos-rb = "_ nixos-rebuild switch --flake .";
-    nix-gc = "_ nix store gc";
-
-    hm = "home-manager";
-    hm-rb = "hm switch --flake . -b backup";
-    hm-rb-legacy = "hm switch";
-    hm-gc = ''hm expire-generations "-3 days"'';
-  };
-
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  treeAliases = builtins.listToAttrs (
+    map (depth: {
+      name = "l${toString (lib.mod depth 10)}";
+      value = "l -TL ${toString depth}";
+    }) (lib.range 1 10)
+  );
+in
+{
+  # ---------------------------------------------------------------------------
+  # Shell Aliases & Pager
+  # ---------------------------------------------------------------------------
   home.sessionVariables.PAGER = "less -FRX";
 
+  home.shellAliases =
+    {
+      # Privilege & navigation
+      "_" = "sudo ";
+      "..." = "cd ../..";
+      "...." = "cd ../../..";
+      bd = ''cd "$OLDPWD"'';
+
+      # File operations & safety
+      cp = "cp -iv";
+      mv = "mv -iv";
+      md = "mkdir -pv";
+      rmd = "rm -rf";
+      rmt = "rip";
+      urm = "rip -u";
+
+      # Directory listing (l1..l0 generated via treeAliases)
+      l = "eza --icons=auto --short-nix -olahH";
+      lt = "l -TL 2";
+
+      # Core CLI tools
+      nv = "nvim";
+      g = "git";
+      ld = "lazydocker";
+      cat = "bat";
+      diff = "delta";
+      man = "batman";
+
+      # Systemd & Nix lifecycle
+      sc = "_ systemctl";
+      scu = "systemctl --user";
+      nixos-rb = "_ nixos-rebuild switch --flake .";
+      nix-gc = "_ nix store gc";
+      hm = "home-manager";
+      hm-rb = "hm switch --flake . -b backup";
+      hm-gc = ''hm expire-generations "-3 days"'';
+    }
+    // treeAliases;
+
+  # ---------------------------------------------------------------------------
+  # Zsh Configuration
+  # ---------------------------------------------------------------------------
   programs.zsh = {
-    dotDir = "${config.xdg.configHome}/zsh/";
     enable = true;
-    enableCompletion = true;
+    dotDir = "${config.xdg.configHome}/zsh";
     defaultKeymap = "viins";
     autocd = true;
 
+    # Only non-default Home Manager history settings are declared here.
+    # (append, share, ignoreSpace, ignoreDups, size=10000, save=10000 are HM defaults)
     history = {
-      append = true;
-      share = true;
-      ignoreSpace = true;
-      ignoreDups = true;
+      extended = true;
       ignoreAllDups = true;
       saveNoDups = true;
       findNoDups = true;
@@ -67,19 +82,23 @@
         "ls"
         "pwd"
       ];
-      save = 10000;
-      size = 10000;
     };
 
     sessionVariables = {
-      LS_COLORS = "di=01;34:ln=01;36:ex=01;32";
+      LS_COLORS = "rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.png=01;35:*.svg=01;35:*.webp=01;35:*.mp4=01;35:*.mkv=01;35:*.webm=01;35:*.mov=01;35:*.flac=00;36:*.mp3=00;36:*.ogg=00;36:*.opus=00;36:*.wav=00;36:*.pdf=00;33:*.md=01;33:*.nix=01;34";
       ZLE_RPROMPT_INDENT = "0";
+      ZVM_INIT_MODE = "sourcing";
+      ZVM_VI_HIGHLIGHT_BACKGROUND = "8";
+      ZVM_VI_HIGHLIGHT_FOREGROUND = "15";
+      ZVM_VI_HIGHLIGHT_EXTRASTYLE = "bold";
+      LESSOPEN = "|${pkgs.bat-extras.batpipe}/bin/batpipe %s";
+      LESS = "-FRX";
     };
 
     fastSyntaxHighlighting.enable = true;
     autosuggestion = {
       enable = true;
-      highlight = "fg=#8a8a8a";
+      highlight = "fg=8";
     };
 
     shellGlobalAliases = {
@@ -89,14 +108,20 @@
       JQ = "| jq";
       F = "| fzf";
       L = "| $PAGER";
-      D = "| delta"; # TODO install delta
+      D = "| delta";
       C = "| bat";
       H = "| head";
       T = "| tail";
       G = "| rg";
     };
 
+    # zsh-vi-mode loads synchronously before fzf-tab so Tab completion bindings survive.
     plugins = with pkgs; [
+      {
+        name = "zsh-vi-mode";
+        src = zsh-vi-mode;
+        file = "share/zsh-vi-mode/zsh-vi-mode.plugin.zsh";
+      }
       {
         name = "fzf-tab";
         src = zsh-fzf-tab;
@@ -107,87 +132,94 @@
         src = zsh-you-should-use;
         file = "share/zsh/plugins/you-should-use/you-should-use.plugin.zsh";
       }
-      {
-        name = "zsh-vi-mode";
-        src = zsh-vi-mode;
-        file = "share/zsh-vi-mode/zsh-vi-mode.plugin.zsh";
-      }
     ];
 
+    # Ensure standalone Home Manager's profile completions are in fpath before compinit.
+    # Rebuild completion dump when stale (>20h) or after any home-manager switch.
     completionInit = ''
-      autoload -U compinit
+      for hm_dir in \
+        "${config.xdg.stateHome}/nix/profiles/home-manager/home-path/share/zsh/site-functions" \
+        "${config.xdg.stateHome}/nix/profiles/home-manager/home-path/share/zsh/vendor-completions"; do
+        [[ -d "$hm_dir" ]] && fpath=("$hm_dir" $fpath)
+      done
+      unset hm_dir
+
+      autoload -Uz compinit
+      zmodload zsh/stat
       mkdir -p "$XDG_CACHE_HOME/zsh"
-      compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION" -C
-      if [[ ! -f "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION.zwc" ]]; then
-        (zcompile "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION" >/dev/null 2>&1 &)
+      local zcd="$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION"
+      local hm_prof="${config.xdg.stateHome}/nix/profiles/home-manager"
+      local zcd_mtime=0 hm_mtime=0
+      [[ -f "$zcd" ]] && zcd_mtime="$(zstat +mtime "$zcd")"
+      [[ -L "$hm_prof" || -e "$hm_prof" ]] && hm_mtime="$(zstat -L +mtime "$hm_prof")"
+      if (( zcd_mtime > hm_mtime && EPOCHSECONDS - zcd_mtime < 72000 )); then
+        compinit -C -d "$zcd"
+      else
+        compinit -d "$zcd"
+        { zcompile "$zcd" } &!
       fi
+      (( ''${+functions[_man]} )) && compdef _man batman
+      (( ''${+functions[_rg]} )) && compdef _rg batgrep
     '';
 
     initContent = ''
-      unsetopt MENU_COMPLETE
-      unsetopt FLOWCONTROL
-      unsetopt CASE_GLOB
-      setopt AUTO_MENU
-      setopt AUTO_LIST
-      setopt AUTO_PARAM_SLASH
-      setopt EXTENDED_GLOB
-      setopt PATH_DIRS
-      setopt COMPLETE_IN_WORD
-      setopt ALWAYS_TO_END
-      setopt HIST_REDUCE_BLANKS
-      setopt HIST_NO_STORE
-      setopt HIST_VERIFY
+      # -----------------------------------------------------------------------
+      # 1. Shell Options (non-default options only)
+      # -----------------------------------------------------------------------
+      # Navigation & directory stack
+      setopt AUTO_PUSHD PUSHD_IGNORE_DUPS PUSHD_SILENT CDABLE_VARS
 
-      # Common settings
+      # Globbing & completion behavior
+      setopt EXTENDED_GLOB GLOB_DOTS NUMERIC_GLOB_SORT
+      setopt COMPLETE_IN_WORD ALWAYS_TO_END PATH_DIRS
+      unsetopt CASE_GLOB
+
+      # History & interactive ergonomics
+      setopt HIST_REDUCE_BLANKS HIST_NO_STORE HIST_VERIFY HIST_FCNTL_LOCK
+      setopt INTERACTIVE_COMMENTS LONG_LIST_JOBS NOTIFY
+      unsetopt FLOWCONTROL BEEP
+
+      # -----------------------------------------------------------------------
+      # 2. Completion System (zstyle & fzf-tab)
+      # -----------------------------------------------------------------------
       zstyle ':completion:*' group-name ""
       zstyle ':completion:*' verbose yes
       zstyle ':completion:*' completer _complete _ignored _match
       zstyle ':completion:*' menu no
-      zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
-      zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS} # Enable list colors
-      zstyle ':completion:*' list-prompt '%S%M matches %s'
+      zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}' 'r:|[._-]=* r:|=*'
+      zstyle ':completion:*' list-colors ''${(s.:.)LS_COLORS}
+      zstyle ':completion:*' list-prompt '%S%M matches%s'
 
-      # Cache
+      # Completion cache
       zstyle ':completion:*' use-cache on
       zstyle ':completion:*' cache-path "${config.xdg.cacheHome}/zsh/.zcompcache"
 
-      # Completion formatting
-      zstyle ':completion:*' format '[%d]'
+      # Group & diagnostic formatting
+      zstyle ':completion:*:descriptions' format '[%d]'
       zstyle ':completion:*:options' auto-description '%d'
       zstyle ':completion:*:corrections' format '[%d errors: %e]'
       zstyle ':completion:*:warnings' format 'no matches'
 
-      # Hide internal functions
+      # Context-specific completion rules
       zstyle ':completion:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
-
-      # Array index completion
       zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
-
-      # Prioritize directories over users
       zstyle ':completion:*:-tilde-:*' group-order 'named-directories' 'path-directories' 'users' 'expand'
-
-      # Disable sorting and ignore current branch for checkout
       zstyle ':completion:*:git-checkout:*' sort false
       zstyle ':completion:*:git-checkout:*' ignore-line yes
       zstyle ':completion:*:git-*' verbose yes
-
-      # Don't autocomplete what's already inputed
-      zstyle ':completion:*:(rm|kill|diff):*' ignore-line other
-
-      # Show all files fro rm
+      zstyle ':completion:*:(rm|rip|kill|diff):*' ignore-line other
       zstyle ':completion:*:rm:*' file-patterns '*:all-files'
-
-      # Show my processes, color PIDs, and insert PID number
       zstyle ':completion:*:*:*:*:processes' command 'ps -u $USER -o pid,user,command -w'
       zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;36=0=01'
       zstyle ':completion:*:*:kill:*' force-list always
       zstyle ':completion:*:*:kill:*' insert-ids single
-            
-      # Separate sections and auto insert numbers
       zstyle ':completion:*:manuals' separate-sections true
       zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
-      # Use the same centered tmux popup as standalone fzf widgets.
+      # fzf-tab popup, Base16 colors, and contextual previews
+      zstyle ':fzf-tab:*' use-fzf-default-opts yes
+      zstyle ':fzf-tab:*' group-colors \
+        $'\033[34m' $'\033[32m' $'\033[33m' $'\033[35m' $'\033[36m' $'\033[31m'
       zstyle ':fzf-tab:*' fzf-command 'fzf-tmux -p 75%,40% --'
       zstyle ':fzf-tab:*' fzf-flags \
         --layout=reverse \
@@ -198,87 +230,70 @@
         --prompt="❯ " \
         --marker="❯" \
         --pointer="❯"
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview '${pkgs.eza}/bin/eza --tree --level=2 --color=always --icons=auto $realpath'
+      zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word'
+      zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview '[[ $group == "[process ID]" ]] && ps -p $word -o pid,ppid,user,%cpu,%mem,etime,cmd -w'
 
-      # Path-aware word deletion (C-w stops at slashes)
-      autoload -U select-word-style
+      # -----------------------------------------------------------------------
+      # 3. Line Editor (ZLE) & Vi Keybindings
+      # -----------------------------------------------------------------------
+      # Path-aware word deletion (Ctrl-W stops at slashes)
+      autoload -Uz select-word-style edit-command-line
       select-word-style bash
+      zle -N edit-command-line
 
-      # Pure viins keybindings hook (ensures zsh-vi-mode preserves bindings)
-      function zvm_after_init() {
-        zvm_bindkey viins '^U' backward-kill-line
-        zvm_bindkey viins '^W' backward-kill-word
-        zvm_bindkey viins '^A' vi-beginning-of-line
-        zvm_bindkey viins '^E' vi-end-of-line
-        zvm_bindkey viins '^R' fzf-history-widget
-        zvm_bindkey viins '^F' fzf-file-widget
-        zvm_bindkey viins '^O' fzf-cd-widget
-        zvm_bindkey viins '^[[A' fzf-history-widget
-        zvm_bindkey viins '^[OA' fzf-history-widget
-        zvm_bindkey vicmd '^R' fzf-history-widget
-        zvm_bindkey vicmd '^F' fzf-file-widget
-        zvm_bindkey vicmd '^O' fzf-cd-widget
-        bindkey -M viins '^[?' run-help
-        bindkey -M viins -r '^D'
-        bindkey -M viins -r '^K'
-        bindkey -M viins -r '^N'
-        bindkey -M viins -r '^P'
-        bindkey -M viins -r '^Q'
-        bindkey -M viins -r '^X~'
-        bindkey -M viins -r '^[,'
-        bindkey -M viins -r '^[/'
-        bindkey -M viins -r '^[~'
-        bindkey -M viins -r -R '\M-^@'-'\M-^?'
-        bindkey -M vicmd -r '^N'
-        bindkey -M vicmd -r '^P'
-        bindkey -M vicmd -r '^Q'
-      }
-
+      # Insert mode: standard readline editing & cursor movement
       bindkey -M viins '^U' backward-kill-line
       bindkey -M viins '^W' backward-kill-word
       bindkey -M viins '^A' vi-beginning-of-line
       bindkey -M viins '^E' vi-end-of-line
-      bindkey -M viins '^R' fzf-history-widget
-      bindkey -M viins '^F' fzf-file-widget
-      bindkey -M viins '^O' fzf-cd-widget
+      bindkey -M viins '^T' transpose-chars
+      bindkey -M viins '^[[1;5D' vi-backward-word
+      bindkey -M viins '^[[1;5C' vi-forward-word
+      bindkey -M viins '^[[1;6D' vi-backward-word
+      bindkey -M viins '^[[1;6C' vi-forward-word
+      bindkey -M viins '^[[1~' vi-beginning-of-line
+      bindkey -M viins '^[[4~' vi-end-of-line
+      bindkey -M viins '^[OB' down-line-or-history
+      bindkey -M viins '^[[B' down-line-or-history
+      bindkey -M viins '^[?' run-help
+
+      # Insert & Normal mode: fzf history, file, and directory pickers
+      for km in viins vicmd; do
+        bindkey -M "$km" '^R' fzf-history-widget
+        bindkey -M "$km" '^F' fzf-file-widget
+        bindkey -M "$km" '^O' fzf-cd-widget
+      done
       bindkey -M viins '^[[A' fzf-history-widget
       bindkey -M viins '^[OA' fzf-history-widget
+      bindkey -M vicmd 'v' edit-command-line
 
-      bindkey "^[OB" down-line-or-history
-      bindkey "^[[B" down-line-or-history
-      bindkey "^[[1;5D" vi-backward-word
-      bindkey "^[[1;5C" vi-forward-word
-      bindkey "^[[1;6D" vi-backward-word
-      bindkey "^[[1;6C" vi-forward-word
-      bindkey "^[[1~" vi-beginning-of-line
-      bindkey "^[[4~" vi-end-of-line
-      bindkey "^[?" run-help
+      # Unbind conflicting or noisy default bindings (keeps C-d/C-n/C-p free for tmux)
+      for key in '^D' '^K' '^N' '^P' '^Q' '^X~' '^[,' '^[/' '^[~' '\ec'; do
+        bindkey -M viins -r "$key"
+      done
+      for key in '^N' '^P' '^Q' '^T' '\ec'; do
+        bindkey -M vicmd -r "$key"
+      done
+      bindkey -M viins -r -R '\M-^@'-'\M-^?'
 
-      # Unbind ^D (list-choices), ^K, ^N, ^P, ^Q, bash/history-complete, and high-bit meta self-insert
-      bindkey -M viins -r "^D"
-      bindkey -M viins -r "^K"
-      bindkey -M viins -r "^N"
-      bindkey -M viins -r "^P"
-      bindkey -M viins -r "^Q"
-      bindkey -M viins -r "^X~"
-      bindkey -M viins -r "^[,"
-      bindkey -M viins -r "^[/"
-      bindkey -M viins -r "^[~"
-      bindkey -M viins -r -R "\M-^@"-"\M-^?"
-      bindkey -M vicmd -r "^N"
-      bindkey -M vicmd -r "^P"
-      bindkey -M vicmd -r "^Q"
-
-      # Normal mode history navigation (clean up/down without popup takeovers)
-      bindkey -M vicmd '^R' fzf-history-widget
-      bindkey -M vicmd '^F' fzf-file-widget
-      bindkey -M vicmd '^O' fzf-cd-widget
-
-      # Source wallust terminal sequences
+      # -----------------------------------------------------------------------
+      # 4. Terminal Integration (Wallust, Window Title, Login Fastfetch)
+      # -----------------------------------------------------------------------
       if [[ -t 1 && -f "''${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences" ]]; then
         command tr -d '\r\n' < "''${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences"
       fi
 
-      # Centralized AI API keys from Vaultwarden (rbw folder dev/keys).
+      if [[ -o login && -z "$TMUX" ]] && (( ''${+commands[fastfetch]} )); then
+        fastfetch
+      fi
+
+      set_win_title() { print -Pn "\e]2;%~\a" }
+      precmd_functions+=(set_win_title)
+
+      # -----------------------------------------------------------------------
+      # 5. On-Demand Vaultwarden AI Keys (rbw)
+      # -----------------------------------------------------------------------
       _load_ai_keys() {
         if (( ''${+commands[rbw]} )) && rbw unlocked >/dev/null 2>&1; then
           local key exa_key
@@ -294,7 +309,6 @@
         fi
       }
 
-      # Dynamic load: before running any AI harness, check and export keys if unlocked
       _ensure_ai_keys_preexec() {
         if [[ -z "$OPENCODE_API_KEY" || -z "$EXA_API_KEY" ]]; then
           case "$1" in
@@ -307,7 +321,6 @@
       autoload -Uz add-zsh-hook
       add-zsh-hook preexec _ensure_ai_keys_preexec
 
-      # Explicit helper to unlock vault and load AI keys in one step
       load-ai-keys() {
         if ! rbw unlocked >/dev/null 2>&1; then
           rbw unlock || return 1
@@ -322,32 +335,6 @@
           echo "Warning: No keys retrieved from rbw (check folder dev/keys)." >&2
         fi
       }
-
-      (( ''${+commands[batpipe]} )) && eval "$(batpipe)"
-
-      # fzf: Ctrl-F files, Ctrl-O directories.
-      if (( ''${+widgets[fzf-file-widget]} )); then
-        bindkey -M emacs '^F' fzf-file-widget
-      fi
-      if (( ''${+widgets[fzf-cd-widget]} )); then
-        bindkey -M emacs '^O' fzf-cd-widget
-      fi
-
-      # Drop fzf's Ctrl-T and Alt-C defaults; restore editing keys.
-      bindkey -M emacs '^T' transpose-chars
-      bindkey -M viins '^T' transpose-chars
-      bindkey -M vicmd '^T' undefined-key
-      bindkey -M emacs '\ec' capitalize-word
-      bindkey -M viins '\ec' undefined-key
-      bindkey -M vicmd '\ec' undefined-key
-
-      if [[ -o login && -z "$TMUX" ]] && (( ''${+commands[fastfetch]} )); then
-        fastfetch
-      fi
-
-      # Set terminal window title to current directory
-      set_win_title() { print -Pn "\\e]2;%~\\a" }
-      precmd_functions+=(set_win_title)
     '';
   };
 }

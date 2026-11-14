@@ -60,6 +60,18 @@
       ${pkgs.coreutils}/bin/mkdir -p "$(dirname "$fzf_colors")"
       printf '%s\n' '--color=base16' > "$fzf_colors"
     fi
+    starship_base="${config.xdg.configHome}/starship.toml"
+    starship_pal="${config.xdg.cacheHome}/wallust/starship-palette.toml"
+    starship_out="${config.xdg.cacheHome}/wallust/starship.toml"
+    if [ -f "$starship_base" ]; then
+      ${pkgs.coreutils}/bin/mkdir -p "$(dirname "$starship_out")"
+      if [ -f "$starship_pal" ]; then
+        ${pkgs.coreutils}/bin/cat "$starship_base" "$starship_pal" > "$starship_out"
+      else
+        ${pkgs.coreutils}/bin/cp -f "$starship_base" "$starship_out"
+        ${pkgs.coreutils}/bin/chmod u+w "$starship_out"
+      fi
+    fi
     settings="$HOME/.local/state/noctalia/settings.toml"
     wp="$(${pkgs.gawk}/bin/awk -F'"' '/^\[wallpaper\.last\]/{f=1;next} /^\[/{f=0} f&&/^path =/{print $2; exit}' "$settings" 2>/dev/null || true)"
     if [ -n "$wp" ] && [ -f "$wp" ]; then

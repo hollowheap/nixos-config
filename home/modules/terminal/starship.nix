@@ -1,12 +1,34 @@
-{ config, lib, ... }:
-let
-  pills = config.styles.pills.starship;
-in
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  pills = config.styles.pills.starship;
+in {
+  home.sessionVariables.STARSHIP_CONFIG = lib.mkForce "${config.xdg.cacheHome}/wallust/starship.toml";
+
+  programs.wallust.settings = {
+    templates.starship = {
+      template = "starship-palette.toml";
+      target = "${config.xdg.cacheHome}/wallust/starship-palette.toml";
+    };
+    hooks.starship = ''
+      base="${config.xdg.configHome}/starship.toml"
+      pal="${config.xdg.cacheHome}/wallust/starship-palette.toml"
+      out="${config.xdg.cacheHome}/wallust/starship.toml"
+      if [ -f "$base" ] && [ -f "$pal" ]; then
+        ${pkgs.coreutils}/bin/mkdir -p "$(dirname "$out")"
+        ${pkgs.coreutils}/bin/cat "$base" "$pal" > "$out"
+      fi
+    '';
+  };
+
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
     settings = {
+      palette = "wallust";
       format = lib.concatStrings [
         "$username"
         "$directory"
@@ -24,30 +46,37 @@ in
 
       directory = {
         style = "4";
-        format = pills.left {
-          icon = "󰉋";
-          content = "$path";
-          accent = "$style";
-          extra = "[$read_only](bg:8 fg:9)";
-        } + " ";
+        format =
+          pills.left {
+            icon = "󰉋";
+            content = "$path";
+            accent = "$style";
+            extra = "[$read_only](bg:8 fg:9)";
+          }
+          + " ";
         truncation_length = 4;
         read_only = "󰌾 ";
       };
 
       git_branch = {
-        format = pills.right {
-          icon = "";
-          content = "$branch";
-          accent = "6";
-        } + " ";
+        format =
+          pills.right {
+            icon = "";
+            content = "$branch";
+            accent = "6";
+          }
+          + " ";
       };
 
       git_status = {
-        format = "\\(" + pills.right {
-          icon = "󰊢";
-          content = "$all_status$ahead_behind";
-          accent = "11";
-        } + " \\)";
+        format =
+          "\\("
+          + pills.right {
+            icon = "󰊢";
+            content = "$all_status$ahead_behind";
+            accent = "11";
+          }
+          + " \\)";
         staged = "[+](bg:8 fg:10)";
         modified = "[!](bg:8 fg:11)";
         renamed = "[»](bg:8 fg:12)";
@@ -62,27 +91,33 @@ in
       };
 
       cmd_duration = {
-        format = pills.right {
-          icon = "󱑂";
-          content = "$duration";
-          accent = "4";
-        } + " ";
+        format =
+          pills.right {
+            icon = "󱑂";
+            content = "$duration";
+            accent = "4";
+          }
+          + " ";
       };
 
       nix_shell = {
-        format = pills.right {
-          icon = "";
-          content = "$state";
-          accent = "4";
-        } + " ";
+        format =
+          pills.right {
+            icon = "";
+            content = "$state";
+            accent = "4";
+          }
+          + " ";
       };
 
       package = {
         symbol = "󰏗 ";
-        format = pills.mode {
-          text = "$symbol";
-          accent = "5";
-        } + " ";
+        format =
+          pills.mode {
+            text = "$symbol";
+            accent = "5";
+          }
+          + " ";
       };
     };
   };

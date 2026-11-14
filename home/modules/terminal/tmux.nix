@@ -153,6 +153,7 @@ in
       # inside shells, editors, and other full-screen programs.
       bind C-Space send-prefix
       bind C-b send-keys C-b
+      bind C-d send-keys C-d
       bind C-g send-keys C-g
       bind C-h send-keys C-h
       bind C-j send-keys C-j
@@ -168,6 +169,7 @@ in
       unbind -q g
       unbind -q y
       unbind -q b
+      unbind -q d
       unbind -q t
 
       # Clear legacy root bindings that stole these keys before the prefix
@@ -243,11 +245,18 @@ in
       bind -T copy-mode-vi Escape send -X cancel
       bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-and-cancel "wl-copy 2>/dev/null || xclip -selection clipboard"
 
-      # Direct C-g/C-y/C-b open popups. Prefix C-g/C-y/C-b remain
+      # Fine-grained 2-line scroll step for touchscreen finger-drag and trackpad scrolling
+      bind -n WheelUpPane if-shell -F -t = "#{mouse_any_flag}" "send-keys -M" "if -Ft= '#{pane_in_mode}' 'send-keys -M' 'select-pane -t=; copy-mode -e; send-keys -M'"
+      bind -n WheelDownPane select-pane -t= \; send-keys -M
+      bind -T copy-mode-vi WheelUpPane select-pane \; send-keys -X -N 2 scroll-up
+      bind -T copy-mode-vi WheelDownPane select-pane \; send-keys -X -N 2 scroll-down
+
+      # Direct C-g/C-y/C-b/C-d open popups. Prefix C-g/C-y/C-b/C-d remain
       # pass-through bindings above.
       bind -n C-g display-popup -d "#{pane_current_path}" -w 90% -h 90% -E "lazygit"
       bind -n C-y display-popup -d "#{pane_current_path}" -w 90% -h 90% -E "yazi"
       bind -n C-b display-popup -d "#{pane_current_path}" -w 90% -h 90% -E "btop"
+      bind -n C-d display-popup -d "#{pane_current_path}" -w 90% -h 90% -E "lazydocker"
 
       # Status bar configuration
       set -g status-position top
