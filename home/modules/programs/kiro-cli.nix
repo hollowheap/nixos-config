@@ -31,7 +31,7 @@ let
     ++ (optionals caps.execute [ "shell" ])
     ++ (optionals caps.delegate [ "subagent" ])
     ++ (optionals caps.mcp [ "@mcp" ])
-    ++ [ "web" ];
+    ++ (optionals caps.web [ "web" ]);
 
   kiroRulesFor =
     name: agent:

@@ -72,7 +72,7 @@
         write = true;
         execute = true;
         delegate = true;
-        web = false;
+        web = true;
       };
       availableAgents = [
         "scout"
