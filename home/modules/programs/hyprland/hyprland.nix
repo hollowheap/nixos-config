@@ -206,13 +206,16 @@ in {
 
       device =
         map (
-          device: {
-            inherit (device) name;
+          device: let
             output =
               if device.output == null
               then config.desktop.touchscreen.output
               else device.output;
-          }
+          in
+            {
+              inherit (device) name;
+            }
+            // lib.optionalAttrs (output != null) {inherit output;}
         )
         config.desktop.touchscreen.devices;
 
@@ -277,10 +280,12 @@ in {
             mouse_refocus = false;
           }
           (lib.mkIf config.desktop.touch {
-            touchdevice.output = config.desktop.touchscreen.output;
             touchdevice.transform = config.desktop.touchscreen.transform;
-            tablet.output = config.desktop.touchscreen.output;
             tablet.transform = config.desktop.touchscreen.transform;
+          })
+          (lib.mkIf (config.desktop.touch && config.desktop.touchscreen.output != null) {
+            touchdevice.output = config.desktop.touchscreen.output;
+            tablet.output = config.desktop.touchscreen.output;
           })
         ];
 

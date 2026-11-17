@@ -8,9 +8,9 @@
 in {
   options.desktop.touchscreen = {
     output = mkOption {
-      type = str;
+      type = nullOr str;
       default = config.desktop.primaryOutput;
-      description = "Touchscreen output name.";
+      description = "Touchscreen output name; null on hosts without a primary output.";
     };
 
     switchDevice = mkOption {
