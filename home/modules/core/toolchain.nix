@@ -233,7 +233,10 @@ in
         };
       };
 
-      formattersByFt = { };
+      formattersByFt = {
+        bash = [ "shfmt" ];
+        zsh = [ "shfmt" ];
+      };
 
       lintersByFt = {
         yaml = [ "yamllint" ];
