@@ -1,12 +1,7 @@
-{
-  lib,
-  ...
-}:
-let
+{lib, ...}: let
   inherit (lib) mkOption;
   inherit (lib.types) bool int listOf number str submodule;
-in
-{
+in {
   options = {
     desktop.compositor = {
       # Window Rounding
@@ -39,13 +34,6 @@ in
         };
       };
 
-      # Global Dimensions
-      barHeight = mkOption {
-        type = int;
-        default = 20;
-        description = "Global height dimension for your status bar (e.g., MangoWC).";
-      };
-
       cursor = {
         hideOnTouch = mkOption {
           type = bool;
@@ -75,7 +63,7 @@ in
             };
           }
         );
-        default = [ ];
+        default = [];
         description = "Programs started with the compositor session.";
       };
 
