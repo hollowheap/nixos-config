@@ -30,16 +30,7 @@ inputs: let
           system = "x86_64-linux";
           config = {
             allowUnfreePredicate = pkg:
-              builtins.elem (inputs.nixpkgs.lib.getName pkg) [
-                "claude-code"
-                "antigravity-cli"
-                "codex"
-                "crush"
-                "diagram.nvim"
-                "github-copilot-cli"
-                "kiro-cli"
-                "kiro-cli-unwrapped"
-              ];
+              builtins.elem (inputs.nixpkgs.lib.getName pkg) (import ../lib/unfree.nix);
           };
           overlays = [
             (_: prev: import ../pkgs/default.nix prev)

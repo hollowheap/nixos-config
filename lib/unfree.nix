@@ -1,0 +1,10 @@
+[
+  "claude-code"
+  "antigravity-cli"
+  "codex"
+  "crush"
+  "diagram.nvim"
+  "github-copilot-cli"
+  "kiro-cli"
+  "kiro-cli-unwrapped"
+]
