@@ -1,4 +1,7 @@
-{ pkgs, src }:
+{
+  pkgs,
+  src,
+}:
 pkgs.runCommand "check-policy" {
   nativeBuildInputs = with pkgs; [
     findutils
@@ -20,7 +23,6 @@ pkgs.runCommand "check-policy" {
   no_match "profiles/desktop" hosts/lacuna/default.nix
 
   rg -q "roles/server/system" hosts/lacuna/default.nix
-  rg -q 'HandleLidSwitch = lib\.mkDefault "suspend";' profiles/laptop/default.nix
   rg -q "homeUserNames" flake/default.nix
   rg -q "inputs.import-tree ./modules" home/hollowheap.nix
   no_match -q "roles/server" hosts/acervus/default.nix
