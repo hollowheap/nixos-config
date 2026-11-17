@@ -8,6 +8,15 @@
 
   aiRender = config.ai.render;
 
+  models = {
+    architect = "inherit";
+    engineer = "inherit";
+    worker = "inherit";
+    scout = "flash";
+    researcher = "flash";
+    code-reviewer = "flash";
+  };
+
   agToolsFor = agent: let
     caps = agent.capabilities;
   in
@@ -50,7 +59,7 @@
           subagent
           skills
           ;
-        model = aiRender.modelFor "antigravity" agent;
+        model = models.${name};
         tools = agToolsFor agent;
       }
       // optionalAttrs caps.execute {commandExecutionPolicy = "auto";}

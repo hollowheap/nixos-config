@@ -8,6 +8,9 @@
 
   aiRender = config.ai.render;
 
+  agentModel = "gpt-6-luna";
+  agentEffort = "xhigh";
+
   codexHooks = aiRender.renderGroupedHooks {
     harness = "codex";
     hooks = config.ai.hooks;
@@ -33,8 +36,8 @@
       inherit name;
       inherit (agent) description;
       developer_instructions = bodyFor agent;
-      model = aiRender.modelFor "codex" agent;
-      model_reasoning_effort = aiRender.effortFor "codex" agent;
+      model = agentModel;
+      model_reasoning_effort = agentEffort;
     };
   };
 in {
@@ -65,8 +68,8 @@ in {
     settings = {
       developer_instructions = bodyFor config.ai.agents.engineer;
       features.hooks = true;
-      model = config.ai.harnesses.codex.agents.engineer.model;
-      model_reasoning_effort = config.ai.harnesses.codex.agents.engineer.effort;
+      model = agentModel;
+      model_reasoning_effort = agentEffort;
       model_auto_compact_token_limit = config.ai.compaction.maxTokens;
       tui.screen_reader_detection_done = true;
       tui.theme = "wallust";

@@ -8,6 +8,27 @@
 
   aiRender = config.ai.render;
 
+  flash = "opencode-go/deepseek-v4.1-flash";
+  free = "opencode-go/hy4-flash-free";
+
+  models = {
+    architect = flash;
+    engineer = flash;
+    worker = flash;
+    scout = free;
+    researcher = free;
+    code-reviewer = free;
+  };
+
+  efforts = {
+    architect = "max";
+    engineer = "max";
+    worker = "high";
+    scout = "high";
+    researcher = "high";
+    code-reviewer = "high";
+  };
+
   configDir = config.programs.pi-coding-agent.configDir;
 
   roster = concatStringsSep "\n" (
@@ -23,7 +44,7 @@
         ---
         name: ${name}
         description: ${builtins.toJSON agent.description}
-        model: ${aiRender.modelFor "pi" agent}${lib.optionalString (aiRender.effortFor "pi" agent != null) ":${aiRender.effortFor "pi" agent}"}${lib.optionalString (agent.availableAgents != []) "\nagents: ${concatStringsSep ", " agent.availableAgents}"}
+        model: ${models.${name}}${lib.optionalString (efforts.${name} != null) ":${efforts.${name}}"}${lib.optionalString (agent.availableAgents != []) "\nagents: ${concatStringsSep ", " agent.availableAgents}"}
         mode: ${
           if agent.capabilities.write
           then "ask"
@@ -329,7 +350,7 @@
         force = true;
         text = builtins.toJSON {
           enabled = true;
-          model = config.ai.harnesses.pi.agents.scout.model;
+          model = models.scout;
           observeAfterTokens = 20000;
           maxObservations = 40;
           injectionTokens = 2000;
@@ -349,7 +370,7 @@ in {
     ];
     settings = {
       enableInstallTelemetry = false;
-      defaultThinkingLevel = aiRender.effortFor "pi" (config.ai.agents.engineer or {effort = "high";});
+      defaultThinkingLevel = efforts.engineer;
       compaction = {
         enabled = true;
         reserveTokens = config.ai.compaction.reserveTokens;

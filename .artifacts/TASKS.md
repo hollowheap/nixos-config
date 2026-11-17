@@ -596,7 +596,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Remove tools not declared by `capabilities.read`, `write`, `execute`, `delegate`, `mcp`, or `web`; keep harness-native tool names.
   - Risk: over-restricting a harness, tool-name drift, hidden delegation.
 
-- [ ] T99 [S70]: Drop shared model and effort routing abstractions
+- [x] T99 [S70]: Drop shared model and effort routing abstractions
   - Verify: `! rg -q 'modelFor|effortFor|ai\.tiers|harness-routing' home/modules home/lib --glob '*.nix' && nix build .#homeConfigurations.hollowheap.activationPackage --no-link`
   - Files: `home/modules/ai/options.nix`, `home/lib/ai-render.nix`, `home/modules/ai/harness-routing.nix`, `home/modules/ai/harnesses.nix`, `home/modules/programs/*.nix`, `tests/home.nix`.
   - Notes: set model and effort literals in each adapter and remove shared tier helpers.

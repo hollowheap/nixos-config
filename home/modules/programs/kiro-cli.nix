@@ -9,6 +9,15 @@ let
 
   aiRender = config.ai.render;
   inherit (aiRender) slugToTitle;
+
+  models = {
+    architect = "claude-opus-5.5";
+    engineer = "claude-haiku-5.5";
+    worker = "claude-sonnet-5.5";
+    scout = "claude-haiku-5.5";
+    researcher = "claude-haiku-5.5";
+    code-reviewer = "claude-haiku-5.5";
+  };
   scoutShell = config.ai.guards.scoutAllow;
 
   # Kiro built-ins are closed: no drops. Add rule names here once verified.
@@ -111,7 +120,7 @@ let
       skillResources = map (s: "skill://.kiro/skills/${s}/SKILL.md") agent.skills;
       repomapResource = optionals readOnly [ "file://.artifacts/repomap.md" ];
       rules = kiroRulesFor name agent;
-      kiroModel = aiRender.modelFor "kiro" agent;
+      kiroModel = models.${name};
     in
     {
       name = ".kiro/agents/${name}.json";

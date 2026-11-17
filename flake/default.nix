@@ -129,13 +129,51 @@ let
     && inputs.nixpkgs.lib.hasSuffix ".md" name
   ) home.config.home.file;
 
+  claudeModels = {
+    architect = "opus";
+    engineer = "opus";
+    worker = "sonnet";
+    scout = "haiku";
+    researcher = "haiku";
+    code-reviewer = "opus";
+  };
+
+  claudeEfforts = {
+    architect = "xhigh";
+    engineer = "high";
+    worker = "high";
+    scout = "max";
+    researcher = "max";
+    code-reviewer = "medium";
+  };
+
+  piFlash = "opencode-go/deepseek-v4.1-flash";
+  piFree = "opencode-go/hy4-flash-free";
+
+  piModels = {
+    architect = piFlash;
+    engineer = piFlash;
+    worker = piFlash;
+    scout = piFree;
+    researcher = piFree;
+    code-reviewer = piFree;
+  };
+
+  piEfforts = {
+    architect = "max";
+    engineer = "max";
+    worker = "high";
+    scout = "high";
+    researcher = "high";
+    code-reviewer = "high";
+  };
+
   claudeAgentChecks = inputs.nixpkgs.lib.mapAttrsToList (
     file: entry:
     let
       name = agentNameFromFile file;
-      agent = home.config.ai.agents.${name};
-      model = home.config.ai.render.modelFor "claude-code" agent;
-      effort = home.config.ai.render.effortFor "claude-code" agent;
+      model = claudeModels.${name};
+      effort = claudeEfforts.${name};
     in
     ''
       test "$(head -n 1 "${entry.source}")" = "---"
@@ -151,9 +189,8 @@ let
     file: entry:
     let
       name = agentNameFromFile file;
-      agent = home.config.ai.agents.${name};
-      model = home.config.ai.render.modelFor "pi" agent;
-      effort = home.config.ai.render.effortFor "pi" agent;
+      model = piModels.${name};
+      effort = piEfforts.${name};
     in
     ''
       test "$(head -n 1 "${entry.source}")" = "---"

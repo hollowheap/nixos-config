@@ -6,6 +6,24 @@
 }: let
   aiRender = config.ai.render;
 
+  models = {
+    architect = "opus";
+    engineer = "opus";
+    worker = "sonnet";
+    scout = "haiku";
+    researcher = "haiku";
+    code-reviewer = "opus";
+  };
+
+  efforts = {
+    architect = "xhigh";
+    engineer = "high";
+    worker = "high";
+    scout = "max";
+    researcher = "max";
+    code-reviewer = "medium";
+  };
+
   # Claude's built-in prompt covers untrusted pasted content, secrets privacy, native Read/Grep/Glob search tools,
   # dirty-worktree preservation, and native skill invocation rules.
   bodyFor = aiRender.agentBodyForWith {
@@ -44,8 +62,8 @@
       inherit name;
       inherit (agent) description;
       tools = lib.concatStringsSep ", " (claudeTools agent);
-      model = aiRender.modelFor "claude-code" agent;
-      effort = aiRender.effortFor "claude-code" agent;
+      model = models.${name};
+      effort = efforts.${name};
       omitClaudeMd = true;
     } (bodyFor agent);
 
@@ -106,7 +124,7 @@ in {
         CLAUDE_CODE_DISABLE_BUNDLED_SKILLS = "1";
         CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS = "1";
         CLAUDE_CODE_DISABLE_POLICY_SKILLS = "1";
-        CLAUDE_CODE_SUBAGENT_MODEL = aiRender.modelFor "claude-code" config.ai.agents.worker;
+        CLAUDE_CODE_SUBAGENT_MODEL = models.worker;
         DISABLE_TELEMETRY = "1";
         DISABLE_ERROR_REPORTING = "1";
         DISABLE_AUTOUPDATER = "1";

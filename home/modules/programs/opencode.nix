@@ -8,6 +8,18 @@
 
   aiRender = config.ai.render;
 
+  flash = "opencode-go/deepseek-v4.1-flash";
+  free = "opencode-go/hy4-flash-free";
+
+  models = {
+    architect = "${flash}#max";
+    engineer = "${flash}#max";
+    worker = "${flash}#high";
+    scout = "${free}#high";
+    researcher = "${free}#high";
+    code-reviewer = "${free}#high";
+  };
+
   toolsFor = capabilities: let
     caps = capabilities;
   in {
@@ -32,8 +44,7 @@
     else "subagent";
 
   mkAgent = name: agent: let
-    model = aiRender.modelFor "opencode" agent;
-    effort = aiRender.effortFor "opencode" agent;
+    model = models.${name};
     tools =
       toolsFor agent.capabilities
       // {
@@ -129,13 +140,12 @@
         else "false"
       }")
       tools);
-    effortLine = lib.optionalString (effort != null && !(lib.hasInfix "#" model)) "reasoningEffort: ${effort}\n";
   in ''
     ---
     description: ${builtins.toJSON agent.description}
     mode: ${modeFor agent}
     model: ${builtins.toJSON model}
-    ${effortLine}tools:
+    tools:
     ${toolsText}
     ${perms}---
 
@@ -157,8 +167,8 @@ in {
     mutableSettings = false;
     settings = {
       "$schema" = "https://opencode.ai/config.json";
-      model = config.ai.harnesses.opencode.agents.engineer.model;
-      small_model = config.ai.harnesses.opencode.agents.scout.model;
+      model = models.engineer;
+      small_model = models.scout;
       provider = {
         "opencode-go".env = [
           "OPENCODE_API_KEY"

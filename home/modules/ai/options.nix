@@ -470,13 +470,6 @@ in {
         meta = pkg.meta or {};
       };
 
-    modelFor = harness: agent:
-      cfg.harnesses.${harness}.agents.${agent.name}.model
-      or (throw "ai.harnesses.${harness}.agents.${agent.name}.model is not set");
-
-    effortFor = harness: agent:
-      cfg.harnesses.${harness}.agents.${agent.name}.effort or null;
-
     capabilityNames = [
       "read"
       "write"
