@@ -3,7 +3,7 @@
 ## Adding a Harness
 
 1. Confirm the nixpkgs package attribute exists and inspect `meta.mainProgram`, CLI help flags, and config locations via `nix eval` / source inspection before designing adapter wiring.
-2. Inspect `home/modules/ai/render.nix` and `home/lib/ai-render.nix`; reuse `config.ai.render` helpers (`modelFor`, `effortFor`, `agentBodyFor`, `mkSkillDir`, `mkSkillFileEntries`) instead of reimplementing prompt or model formatting.
+2. Inspect `home/lib/ai-render.nix`; reuse `config.ai.render` helpers (`agentBodyFor`, `mkSkillDir`, `mkSkillFileEntries`) and set model and effort directly in each harness adapter instead of reimplementing prompt formatting.
 3. Wire hooks through `config.ai.hooks` (`pkgs/ai-hooks`) passing `--harness <name>`, rather than duplicating hook scripts per program.
 4. Check `.artifacts/notes/author-harness-matrices.md` for existing harness field mappings and capability gaps before adding new Home Manager program modules.
 

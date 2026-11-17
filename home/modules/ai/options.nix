@@ -347,7 +347,6 @@ in {
       scoutAllow = mkOption {
         type = listOf str;
         default = [
-          "repomap*"
           "rg*"
           "fd*"
           "nix eval*"

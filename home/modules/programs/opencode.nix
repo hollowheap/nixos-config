@@ -125,7 +125,6 @@
             "*": "deny"
             "artifacts*": "allow"
             "iridescent-artifacts*": "allow"
-            "repomap*": "allow"
         ${skillPermSection}
       ''
       else ''
