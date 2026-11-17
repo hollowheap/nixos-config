@@ -137,6 +137,7 @@ in
         yaml.enable = true;
         zsh.enable = true;
         markdown.enable = true;
+        markdown.format.enable = false;
         markdown.extensions.render-markdown-nvim = {
           enable = true;
           setupOpts.file_types = [ "markdown" ];
@@ -232,9 +233,7 @@ in
         };
       };
 
-      formattersByFt = {
-        markdown = lib.mkForce [ ];
-      };
+      formattersByFt = { };
 
       lintersByFt = {
         yaml = [ "yamllint" ];
