@@ -16,6 +16,12 @@
     };
   };
 
+  fonts.packages = with pkgs; [
+    maple-mono-custom
+    (google-fonts.override {fonts = [config.desktop.fonts.sansSerif];})
+    (google-fonts.override {fonts = [config.desktop.fonts.serif];})
+  ];
+
   environment.sessionVariables = {
     UWSM_SILENT_START = "2";
   };
