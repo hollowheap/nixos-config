@@ -23,9 +23,9 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - `hardware/` and `boot/`: platform capabilities and boot integration.
 - `home/hollowheap.nix` plus `home/modules`: user environment composition (`import-tree`); `home/hosts/lacuna` / host-trait overlays hold machine-specific display/Wacom/Yoga overrides cleanly separated from shared HM modules (`D73`), and `home/modules/programs/nvim/lsp.nix` owns editor language/linter wiring.
 - `home/modules/ai/options.nix`: shared AI schema, including `programs.mcp.servers` (`D77`: 8 harnesses mapped, Pi exempt via `D62`), `worker` write-capability rule/discipline gating (`D76`), and `ai.render.agentBodyFor`. `lib/ai-skills.nix` parses multi-paragraph YAML blocks and bullet `agents` lists (`D76`).
-- `home/modules/ai/hooks.nix`: repomap commands (`.artifacts/REPOMAP.md`) and `ai-git-policy`; `ai.hooks` provides per-harness tool matchers (`D76`).
+- `home/modules/ai/hooks.nix`: `ai-git-policy` hook; `ai.hooks` provides per-harness tool matchers (`D76`).
 - Dynamic Wallust and Noctalia colorschemes own color generation (`D108`); no static palette registry is planned.
-- `inputs.iridescent`: workflow lifecycle skills and `iridescent-artifacts` verifier/CLI. `pkgs/repomap.nix`: generated `.artifacts/REPOMAP.md` symbol map.
+- `inputs.iridescent`: workflow lifecycle skills and `iridescent-artifacts` verifier/CLI.
 - `modules/options/desktop.nix`: hardware-neutral shared `desktop.*` schema (`D73`).
 
 ## Dependency Direction
@@ -68,7 +68,7 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 ## Known Debt
 
 - **Accepted, pending implementation (`D81`-`D109`)**: whole-system review `V22` resolved all design forks. Work is queued by decision ID:
-  - `D81`-`D86`: hook builtin adaptation, shared MCP registry, Codex without recompilation, Kiro adapter neutrality, adapter-local model/effort, and repomap removal.
+  - `D81`-`D85`: hook builtin adaptation, shared MCP registry, Codex without recompilation, Kiro adapter neutrality, and adapter-local model/effort.
   - `D87`: all V16 flake-seam findings must be fixed.
   - `D88`-`D98`: lacuna-only HDR, host-scoped geometry, greeter parity, separate touch abstractions, caffeine supersession, frame-rate-aware power saving, NixOS fonts, `barHeight` removal, Hyprland portal, full Wallust template checks, and host-scoped Wacom/Yoga switches.
   - `D99`-`D109`: unified Markdown formatter contract, no Neovim session restore, ACP provider registration, bash/zsh formatters, Noctalia started hook, distinct base16 roles, evaluated editor checks, dead helper removal, dynamic colorscheme authority, and ACP provider enumeration.

@@ -24,6 +24,12 @@ pkgs.runCommand "check-home" {
   rg -q "hollow-nv-colorscript --animate" home/modules/programs/nvim/snacks.nix
   test -f home/modules/ai/options.nix
   test -f home/modules/ai/agents.nix
+  test -f .artifacts/REPOMAP.md
+  ! test -e pkgs/repomap.nix
+  ! test -e .artifacts/repomap.md
+  no_match -q 'repomap' home/modules/ai/hooks.nix
+  no_match -q 'repomap' home/modules/programs/kiro-cli.nix
+  no_match -q 'repomap' .artifacts/ARCHITECTURE.md
   test -f home/modules/programs/thunderbird-accounts.nix
   test -f modules/options/desktop.nix
   test -f home/modules/programs/hyprland/hyprland.nix

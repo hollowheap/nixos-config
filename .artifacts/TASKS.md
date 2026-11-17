@@ -626,7 +626,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: add per-harness drops for hooks already provided natively while preserving one shared command, matcher, and timeout shape.
   - Risk: duplicate external hook, dropped hook without builtin, fail-open pre-tool execution.
 
-- [ ] T104 [S71]: Remove repomap hook, generator, and artifacts
+- [x] T104 [S71]: Remove repomap hook, generator, and artifacts
   - Verify: `! rg -q 'repomap' home/modules/ai/hooks.nix && test ! -f pkgs/repomap.nix && test ! -e .artifacts/repomap.md && ! rg -q 'repomap' .artifacts/ARCHITECTURE.md`
   - Files: `home/modules/ai/hooks.nix`, `pkgs/repomap.nix`, `.artifacts/REPOMAP.md`, `home/modules/programs/kiro-cli.nix`, `.artifacts/ARCHITECTURE.md`, `tests/home.nix`.
   - Notes: delete the hook entries, generator package, Kiro resource, and lowercase artifact.

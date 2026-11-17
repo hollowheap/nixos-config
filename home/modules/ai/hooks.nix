@@ -116,42 +116,10 @@ let
 in
 {
   ai.hooks = {
-    session-start = {
-      event = "session-start";
-      command = "${pkgs.repomap}/bin/repomap";
-      args = [
-        "--max-lines"
-        "2000"
-        "--output"
-        ".artifacts/repomap.md"
-      ];
-      timeout = 30;
-    };
-
     pre-tool = {
       event = "pre-tool";
       command = "${gitPolicyHook}/bin/ai-git-policy";
       timeout = 10;
-    };
-
-    post-tool = {
-      event = "post-tool";
-      command = "${pkgs.repomap}/bin/repomap";
-      args = [
-        "--max-lines"
-        "2000"
-        "--output"
-        ".artifacts/repomap.md"
-      ];
-      matchers = {
-        claude-code = "Edit|MultiEdit";
-        antigravity = "edit_file|replace_file_content|multi_replace_file_content";
-        codex = "edit|apply_patch";
-        kiro = "fs_write|write";
-        opencode = "^(edit|patch|apply_patch|multi_edit|edit_file)$";
-        crush = "^(edit|patch)$";
-      };
-      timeout = 15;
     };
   };
 }

@@ -116,9 +116,7 @@ let
     name: agent:
     let
       caps = agent.capabilities;
-      readOnly = !caps.write && !caps.execute;
       skillResources = map (s: "skill://.kiro/skills/${s}/SKILL.md") agent.skills;
-      repomapResource = optionals readOnly [ "file://.artifacts/repomap.md" ];
       rules = kiroRulesFor name agent;
       kiroModel = models.${name};
     in
@@ -130,7 +128,7 @@ let
           inherit (agent) description;
           prompt = aiRender.agentBodyFor agent;
           tools = kiroToolsFor agent;
-          resources = skillResources ++ repomapResource;
+          resources = skillResources;
           includeMcpJson = caps.mcp;
           model = kiroModel;
         }
