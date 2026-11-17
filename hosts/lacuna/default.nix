@@ -1,4 +1,6 @@
 {pkgs, ...}: {
+  desktop.primaryOutput = "eDP-1";
+
   imports = [
     ./disko.nix
     ./hardware-configuration.nix

@@ -1,6 +1,7 @@
 {
   desktop = {
     hdr = true;
+    primaryOutput = "eDP-1";
 
     monitors = [
       {

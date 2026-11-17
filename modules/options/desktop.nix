@@ -81,8 +81,8 @@ in {
     hdr = mkEnableOption "HDR compositor preference";
 
     primaryOutput = mkOption {
-      type = str;
-      default = "eDP-1";
+      type = nullOr str;
+      default = null;
       description = "Primary output used for scale synchronization and greeter settings.";
     };
 
