@@ -2,10 +2,9 @@
   lib,
   pkgs,
   ...
-}:
-{
+}: {
   programs.nvf.settings.vim = {
-    luaConfigRC.blinkCompatPreload = lib.hm.dag.entryBefore [ "lazyConfigs" ] ''
+    luaConfigRC.blinkCompatPreload = lib.hm.dag.entryBefore ["lazyConfigs"] ''
       package.preload["cmp"] = function()
         return require("blink.compat")
       end
@@ -16,10 +15,10 @@
         lazy = false;
         package = pkgs.vimPlugins.blink-compat;
         setupModule = "blink.compat";
-        setupOpts = { };
+        setupOpts = {};
       };
       "supermaven-nvim" = {
-        event = [ "InsertEnter" ];
+        event = ["InsertEnter"];
       };
     };
 
@@ -34,8 +33,8 @@
         acp_providers = {
           pi = {
             command = "${pkgs.nodejs}/bin/node";
-            args = [ "/home/hollowheap/repos/my-pi-agent/packages/pi-acp/dist/main.js" ];
-            env = { };
+            args = ["/home/hollowheap/repos/my-pi-agent/packages/pi-acp/dist/main.js"];
+            env = {};
           };
         };
       };
@@ -96,7 +95,7 @@
             preselect = true;
             auto_insert = true;
           };
-          ghost_text.enabled = false;
+          ghost_text.enabled = true;
           documentation = {
             auto_show = true;
             auto_show_delay_ms = 200;

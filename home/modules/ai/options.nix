@@ -409,8 +409,8 @@ in {
 
   config.programs.mcp.enable = true;
   config.programs.mcp.servers.refero = {
+    enabled = true;
     url = "https://api.refero.design/mcp";
-    exposure = "codemode";
   };
   config.ai.render = rec {
     inherit
@@ -434,20 +434,17 @@ in {
     wrapWithOpenCodeKey = binName: pkg: providers: let
       wantOpenCode = builtins.elem "opencode" providers;
       wantGo = builtins.elem "opencode-go" providers;
-      missing =
-        if wantOpenCode && wantGo
-        then ''[ -z "''${OPENCODE_API_KEY:-}" ] || [ -z "''${OPENCODE_GO_API_KEY:-}" ]''
-        else if wantGo
-        then ''[ -z "''${OPENCODE_GO_API_KEY:-}" ]''
-        else ''[ -z "''${OPENCODE_API_KEY:-}" ]'';
-      assignments = concatStringsSep "\n" (
-        lib.optional wantOpenCode '': "''${OPENCODE_API_KEY:=$_k}"''
-        ++ lib.optional wantGo '': "''${OPENCODE_GO_API_KEY:=$_k}"''
-      );
-      exports = concatStringsSep " " (
+      envVars = lib.unique (
         lib.optional wantOpenCode "OPENCODE_API_KEY"
-        ++ lib.optional wantGo "OPENCODE_GO_API_KEY"
+        ++ lib.optional wantGo "OPENCODE_API_KEY"
       );
+      missing = concatStringsSep " || " (
+        map (name: ''[ -z "''${${name}:-}" ]'') envVars
+      );
+      assignments = concatStringsSep "\n" (
+        map (name: '': "''${${name}:=$_k}"'') envVars
+      );
+      exports = concatStringsSep " " envVars;
     in
       pkgs.symlinkJoin {
         name = "${pkg.name}-opencode-wrapped";

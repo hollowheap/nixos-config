@@ -365,6 +365,7 @@ in {
     ];
     settings = {
       enableInstallTelemetry = false;
+      defaultProvider = "opencode-go";
       defaultThinkingLevel = efforts.engineer;
       compaction = {
         enabled = true;

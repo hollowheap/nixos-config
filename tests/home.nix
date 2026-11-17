@@ -76,7 +76,7 @@ pkgs.runCommand "check-home" {
   rg -q "libnotify" home/modules/cli/utilities.nix
   rg -q "programs.claude-code" home/modules/programs/claude-code.nix
   rg -q "renderGroupedHooks" home/modules/programs/claude-code.nix
-  rg -q 'hooksForWith \{ inherit dropHooks; \}' home/lib/ai-render.nix
+  rg -q 'hooksForWith = \{dropHooks \? \[\]\}' home/lib/ai-render.nix
   for adapter in opencode claude-code kiro-cli; do
     rg -q 'dropHooks = \[\s*"pre-tool"\s*\]' home/modules/programs/$adapter.nix
   done
@@ -113,9 +113,10 @@ pkgs.runCommand "check-home" {
   rg -q 'event\.systemPromptOptions\.sections\.docs' home/modules/programs/pi-coding-agent.nix
   rg -q 'agents: \$\{concatStringsSep' home/modules/programs/pi-coding-agent.nix
   no_match -q 'pi-statusline\.json' home/modules/programs/pi-coding-agent.nix
-  rg -q 'exposure = "codemode"' home/modules/ai/options.nix
+  no_match -q 'exposure' home/modules/ai/options.nix
   rg -q 'config.programs.mcp.servers.refero' home/modules/ai/options.nix
-  rg -q 'renderMcpServers' home/lib/ai-render.nix
+  rg -q 'exposure = "codemode"' home/lib/ai-render.nix
+  rg -q 'enabled = true;' home/modules/ai/options.nix
   rg -q 'aiRender.renderMcpServers config.programs.mcp.servers' home/modules/programs/pi-coding-agent.nix
   no_match -q 'mcpServers' home/modules/programs/pi-coding-agent.nix
   no_match -q 'defaultTools' home/modules/programs/pi-coding-agent.nix
@@ -366,6 +367,7 @@ pkgs.runCommand "check-home" {
   rg -q 'key = "rQ"' home/modules/programs/nvim/keymaps.nix
   rg -q '\{ "sa", desc = "Add surrounding" \}' home/modules/programs/nvim/keymaps.nix
   no_match -q '"gege"' home/modules/programs/nvim/keymaps.nix
+  rg -q 'ghost_text.enabled = true;' home/modules/programs/nvim/completion.nix
 
   touch $out
 ''

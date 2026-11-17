@@ -83,7 +83,7 @@
   - Consequences: `.sops.yaml` declares separate path regex rules per host scope; `modules/security/sops.nix` reads `secrets/common.yaml`, `hosts/lacuna` adds `secrets/lacuna.yaml`, `wireless_env` restarts `NetworkManager-ensure-profiles.service` before `NetworkManager.service`, and dead `caddy_tls_key`/`caddy_ca_key` entries are pruned.
   - Supersedes: D10
 
-- [ ] D71 [R33]: Enforce `HandleLidSwitch = "suspend-then-hibernate"` in laptop power policy, locking instead when Noctalia caffeine inhibitor is active.
+- [x] D71 [R33]: Enforce `HandleLidSwitch = "suspend-then-hibernate"` in laptop power policy, locking instead when Noctalia caffeine inhibitor is active.
   - Context: `profiles/laptop/default.nix` currently hardcodes `HandleLidSwitch = "lock"`, draining battery during transport, while unconditional hibernate breaks active stay-awake downloads and presentations.
   - Alternatives: leave `HandleLidSwitch = "lock"` everywhere, or ignore caffeine state on lid close.
   - Consequences: systemd-logind defaults lid actions to `suspend-then-hibernate`; Noctalia's caffeine inhibitor coordinates with session lock so closing the lid while caffeine is active locks instead of suspending.
@@ -333,13 +333,13 @@
   - Alternatives: create bespoke per-agent discipline forks outside `ai.disciplines` / `lib/ai-skills.nix`.
   - Consequences: `capabilities.write` cleanly partitions read-only vs write subagents; all `.artifacts/` paths in hooks and Kiro use canonical uppercase filenames; YAML parser handles blank lines in block scalars and bullet lists uniformly.
 
-- [ ] D77 [R29]: Extend `programs.mcp.servers` integration to Kiro, Antigravity, and Hermes while explicitly exempting Pi.
+- [x] D77 [R29]: Extend `programs.mcp.servers` integration to Kiro, Antigravity, and Hermes while explicitly exempting Pi.
   - Context: 5 of 9 harnesses currently consume `programs.mcp.servers`, leaving Kiro, Antigravity, and Hermes disconnected while Pi explicitly disables `builtin:mcp` per `D62`.
   - Alternatives: restrict `D67` strictly to OpenCode, Claude Code, Codex, Crush, and Copilot.
   - Consequences: all 8 MCP-capable harnesses share `programs.mcp.servers`; Pi remains explicitly exempt via `D62`.
   - Supersedes: D67
 
-- [ ] D78 [R50]: Centralize monochrome neutral ramp constants and contrast rules in `home/modules/styles/palette.nix` while keeping Noctalia M3 and Wallust ANSI-16 bridged through shared activation and hooks.
+- [x] D78 [R50]: Centralize monochrome neutral ramp constants and contrast rules in `home/modules/styles/palette.nix` while keeping Noctalia M3 and Wallust ANSI-16 bridged through shared activation and hooks.
   - Context: Hand-copied neutral hex codes (`base01`/`base04`/`base06`) drifted across Wallust templates, `pill_load_wallust` read zero lines on newline-less `sequences`, Neovim lacked pre-render `SIGUSR1` registration, `starship` pills hardcoded black text, and `wallustRender` skipped cold starts.
   - Alternatives: drop Wallust completely in favor of Noctalia templates alone.
   - Consequences: one `palette.nix` registry drives shared neutral ramps, contrast-aware pill styling, cold-start preset seeding, EOF-safe `sequences` parsing, and unconditional Neovim `SIGUSR1` signal registration.
@@ -413,7 +413,7 @@
   - Alternatives: keep per-harness hook files or fail open for compatibility.
   - Consequences: renderers consume `ai.hooks` event/command/args/matcher/timeout/enabled/harnesses; unsupported event/harness pairs fail at evaluation; malformed pre-tool payloads block the tool.
 
-- [ ] D79 [R12]: Issue ACME TLS certificates via DuckDNS DNS-01 (`caddy-dns/duckdns`) for both public and internal `*.hollowheap.duckdns.org` Caddy vhosts across mobile `lacuna` and future `acervus`.
+- [x] D79 [R12]: Issue ACME TLS certificates via DuckDNS DNS-01 (`caddy-dns/duckdns`) for both public and internal `*.hollowheap.duckdns.org` Caddy vhosts across mobile `lacuna` and future `acervus`.
   - Context: Under `tls internal`, `lacuna` `security.pki.certificateFiles` remained empty and only `tailscaled` overrode `SSL_CERT_FILE`, causing `UnknownIssuer` errors for `rbw sync` and `curl` while not scaling to mobile `lacuna`, Android `fovea`, or server migration to `acervus`.
   - Alternatives: commit Caddy's private root CA into `security.pki.certificateFiles` and distribute manually to Android/clients.
   - Consequences: Caddy obtains trusted Let's Encrypt certs via DuckDNS TXT API calls (no inbound WAN 80/443 needed, cached 90 days offline), removes per-service `SSL_CERT_FILE` point fixes, transfers cleanly when `acervus` becomes the server, and pairs with `acl.hujson` allowing mesh SSH port `22`; public CT logs observe the subdomain names.
@@ -428,6 +428,7 @@
   - Context: `programs.mcp.servers` is empty and Pi carries a private hardcoded `mcp.json`; MCP-capable agents receive no tools.
   - Alternatives: per-harness MCP files; keep Pi exempt with a private registry.
   - Consequences: populate the shared registry, gate servers on `capabilities.mcp`, render them in all capable adapters, and remove Pi's private registry file.
+  - Supersedes: D77
 
 - [ ] D83 [R28]: Enable Codex without recompiling it on every rebuild.
   - Context: the adapter is disabled and its `package` override builds vendored aws-lc and extra libraries at evaluation time.
@@ -475,6 +476,7 @@
   - Consequences: desktop shell and compositor each receive touch policy from their own host-scoped abstraction; no orphan NixOS setter.
 
 - [ ] D92 [R33]: Drop the lid/caffeine policy; the Super Caffeine plugin supersedes it.
+  - Supersedes: D71
   - Context: NixOS lid action and Noctalia caffeine coordination are split, and tests assert stale `suspend`.
   - Alternatives: implement logind inhibitor switching; keep the split policy.
   - Consequences: remove lid-action policy and its stale assertion, leaving caffeine handling to the desktop shell plugin.
@@ -555,6 +557,7 @@
   - Consequences: remove the helper and any claim that its EOF-safe parsing is active.
 
 - [ ] D108 [R50]: Dynamic Wallust/Noctalia colorschemes supersede a static palette registry.
+  - Supersedes: D78
   - Context: D78 claimed a canonical `home/modules/styles/palette.nix`; the module does not exist, and colors are now generated per wallpaper.
   - Alternatives: add a static neutral-ramp module that templates consume.
   - Consequences: retire D78, remove the architecture claim, and keep palette work limited to dynamic template correctness such as D105.
@@ -595,6 +598,7 @@
   - Consequences: no change to `roles/server/system/ddclient.nix`.
 
 - [ ] D116 [R12]: Defer fovea HTTPS until acervus is installed and becomes the server.
+  - Supersedes: D79
   - Context: lacuna is a temporary host, DuckDNS points at a home that is not deployed, and fovea access is only required after acervus exists.
   - Alternatives: implement a temporary mesh-pin or WAN-forwarding workaround now.
   - Consequences: leave `tls internal`, `SSL_CERT_FILE`, and ingress unchanged until the server role moves to acervus.

@@ -1,29 +1,26 @@
-# Repository Context
+# Context
 
 ## Stack & Entrypoints
-- Commands live in `AGENTS.md` under `## Essential Commands`.
-- NixOS flake, x86_64-linux. Primary nixpkgs is release-26.05; `pkgs.unstable`, Home Manager packages, and the kernel track nixpkgs-unstable.
-- `flake.nix` -> `flake/default.nix`: host enumeration, NixOS outputs, dynamically discovered Home Manager user files, `nixOnDroidConfigurations.fovea`, devShells, and structure checks. Home modules load with `import-tree`.
-- Hosts: `hosts/<name>/default.nix` import `profiles/<class>`, `roles/<role>/system`, and host-local `hardware.nix` and `boot.nix`.
-- `lacuna`: laptop profile, desktop and server roles, Intel Arc graphics, touch, HDR, Wi-Fi, Bluetooth, and RGB traits.
-- `acervus`: declared headless laptop shell with a placeholder hardware config and hybrid Intel + Nvidia PRIME support; no server or desktop role.
-- Termux: root `nix-on-droid.nix` -> `nixOnDroidConfigurations.fovea` on unstable aarch64.
-- Home Manager is standalone: `home/hollowheap.nix` is a per-user entrypoint discovered from `home/*.nix`; `home/modules` is loaded with `import-tree`, `home/modules/environment` holds compositor abstractions, `home/modules/programs/hyprland` holds the Hyprland adapter, and `home/modules/styles` holds generic fonts and pill data. Shared desktop values come from `modules/options/desktop.nix`.
+
+- NixOS flake on x86_64-linux with release-26.05 for system packages and unstable for Home Manager, user programs, and the kernel.
+- `flake.nix` -> `flake/default.nix`: host enumeration, NixOS outputs, discovered Home Manager users, `nixOnDroidConfigurations.fovea`, devShells, packages, apps, and checks.
+- Hosts: `hosts/<name>/default.nix` import one chassis profile, one role, host-local hardware traits, and boot policy.
+- `lacuna`: laptop, desktop, and server roles with Intel, touch, HDR, Wi-Fi, Bluetooth, and RGB traits.
+- `acervus`: declared headless shell with placeholder hardware config and hybrid Intel/Nvidia PRIME support.
+- `home/hollowheap.nix` is discovered from `home/*.nix`; `home/modules` loads with `import-tree`.
+- `nix-on-droid.nix` is the standalone fovea Termux entrypoint on unstable aarch64.
+- Tests load from `tests/default.nix`; local packages load from `pkgs/default.nix`.
 
 ## Module Seams
-- `flake/default.nix`: host directory map, NixOS composition, structure checks, Home Manager and nix-on-droid outputs.
-- `tests/`: recursive domain checks (`layout`, `policy`, `hardware`, `home`, `services`, `users`, `boot`, `nix-on-droid`, `skills`).
-- `profiles/<class>/default.nix`: chassis policy only; no hardware imports.
-- `roles/<role>/system/`: service composition; the server role decomposes into vertical slices (`caddy`, `headscale`, `vaultwarden`, `ddclient`).
-- `home/modules/environment` and `home/modules/programs/gui` hold GUI modules; `home/modules/environment/compositor.nix` owns `desktop.compositor` gaps/borders/radius; `home/modules/programs/hyprland/keybinds.nix` owns Hyprland binds/submaps with helpers in `home/lib/hyprland.nix`; `roles/desktop/system` keeps Hyprland, UWSM, and greeter system-managed. Both Hyprland and the greeter read `desktop.primaryOutput`, `desktop.primaryScale`, and `desktop.monitors`.
-- `hardware/<trait>.nix`: drivers and capabilities; each host groups its traits in `hardware.nix`.
-- `boot/{kernel,grub,tpm,secure-boot,minegrub,plymouth}.nix`: platform integration.
-- `modules/`: generic system modules scanned recursively; `modules/system/nixpkgs.nix` owns the stable/unstable split and unfree list; `modules/options/desktop.nix` owns shared desktop values and custom desktop options.
-- `home/`: per-user entrypoints are discovered from `home/*.nix`; `home/modules/{ai,cli,core,environment,programs,services,terminal,styles}` are loaded with `import-tree`; `home/modules/programs/nvim/lsp.nix` owns editor language and linter wiring.
-- Secrets: `.sops.yaml` creation rules target the `lacuna` age key plus admin PGP; `secrets.yaml` is encrypted.
-- Caddy uses internal TLS for loopback Headscale and Vaultwarden; `tailscaled` trusts the Caddy CA.
 
-## Architecture & Traceability
-- Architecture view: `.artifacts/ARCHITECTURE.md` (system shape, module seams, contracts, security, debt).
-- RDST traceability: `.artifacts/REQUIREMENTS.md` (`Rxx`) -> `.artifacts/DECISIONS.md` (`Dxx`) -> `.artifacts/SPECS.md` (`Sxx`) -> `.artifacts/TASKS.md` (`Txx`).
-- Reviews & notes: `.artifacts/REVIEWS.md` (`Vxx` -> `.artifacts/review/<slice>.md`); `.artifacts/notes/` holds framework and harness matrices.
+- **Flake (`flake/default.nix`)**: composition root for hosts, users, checks, overlays, apps, and Termux outputs.
+- **System roles (`roles/*/system`)**: duty composition; server daemons are vertical slices under `roles/server/system`.
+- **System modules (`modules/`)**: generic capabilities, shared desktop options, nixpkgs policy, security, and services; no host or profile imports.
+- **Hardware and boot (`hardware/`, `boot/`)**: platform traits, drivers, kernel, bootloader, TPM, Secure Boot, and Plymouth integration.
+- **Desktop shell (`home/modules/environment`, `roles/desktop/system`)**: compositor abstractions, session wiring, actions, rules, input, and greeter integration.
+- **Hyprland (`home/modules/programs/hyprland`)**: compositor adapter; keybinds and helpers live in `keybinds.nix` and `home/lib/hyprland.nix`.
+- **Neovim (`home/modules/programs/nvim`)**: nvf domain modules; LSP in `lsp.nix`, Blink sources and ghost text in `completion.nix`, `r`/`s` prefixes in `keymaps.nix`.
+- **AI (`home/modules/ai`, `home/lib/ai-render.nix`)**: shared agent, skill, rule, discipline, hook, and MCP registries translated by harness adapters; model and effort are adapter-local.
+- **MCP (`programs.mcp.servers`)**: one server registry; Pi-only `codemode` exposure is added in `renderMcpServers`.
+- **Secrets (`.sops.yaml`, `secrets.yaml`)**: host-scoped encrypted values consumed by sops-nix and service units.
+- **Checks (`tests/`)**: domain flake checks; behavioral assertions use `nix eval` or built derivations where possible.
