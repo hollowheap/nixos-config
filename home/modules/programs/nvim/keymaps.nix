@@ -58,6 +58,7 @@ in {
           "<leader>ae" = "Edit selection";
           "<leader>at" = "Toggle sidebar";
           "<leader>af" = "Focus sidebar";
+          "<leader>ar" = "Refresh repomap";
           "<leader>an" = "New chat session";
           "<leader>ah" = "Select history";
           "<leader>as" = "Toggle suggestion";
@@ -959,6 +960,44 @@ in {
         desc = "Toggle inline line blame";
       }
 
+      # Avante agent keymaps under <leader>a
+      {
+        key = "<leader>aa";
+        mode = "n";
+        action = "<cmd>AvanteAsk<cr>";
+        desc = "Ask prompt";
+      }
+      {
+        key = "<leader>ae";
+        mode = "v";
+        action = "<cmd>AvanteEdit<cr>";
+        desc = "Edit selection";
+      }
+      {
+        key = "<leader>at";
+        mode = "n";
+        action = "<cmd>AvanteToggle<cr>";
+        desc = "Toggle sidebar";
+      }
+      {
+        key = "<leader>af";
+        mode = "n";
+        action = "<cmd>AvanteFocus<cr>";
+        desc = "Focus sidebar";
+      }
+      {
+        key = "<leader>ar";
+        mode = "n";
+        action = "<cmd>AvanteRefresh<cr>";
+        desc = "Refresh repomap";
+      }
+      {
+        key = "<leader>as";
+        lua = true;
+        mode = "n";
+        action = "function() require('avante').toggle.suggestion() end";
+        desc = "Toggle suggestion";
+      }
       # Avante session & history under <leader>a
       {
         key = "<leader>an";
