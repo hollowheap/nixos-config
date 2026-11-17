@@ -48,12 +48,6 @@ in
                 action = ":lua Snacks.dashboard.pick('oldfiles')";
               }
               {
-                icon = " ";
-                key = "s";
-                desc = "Restore Session";
-                section = "session";
-              }
-              {
                 icon = " ";
                 key = "q";
                 desc = "Quit";
@@ -81,9 +75,6 @@ in
               {
                 section = "keys";
                 gap = 1;
-              }
-              {
-                section = "session";
               }
               {
                 section = "startup";

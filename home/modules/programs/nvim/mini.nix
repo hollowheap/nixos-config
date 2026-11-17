@@ -51,7 +51,6 @@ in
         };
       };
       pairs.enable = true;
-      sessions.enable = true;
       surround.enable = true;
       splitjoin = {
         enable = true;
