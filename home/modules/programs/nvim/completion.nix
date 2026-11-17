@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   ...
@@ -33,7 +34,7 @@
         acp_providers = {
           pi = {
             command = "${pkgs.nodejs}/bin/node";
-            args = ["/home/hollowheap/repos/my-pi-agent/packages/pi-acp/dist/main.js"];
+            args = ["${config.home.homeDirectory}/repos/my-pi-agent/packages/pi-acp/dist/main.js"];
             env = {};
           };
         };
