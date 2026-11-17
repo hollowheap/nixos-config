@@ -65,7 +65,8 @@ pkgs.runCommand "check-home" {
   test -f home/modules/programs/wallust.nix
   test -f home/modules/programs/nvim/diagrams.nix
   rg -q "./nvim/diagrams.nix" home/modules/programs/nvim.nix
-  rg -q "diagram.nvim" flake/default.nix
+  rg -q "diagram.nvim" lib/unfree.nix
+  rg -q -F "import ../lib/unfree.nix" flake/default.nix
 
   ! test -e home/cli.nix
   ! test -e home/gui.nix
