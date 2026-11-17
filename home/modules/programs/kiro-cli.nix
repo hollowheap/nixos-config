@@ -25,16 +25,13 @@ let
     agent:
     let
       caps = agent.capabilities;
-      # Kiro subagent runtime lacks web_search, web_fetch, grep, and glob (silently ignored):
-      # strip web for subagent-only agents instead of advertising tools that never fire.
-      subagentOnly = !agent.mainAgent;
     in
     [ "read" ]
     ++ (optionals caps.write [ "write" ])
     ++ (optionals caps.execute [ "shell" ])
     ++ (optionals caps.delegate [ "subagent" ])
     ++ (optionals caps.mcp [ "@mcp" ])
-    ++ (optionals (caps.web && !subagentOnly) [ "web" ]);
+    ++ [ "web" ];
 
   kiroRulesFor =
     name: agent:
