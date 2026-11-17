@@ -15,8 +15,13 @@
 
       hooks = {
         started = "${pkgs.writeShellScript "noctalia-started-hook" ''
-          if [ -n "$NOCTALIA_WALLPAPER_PATH" ] && [ -f "$NOCTALIA_WALLPAPER_PATH" ]; then
-            ${pkgs.wallust-palette}/bin/wallust-palette --image "$NOCTALIA_WALLPAPER_PATH" --templates-dir "${config.xdg.userDirs.templates}" --apply
+          wp="$NOCTALIA_WALLPAPER_PATH"
+          if [ -z "$wp" ] || [ ! -f "$wp" ]; then
+            settings="$HOME/.local/state/noctalia/settings.toml"
+            wp="$(${pkgs.gawk}/bin/awk -F'"' '/^\[wallpaper.last\]/{f=1;next} /^\[/{f=0} f&&/^path =/{print $2; exit}' "$settings" 2>/dev/null || true)"
+          fi
+          if [ -n "$wp" ] && [ -f "$wp" ]; then
+            ${pkgs.wallust-palette}/bin/wallust-palette --image "$wp" --templates-dir "${config.xdg.userDirs.templates}" --apply
           fi
         ''}";
         wallpaper_changed = "${pkgs.callPackage ../../../pkgs/noctalia-wallpaper-hook.nix {
