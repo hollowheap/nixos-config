@@ -439,29 +439,6 @@ in
 
       bash = {
         functions = ''
-          pill_load_wallust() {
-            declare -gA WALLUST_COLORS=(
-              [0]="0;0;0" [1]="224;108;117" [2]="133;180;82" [3]="229;192;123"
-              [4]="108;160;220" [5]="179;136;255" [6]="102;194;205" [7]="224;224;224"
-              [8]="46;46;46" [9]="238;92;149" [10]="145;71;96" [11]="158;43;75"
-              [12]="89;91;214" [13]="238;92;149" [14]="254;43;44" [15]="255;255;255"
-            )
-            local seq_file="''${WALLUST_SEQUENCES_FILE:-''${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences}"
-            if [[ -f "$seq_file" ]]; then
-              while IFS= read -r line; do
-                while [[ "$line" =~ \]4\;([0-9]+)\;\#([0-9a-fA-F]{6}) ]]; do
-                  local slot="''${BASH_REMATCH[1]}"
-                  local hex="''${BASH_REMATCH[2]}"
-                  local r=$((16#''${hex:0:2}))
-                  local g=$((16#''${hex:2:2}))
-                  local b=$((16#''${hex:4:2}))
-                  WALLUST_COLORS["$slot"]="$r;$g;$b"
-                  line="''${line#*\"''${BASH_REMATCH[0]}\"}"
-                done
-              done < "$seq_file"
-            fi
-          }
-
           pill_is_bright() {
             local rgb="$1"
             IFS=';' read -r r g b <<< "$rgb"
