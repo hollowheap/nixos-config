@@ -596,6 +596,42 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Remove tools not declared by `capabilities.read`, `write`, `execute`, `delegate`, `mcp`, or `web`; keep harness-native tool names.
   - Risk: over-restricting a harness, tool-name drift, hidden delegation.
 
+- [ ] T99 [S70]: Drop shared model and effort routing abstractions
+  - Verify: `! rg -q 'modelFor|effortFor|ai\.tiers|harness-routing' home/modules home/lib --glob '*.nix' && nix build .#homeConfigurations.hollowheap.activationPackage --no-link`
+  - Files: `home/modules/ai/options.nix`, `home/lib/ai-render.nix`, `home/modules/ai/harness-routing.nix`, `home/modules/ai/harnesses.nix`, `home/modules/programs/*.nix`, `tests/home.nix`.
+  - Notes: set model and effort literals in each adapter and remove shared tier helpers.
+  - Risk: missing adapter-local model, stale test assertion, eval failure from removed option.
+
+- [ ] T100 [S68] [T99]: Enable Codex with a prebuilt package
+  - Verify: `nix eval .#homeConfigurations.hollowheap.config.programs.codex.enable | grep -qx true && ! rg -q 'AWS_LC_SYS_USE_SYSTEM' home/modules/programs/codex.nix && nix build .#homeConfigurations.hollowheap.activationPackage --no-link`
+  - Files: `home/modules/programs/codex.nix`, `tests/home.nix`.
+  - Notes: enable the adapter and source a cached or upstream binary without local native compilation.
+  - Risk: disabled adapter, vendored build during activation, missing agent or hook files.
+
+- [ ] T101 [S69] [T99]: Remove Kiro subagent capability stripping
+  - Verify: `! rg -q 'subagentOnly' home/modules/programs/kiro-cli.nix && nix eval --raw .#homeConfigurations.hollowheap.config.home.file.'".kiro/agents/worker.json"'.text | jq -e '.tools | index("web")'`
+  - Files: `home/modules/programs/kiro-cli.nix`, `tests/home.nix`.
+  - Notes: render shared capabilities for subagent roles without harness-local pruning.
+  - Risk: stripped tools, capability drift, broken JSON agent files.
+
+- [ ] T102 [S67]: Render MCP servers from one shared registry into every capable harness
+  - Verify: `nix eval --json .#homeConfigurations.hollowheap.config.programs.mcp.servers | jq -e '.refero.exposure == "codemode"' && ! rg -q 'mcpServers' home/modules/programs/pi-coding-agent.nix`
+  - Files: `home/modules/ai/options.nix`, `home/lib/ai-render.nix`, `home/modules/programs/*.nix`, `tests/home.nix`.
+  - Notes: replace Pi's private registry with the shared registry and keep codemode exposure.
+  - Risk: private registry survives, direct exposure, server missing from an adapter.
+
+- [ ] T103 [S66]: Adapt hook contracts to harness builtins
+  - Verify: `nix build .#checks.x86_64-linux.home --no-link && nix eval --json .#homeConfigurations.hollowheap.config.ai.hooks --apply 'h: builtins.hasAttr "pre-tool" h' | grep -qx true`
+  - Files: `home/modules/ai/hooks.nix`, `home/lib/ai-render.nix`, `home/modules/programs/*.nix`, `tests/home.nix`.
+  - Notes: add per-harness drops for hooks already provided natively while preserving one shared command, matcher, and timeout shape.
+  - Risk: duplicate external hook, dropped hook without builtin, fail-open pre-tool execution.
+
+- [ ] T104 [S71]: Remove repomap hook, generator, and artifacts
+  - Verify: `! rg -q 'repomap' home/modules/ai/hooks.nix && test ! -f pkgs/repomap.nix && test ! -e .artifacts/repomap.md && ! rg -q 'repomap' .artifacts/ARCHITECTURE.md`
+  - Files: `home/modules/ai/hooks.nix`, `pkgs/repomap.nix`, `.artifacts/REPOMAP.md`, `home/modules/programs/kiro-cli.nix`, `.artifacts/ARCHITECTURE.md`, `tests/home.nix`.
+  - Notes: delete the hook entries, generator package, Kiro resource, and lowercase artifact.
+  - Risk: surviving lowercase map, stale Kiro resource, documentation drift.
+
 ### References
 - Requirements: [.artifacts/REQUIREMENTS.md](file:///home/hollowheap/repos/nixos-config/.artifacts/REQUIREMENTS.md)
 - Decisions: [.artifacts/DECISIONS.md](file:///home/hollowheap/repos/nixos-config/.artifacts/DECISIONS.md)

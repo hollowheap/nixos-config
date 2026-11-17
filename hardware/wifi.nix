@@ -1,14 +1,14 @@
-{ config, ... }:
+{config, ...}: {
+  users.adminExtraGroups = ["networkmanager"];
 
-{
-  users.adminExtraGroups = [ "networkmanager" ];
+  networking.wireless.iwd.settings.General.Country = "SG";
 
   networking.networkmanager = {
     enable = true;
     wifi.backend = "iwd";
     dns = "systemd-resolved";
     ensureProfiles = {
-      environmentFiles = [ config.sops.secrets."wireless_env".path ];
+      environmentFiles = [config.sops.secrets."wireless_env".path];
       profiles = {
         "Wired" = {
           connection = {

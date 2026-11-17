@@ -152,7 +152,7 @@
 in {
   programs.opencode = {
     enable = true;
-    package = aiRender.wrapWithOpenCodeKey "opencode" pkgs.opencode;
+    package = aiRender.wrapWithOpenCodeKey "opencode" pkgs.opencode ["opencode" "opencode-go"];
     enableMcpIntegration = true;
     mutableSettings = false;
     settings = {

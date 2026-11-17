@@ -203,7 +203,7 @@ pkgs.runCommand "check-home" {
   rg -q 'fzf/colors' home/modules/cli/utilities.nix
   rg -q 'template = "fzf"' home/modules/programs/wallust.nix
   rg -q 'pkill -USR2 -x opencode' home/modules/programs/wallust.nix
-  rg -q 'theme.name = "wallust"' home/modules/programs/opencode.nix
+  rg -q -U 'theme = \{\s*name = "wallust"' home/modules/programs/opencode.nix
   rg -q '.codex/themes/wallust.tmTheme' home/modules/programs/codex.nix
   no_match -q '.config/codex/themes' home/modules/programs/codex.nix
   rg -q 'template = "claude-code.json"' home/modules/programs/claude-code.nix
@@ -252,14 +252,15 @@ pkgs.runCommand "check-home" {
   rg -q 'aiRender\.wrapWithOpenCodeKey "crush"' home/modules/programs/crush.nix
   rg -q 'providers\."opencode-go"\.api_key = "\$OPENCODE_API_KEY"' home/modules/programs/crush.nix
   rg -q 'aiRender\.wrapWithOpenCodeKey "opencode"' home/modules/programs/opencode.nix
-  rg -q 'aiRender\.wrapWithOpenCodeKey "pi"' home/modules/programs/pi-coding-agent.nix
-  rg -q 'hideThinkingBlock = true;' home/modules/programs/pi-coding-agent.nix
+  rg -q -F 'wrapWithOpenCodeKey "pi" pkgs.pi-coding-agent ["opencode-go"]' home/modules/programs/pi-coding-agent.nix
+  no_match -q 'hideThinkingBlock' home/modules/programs/pi-coding-agent.nix
   no_match -q 'auth\.json' home/modules/programs/pi-coding-agent.nix
   no_match -q '_load_ai_keys|_ensure_ai_keys_preexec|load-ai-keys' home/modules/terminal/zsh.nix
   no_match -q '\.artifacts/context\.md' home/modules/ai/rules.nix
   no_match -q 'ste100 =' home/modules/ai/disciplines.nix
   rg -q 'Zero prose, greetings, or recaps' home/modules/ai/disciplines.nix
   rg -q 'objdump' home/modules/ai/disciplines.nix
+  rg -q 'Omit a line that has no content' home/modules/ai/disciplines.nix
   rg -q 'dropDisciplines = \["search"\];' home/modules/programs/claude-code.nix
   ! test -e skills/configure-nixos
   test -f .agents/skills/configure-nixos/SKILL.md

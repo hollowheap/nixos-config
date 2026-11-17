@@ -3,10 +3,10 @@
   lib,
   pkgs,
   ...
-}:
-let
+}: let
   inherit (lib) mkOption;
-  inherit (lib.types)
+  inherit
+    (lib.types)
     bool
     str
     listOf
@@ -18,11 +18,13 @@ let
   mkMountService = remote: {
     Unit = {
       Description = "Rclone mount for ${remote}";
-      After = [ "network-online.target" ];
-      Wants = [ "network-online.target" ];
+      After = ["network-online.target"];
+      Wants = ["network-online.target"];
+      StartLimitBurst = 3;
+      StartLimitIntervalSec = "60s";
     };
     Service = {
-      Type = "notify";
+      Type = "simple";
       Environment = [
         "PATH=/run/wrappers/bin:$PATH"
       ];
@@ -30,29 +32,30 @@ let
         "-/run/wrappers/bin/fusermount3 -u ${config.home.homeDirectory}/Drive/${remote}"
         "${pkgs.coreutils}/bin/mkdir -p ${config.home.homeDirectory}/Drive/${remote}"
       ];
-      ExecStart = "${pkgs.rclone}/bin/rclone mount ${remote}: ${config.home.homeDirectory}/Drive/${remote} --vfs-cache-mode full --vfs-cache-max-age 24h --vfs-cache-max-size ${cfg.vfsCacheMaxSize} --dir-cache-time 1h --timeout 30s --contimeout 10s --low-level-retries 3 --log-level NOTICE";
-      ExecStop = "/run/wrappers/bin/fusermount3 -u ${config.home.homeDirectory}/Drive/${remote}";
+      ExecStart = "${pkgs.rclone}/bin/rclone mount ${remote}: ${config.home.homeDirectory}/Drive/${remote} --vfs-cache-mode full --vfs-cache-max-age 24h --vfs-cache-max-size ${cfg.vfsCacheMaxSize} --dir-cache-time 24h --vfs-cache-poll-interval 5m --vfs-fast-fingerprint --vfs-read-chunk-size 64M --transfers 8 --checkers 8 --timeout 30s --contimeout 10s --low-level-retries 3 --log-level NOTICE";
+      ExecStop = "/run/wrappers/bin/fusermount3 -u -z ${config.home.homeDirectory}/Drive/${remote}";
+      TimeoutStopSec = "15s";
+      SuccessExitStatus = [0 143];
       Restart = "on-failure";
       RestartSec = "10s";
     };
     Install = {
-      WantedBy = [ "default.target" ];
+      WantedBy = ["default.target"];
     };
   };
 
   mkSyncService = remote: {
     Unit = {
       Description = "Rclone periodic background sync for ${remote}";
-      After = [ "network-online.target" ];
-      Wants = [ "network-online.target" ];
+      After = ["network-online.target"];
+      Wants = ["network-online.target"];
     };
     Service = {
       Type = "oneshot";
       ExecStart =
-        if cfg.mode == "bisync" then
-          "${pkgs.rclone}/bin/rclone bisync ${config.home.homeDirectory}/Drive/${remote} ${remote}: --resilient --recover --max-lock 2m --conflict-resolve newer --transfers 4 --checkers 8 --log-level NOTICE"
-        else
-          "${pkgs.rclone}/bin/rclone sync ${remote}: ${config.home.homeDirectory}/Drive/${remote} --fast-list --max-delete 10 --backup-dir ${backupDir remote} --transfers 4 --checkers 8 --log-level NOTICE";
+        if cfg.mode == "bisync"
+        then "${pkgs.rclone}/bin/rclone bisync ${config.home.homeDirectory}/Drive/${remote} ${remote}: --resilient --recover --max-lock 2m --conflict-resolve newer --max-delete 10 --backup-dir1 ${backupDir remote}/local --backup-dir2 ${remote}:.rclone-backup/${remote} --transfers 4 --checkers 8 --log-level NOTICE"
+        else "${pkgs.rclone}/bin/rclone sync ${remote}: ${config.home.homeDirectory}/Drive/${remote} --fast-list --max-delete 10 --backup-dir ${backupDir remote} --transfers 4 --checkers 8 --log-level NOTICE";
 
       NoNewPrivileges = true;
       ProtectSystem = "strict";
@@ -82,11 +85,10 @@ let
       Persistent = true;
     };
     Install = {
-      WantedBy = [ "timers.target" ];
+      WantedBy = ["timers.target"];
     };
   };
-in
-{
+in {
   options.services.rcloneSync = {
     enable = mkOption {
       type = bool;
@@ -129,26 +131,30 @@ in
 
     # Create targets before the sandboxed units run; ProtectHome makes their
     # own mkdir fail on a fresh profile.
-    home.activation.rcloneDirs = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    home.activation.rcloneDirs = lib.hm.dag.entryAfter ["writeBoundary"] (
       lib.concatMapStrings (remote: ''
-        ${pkgs.coreutils}/bin/mkdir -p "${config.home.homeDirectory}/Drive/${remote}" "${backupDir remote}" "${config.home.homeDirectory}/.cache/rclone"
-      '') cfg.remotes
+        ${pkgs.coreutils}/bin/mkdir -p "${config.home.homeDirectory}/Drive/${remote}" "${backupDir remote}" "${config.home.homeDirectory}/.cache/rclone" "${config.home.homeDirectory}/.config/rclone"
+      '')
+      cfg.remotes
     );
 
     systemd.user.services =
-      if cfg.mode == "mount" then
+      if cfg.mode == "mount"
+      then
         lib.listToAttrs (
           map (remote: {
             name = "rclone-mount-${remote}";
             value = mkMountService remote;
-          }) cfg.remotes
+          })
+          cfg.remotes
         )
       else
         lib.listToAttrs (
           map (remote: {
             name = "rclone-sync-${remote}";
             value = mkSyncService remote;
-          }) cfg.remotes
+          })
+          cfg.remotes
         );
 
     systemd.user.timers = lib.mkIf (cfg.mode != "mount") (
@@ -156,7 +162,8 @@ in
         map (remote: {
           name = "rclone-sync-${remote}";
           value = mkSyncTimer remote;
-        }) cfg.remotes
+        })
+        cfg.remotes
       )
     );
   };

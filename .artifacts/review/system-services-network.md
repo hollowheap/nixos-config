@@ -124,3 +124,82 @@ Observed: `check-services` and `check-users` **PASSED**; `caddy`, `headscale`, `
 
 1. **Headscale Ingress Boundary & DNS-01 Certificates (`R12`, `R34`, `R36`)** → route to `/design`: expose Caddy TCP `443` externally with DuckDNS DNS-01 certs for `headscale` (restricting `vault` to mesh/loopback) vs keeping WAN `443` closed with manual pre-enrollment.
 2. **Declarative User Secrets & Multi-Host Sops Enrollment (`R06`, `R13`)** → route to `/design`: enroll `acervus` in `.sops.yaml` vs split host secret files, and wire declarative `hashedPasswordFile` + `openssh.authorizedKeys.keys` with `mutableUsers = false`.
+
+---
+
+## Robust re-review 2026-11-18
+
+All seven lenses plus simplicity were loaded explicitly. Findings were reported at `eadec4d` with a clean source tree.
+
+### 1. [High] Headscale enrollment unreachable from WAN while STUN UDP is global
+- **Current**: `roles/server/system/caddy.nix:13-17`; `roles/server/system/headscale.nix:29,69-70`.
+- **Gap**: TCP 443 allowed only on `tailscale0`/`lo`; DERP binds `0.0.0.0:3478` with global UDP allowance.
+- **Failure/impact**: unenrolled nodes cannot reach the enrollment URL.
+- **Config**: expose 443 through Caddy or document pre-enrollment.
+- **Default check**: `allowedTCPPorts` → `[]`.
+- **Confidence**: Verified.
+
+### 2. [High] Raw TCP ports exposed on `wlan0`
+- **Current**: `hosts/lacuna/default.nix:21-25`.
+- **Gap**: `wlan0.allowedTCPPorts = [1883, 8083, 8090]` with no Caddy boundary or owning module.
+- **Config**: remove the allowance; terminate through Caddy.
+- **Confidence**: Verified via `nix eval`.
+
+### 3. [High] `SSL_CERT_FILE` replaces system CA bundle
+- **Current**: `roles/server/system/default.nix:11-13`; `headscale.nix:63-67`.
+- **Gap**: one Caddy internal root overrides Go's system bundle; file is lazily created with weak `wants`.
+- **Config**: adopt D79 DNS-01 or register CA via `security.pki.certificateFiles`.
+- **Confidence**: Verified; cold-start failure inferred.
+
+### 4. [High] Internal-CA vhosts produce untrusted chains
+- **Current**: `headscale.nix:56-61`; `vaultwarden.nix:28-34`; `caddy.nix:30-37`.
+- **Gap**: only base domain has DNS-01; client-facing vhosts use `tls internal`.
+- **Config**: DNS-01 on all `*.hollowheap.duckdns.org` vhosts.
+- **Confidence**: Verified.
+
+### 5. [High] Headscale ACL omits TCP 22 and hardcodes mesh IPs
+- **Current**: `roles/server/system/acl.hujson:1-20`; `modules/services/system-services.nix:19`.
+- **Gap**: only `443` to literal IPs; `22` firewall allowance has no ACL rule.
+- **Config**: tag-based ACL rule for `22`.
+- **Default check**: `grep -q '"22"' acl.hujson` → exit 1.
+- **Confidence**: Verified.
+
+### 6. [High] `acervus` cannot decrypt shared secret
+- **Current**: `.sops.yaml:1-10`; `secrets.yaml:16`; `modules/security/sops.nix:5,8`; `hardware/wifi.nix:11`.
+- **Gap**: one recipient; acervus imports wifi secret without enrollment.
+- **Config**: D70 split and rekey.
+- **Confidence**: High.
+
+### 7. [High] SSH login has no declarative credential path
+- **Current**: `modules/system/users.nix:5,12-15,22-24`; `system-services.nix:5-13`.
+- **Gap**: `mutableUsers = true`, empty password, no authorized keys, password auth disabled.
+- **Config**: `mutableUsers = false`, sops-backed password, declarative keys.
+- **Confidence**: Verified.
+
+### 8. [Medium] Wi-Fi secret rotation restarts wrong unit
+- **Current**: `modules/security/sops.nix:11-13`; `hardware/wifi.nix:10-11`.
+- **Gap**: ensure-profiles oneshot does not re-run.
+- **Config**: restart ensure-profiles unit.
+- **Confidence**: Verified.
+
+### 9. [Medium] Service checks assert stale state
+- **Current**: `tests/services.nix:17-21,32-33`.
+- **Gap**: checks codify D79 debt and will block the fix.
+- **Config**: evaluate config instead of static grep.
+- **Confidence**: Verified.
+
+### 10. [Medium] `iwd` has no regulatory country
+- **Current**: `hardware/wifi.nix:6-11`.
+- **Gap**: world domain `00` reduces 5 GHz channels and Tx power.
+- **Config**: set `General.Country`.
+- **Confidence**: Verified.
+
+### 11. [Medium] ddclient IPv6 and alerting absent
+- **Current**: `roles/server/system/ddclient.nix:11,19-21`; `caddy.nix:28`.
+- **Gap**: `usev6 = ""`, no failure alerts, no cert-expiry monitor.
+- **Confidence**: Verified.
+
+### 12. [Medium] Bisync delete guard and mount stop timeout missing
+- **Current**: `home/modules/services/rclone.nix:33-35,51-55`; `tests/services.nix:24-28`.
+- **Gap**: duplicate of V13 F2/F4.
+- **Confidence**: Verified.

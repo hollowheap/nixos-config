@@ -34,7 +34,11 @@
   aiRenderBase = import ../../lib/ai-render.nix {inherit lib pkgs;};
 
   agentSubmodule = submodule (
-    {config, name, ...}: {
+    {
+      config,
+      name,
+      ...
+    }: {
       options = {
         name = mkOption {
           type = str;
@@ -423,24 +427,40 @@ in {
       slugToTitle
       ;
 
-    wrapWithOpenCodeKey = binName: pkg:
+    wrapWithOpenCodeKey = binName: pkg: providers: let
+      wantOpenCode = builtins.elem "opencode" providers;
+      wantGo = builtins.elem "opencode-go" providers;
+      missing =
+        if wantOpenCode && wantGo
+        then ''[ -z "''${OPENCODE_API_KEY:-}" ] || [ -z "''${OPENCODE_GO_API_KEY:-}" ]''
+        else if wantGo
+        then ''[ -z "''${OPENCODE_GO_API_KEY:-}" ]''
+        else ''[ -z "''${OPENCODE_API_KEY:-}" ]'';
+      assignments = concatStringsSep "\n" (
+        lib.optional wantOpenCode '': "''${OPENCODE_API_KEY:=$_k}"''
+        ++ lib.optional wantGo '': "''${OPENCODE_GO_API_KEY:=$_k}"''
+      );
+      exports = concatStringsSep " " (
+        lib.optional wantOpenCode "OPENCODE_API_KEY"
+        ++ lib.optional wantGo "OPENCODE_GO_API_KEY"
+      );
+    in
       pkgs.symlinkJoin {
         name = "${pkg.name}-opencode-wrapped";
-        paths = [ pkg ];
-        nativeBuildInputs = [ pkgs.makeWrapper ];
+        paths = [pkg];
+        nativeBuildInputs = [pkgs.makeWrapper];
         postBuild = ''
           rm -f "$out/bin/${binName}"
           makeWrapper "${pkg}/bin/${binName}" "$out/bin/${binName}" --run '
-            if [ -z "''${OPENCODE_API_KEY:-}" ] || [ -z "''${OPENCODE_GO_API_KEY:-}" ]; then
+            if ${missing}; then
               if ( [ -n "''${WAYLAND_DISPLAY:-}''${DISPLAY:-}" ] || [ -t 0 ] ) && ! ${pkgs.rbw}/bin/rbw unlocked >/dev/null 2>&1; then
                 ${pkgs.rbw}/bin/rbw unlock || true
               fi
               if ${pkgs.rbw}/bin/rbw unlocked >/dev/null 2>&1; then
                 _k="$(${pkgs.rbw}/bin/rbw get --folder dev/keys opencode 2>/dev/null || true)"
                 if [ -n "$_k" ]; then
-                  : "''${OPENCODE_API_KEY:=$_k}"
-                  : "''${OPENCODE_GO_API_KEY:=$_k}"
-                  export OPENCODE_API_KEY OPENCODE_GO_API_KEY
+          ${assignments}
+                  export ${exports}
                 fi
                 unset _k
               fi
@@ -508,7 +528,6 @@ in {
       concatStringsSep "\n" (
         filter (s: s != "") (map (rule: formatRuleLines rule.text) rules)
       );
-
 
     agentBodyForWith = {
       dropDisciplines ? [],

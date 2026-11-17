@@ -25,3 +25,4 @@ Maps stable review IDs (`Vxx`) to review files, modes, and scopes. See `.artifac
 | V19 | `.artifacts/review/seam-secrets-trust.md` | robustness; seam | Secrets & trust boundaries seam |
 | V20 | `.artifacts/review/seam-theme-registry.md` | robustness; seam | Theme registry & hooks seam |
 | V21 | `.artifacts/review/modular-tangling.md` | robustness | Modular tangling & adapter gaps |
+| V22 | `.artifacts/review/robust-2026-11-18.md` | robustness | Whole-system robustness, all slices and seams |

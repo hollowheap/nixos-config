@@ -348,6 +348,24 @@
   - Behavior: each harness renders the shared agent body; changing an `ai.tiers` entry changes every renderer; no harness-local model table overrides a tier except `models.<harness>`.
   - Failures: empty agent body, prompt drift, hardcoded model or effort, missing adapter branch.
 
+- [ ] S68 [R28] [D83]: Codex evaluates enabled with a prebuilt package and no repeated native compilation
+  - Verify: `nix eval .#homeConfigurations.hollowheap.config.programs.codex.enable | grep -qx true && ! rg -q 'AWS_LC_SYS_USE_SYSTEM' home/modules/programs/codex.nix && nix build .#homeConfigurations.hollowheap.activationPackage --no-link`
+  - Seam: `home/modules/programs/codex.nix` and the Codex package derivation.
+  - Behavior: Codex is enabled and its agent files, hooks, and settings render from a cached or upstream binary.
+  - Failures: disabled adapter, vendored native build during activation, absent agent or hook files.
+
+- [ ] S69 [R28] [D84]: Kiro renders shared agent capabilities without subagent capability stripping
+  - Verify: `! rg -q 'subagentOnly' home/modules/programs/kiro-cli.nix && nix eval --raw .#homeConfigurations.hollowheap.config.home.file.'".kiro/agents/worker.json"'.text | jq -e '.tools | index("web")'`
+  - Seam: `home/modules/programs/kiro-cli.nix` and `ai.agents.<name>.capabilities`.
+  - Behavior: Kiro emits the same declared tools and skills for primary and subagent roles; no harness-local pruning changes agent capability.
+  - Failures: subagent-only gate, stripped `web` or write tools, capability drift from shared schema.
+
+- [ ] S70 [R28] [D85]: Adapter-local model and effort replace shared routing abstractions
+  - Verify: `! rg -q 'modelFor|effortFor|ai\.tiers|harness-routing' home/modules home/lib --glob '*.nix' && nix build .#homeConfigurations.hollowheap.activationPackage --no-link`
+  - Seam: `home/modules/ai/options.nix`, `home/lib/ai-render.nix`, and every `home/modules/programs/*` adapter.
+  - Behavior: each adapter sets its own model and effort; shared code contributes no model or tier table.
+  - Failures: surviving shared helper, missing adapter-local model, eval error from removed routing option.
+
 #### Data & Contracts
 
 - [x] S63 [R29] [D67]: MCP-capable agents see the same enabled stdio servers in every supporting harness
@@ -362,6 +380,12 @@
   - Behavior: event, command, args, matcher, timeout, enablement, and harness filters produce equivalent native adapters; unsupported event/harness pairs fail evaluation; malformed pre-tool payloads exit nonzero.
   - Failures: ignored command, divergent matcher, fail-open pre-tool hook.
 
+- [ ] S67 [R29] [D82]: MCP servers render from one shared registry into every capable harness, including Pi
+  - Verify: `nix eval --json .#homeConfigurations.hollowheap.config.programs.mcp.servers | jq -e '.refero.exposure == "codemode"' && ! rg -q 'mcpServers' home/modules/programs/pi-coding-agent.nix`
+  - Seam: `home/modules/ai/options.nix`, `programs.mcp.servers`, and every MCP-capable harness adapter.
+  - Behavior: one server definition controls URL, command, environment, enablement, and codemode exposure; Pi consumes the registry instead of a private file.
+  - Failures: private Pi registry, server missing from a capable adapter, direct MCP tool exposure, capability bypass.
+
 #### Operations & Security
 
 - [x] S65 [R27] [D65]: Declared capabilities produce enforceable permissions and no invalid `write` key
@@ -369,6 +393,18 @@
   - Seam: `home/modules/programs/opencode.nix`, `home/modules/ai/options.nix`, `home/modules/programs/*.nix`.
   - Behavior: deny-all precedes specific allows; architect can edit artifacts and delegate to scout; task allows derive from `availableAgents`; non-OpenCode harnesses map capabilities to native tool lists.
   - Failures: deny-last ordering, `write` permission key, denied delegation, capability tool mismatch.
+
+- [ ] S66 [R30] [D81]: Hook contracts drop external hooks when a harness provides an equivalent builtin
+  - Verify: `nix build .#checks.x86_64-linux.home --no-link && nix eval --json .#homeConfigurations.hollowheap.config.ai.hooks --apply 'h: builtins.hasAttr "pre-tool" h' | grep -qx true`
+  - Seam: `home/modules/ai/hooks.nix`, `home/lib/ai-render.nix`, and each harness hook adapter.
+  - Behavior: the shared contract declares hook intent once; an adapter omits an external command when its harness performs the same policy natively, while remaining hooks keep one command, matcher, and timeout shape.
+  - Failures: duplicate external hook beside a builtin, dropped hook with no builtin substitute, per-harness hook reimplementation, fail-open pre-tool execution.
+
+- [ ] S71 [R10] [D86]: Repomap hook, generator, and artifacts are removed
+  - Verify: `! rg -q 'repomap' home/modules/ai/hooks.nix && test ! -f pkgs/repomap.nix && test ! -e .artifacts/repomap.md && ! rg -q 'repomap' .artifacts/ARCHITECTURE.md`
+  - Seam: `home/modules/ai/hooks.nix`, `pkgs/repomap.nix`, `.artifacts/REPOMAP.md`, and Kiro resource declarations.
+  - Behavior: no hook generates or consumes a repomap; no tracked or generated repomap remains in this repository.
+  - Failures: surviving lowercase map, hook still writing a map, Kiro resource pointing at a removed file, documentation still claiming a repomap.
 
 ### Desktop and Theme
 

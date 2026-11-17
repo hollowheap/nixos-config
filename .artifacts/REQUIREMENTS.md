@@ -23,7 +23,7 @@
   - Non-goals: none
   - Rationale: The tree makes host intent reviewable without per-module enable flags.
 
-- [x] R04: Touch, HDR, and hybrid graphics are gated by hardware traits.
+- [ ] R04: Touch, HDR, and hybrid graphics are gated by hardware traits.
   - Verify: grep -q "desktop.touch = true" hardware/touch.nix && grep -q "desktop.hdr = true" hardware/hdr.nix && grep -q "desktop.touch = true" home/hollowheap.nix && grep -q "hybrid-gpu" hosts/acervus/default.nix
   - Acceptance: Lacuna imports Intel, touch, and HDR traits; acervus imports hybrid Intel + Nvidia.
   - Constraints: none
@@ -39,14 +39,14 @@
 
 ### Services & Desktop
 
-- [x] R06: Lacuna runs the server role; acervus stays headless; secrets decrypt on lacuna.
+- [ ] R06: Lacuna runs the server role; acervus stays headless; secrets decrypt on lacuna.
   - Verify: nix eval --json .#nixosConfigurations.lacuna.config.services --apply 's: map (n: s.${n}.enable or false) [ "headscale" "vaultwarden" "caddy" "ddclient" ]' | grep -qx '\[true,true,true,true\]'
   - Acceptance: Headscale, Vaultwarden, Caddy, and ddclient run on lacuna with sops-managed secrets.
   - Constraints: none
   - Non-goals: none
   - Rationale: Keeping the server role local avoids a premature Vaultwarden migration.
 
-- [x] R07: The desktop keeps Hyprland, Noctalia, and UWSM system-managed while Home Manager owns the user session.
+- [ ] R07: The desktop keeps Hyprland, Noctalia, and UWSM system-managed while Home Manager owns the user session.
   - Verify: nix eval .#nixosConfigurations.lacuna.config.programs.hyprland.withUWSM | grep -qx true && nix eval .#homeConfigurations.hollowheap.config.wayland.windowManager.hyprland.enable | grep -qx true
   - Acceptance: Greeter, portals, and compositor package stay in `roles/desktop/system`; user settings live in `home/modules/environment` and `home/modules/styles`.
   - Constraints: none
@@ -69,7 +69,7 @@
   - Non-goals: none
   - Rationale: Termux shares the repository without pulling NixOS boot or hardware modules.
 
-- [x] R10: Structural invariants are enforced by flake checks.
+- [ ] R10: Structural invariants are enforced by flake checks.
   - Verify: nix flake check
   - Acceptance: Profile, role, hardware, boot, Home Manager, and nix-on-droid layout are checked.
   - Constraints: none
@@ -197,7 +197,7 @@
   - Non-goals: none
   - Rationale: Tool stripping is an ordering bug, not an intended restriction.
 
-- [x] R28: Every AI harness gives each agent the same role brief and consistent model and effort policy.
+- [ ] R28: Every AI harness gives each agent the same role brief and consistent model and effort policy.
   - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
   - Acceptance: Non-OpenCode harnesses render the same agent brief as OpenCode; changing a shared tier changes every harness, and no harness hardcodes a model outside its adapter override.
   - Constraints: none
@@ -211,7 +211,7 @@
   - Non-goals: none
   - Rationale: `capabilities.mcp` currently yields no tools anywhere.
 
-- [x] R30: A hook definition behaves consistently across harnesses and malformed pre-tool input blocks the tool.
+- [ ] R30: A hook definition behaves consistently across harnesses and malformed pre-tool input blocks the tool.
   - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
   - Acceptance: Changing one hook command or matcher affects every supporting harness; malformed pre-tool payloads fail closed.
   - Constraints: none

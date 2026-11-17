@@ -134,3 +134,79 @@
 1. **Markdown Format-on-Save Policy (`F1`)** → route to `/design`: disable `markdown.format.enable = false` in `nvfLanguages` vs configure a prose-preserving formatter (`prettier --prose-wrap preserve`).
 2. **Session Restore Lifecycle (`F2`)** → route to `/design`: manual dashboard action + `<leader>qs` binding vs automatic `mini.sessions` `autoread = true` on empty launch.
 3. **Normal-mode `r` Operator Prefix (`F7`)** → route to `/design`: retain `r` → `<Nop>` (`rr` replace) with `nowait` shims vs moving operator prefix off built-in `r`.
+
+---
+
+## Robust re-review 2026-11-18
+
+All seven lenses plus simplicity were loaded explicitly. Findings were reported at `eadec4d` with a clean source tree.
+
+### 1. [High] Markdown format-on-save runs `deno fmt`
+- **Current**: `home/modules/core/toolchain.nix:123,139,236`; `home/modules/programs/nvim/lsp.nix:11,18`.
+- **Gap**: nvf language module overrides `formattersByFt.markdown = lib.mkForce [ ]` with `conform` type `[ "deno" ]`.
+- **Failure/impact**: every Markdown write reflows prose and bullets.
+- **Config**: `nvfLanguages.markdown.format.enable = false`.
+- **Default check**: conform `formatters_by_ft.markdown` → `["deno"]`.
+- **Confidence**: Verified via `nix eval` and headless Neovim.
+
+### 2. [High] `checks.x86_64-linux.home` fails at `tests/home.nix:206`
+- **Current**: `tests/home.nix:206`; `home/modules/programs/opencode.nix:192-195`.
+- **Gap**: static regex expects one-line `theme.name = "wallust"`; source is nested.
+- **Failure/impact**: R50/R51/R52 verification gate is red.
+- **Config**: multiline match or evaluated-option assertion.
+- **Confidence**: Verified via build and `rg`.
+
+### 3. [Medium] Session restore is unreachable
+- **Current**: `home/modules/programs/nvim/snacks.nix:51-55,86`; `mini.nix:54`.
+- **Gap**: dashboard `section = "session"` needs `lazy.nvim` but nvf uses `lz.n`; no restore keymap; `autoread` defaults false.
+- **Config**: direct `mini.sessions.read()` action plus a `<leader>qs` binding.
+- **Default check**: headless dashboard `Restore Session count: 0`; `<leader>qs` unbound.
+- **Confidence**: Verified headless.
+
+### 4. [Medium] Six Avante which-key entries are unbound
+- **Current**: `home/modules/programs/nvim/keymaps.nix:62-69` vs `:898-906`.
+- **Gap**: `<leader>aa`, `ae`, `at`, `af`, `ar`, `as` are advertised but not bound.
+- **Config**: bind commands or delete descriptions.
+- **Default check**: `maparg` → `<unbound>` for all six.
+- **Confidence**: Verified headless.
+
+### 5. [Medium] Avante ACP provider hardcodes an impure path
+- **Current**: `home/modules/programs/nvim/completion.nix:34-40`.
+- **Gap**: `/home/hollowheap/repos/my-pi-agent/...` fails on other hosts or moved checkouts.
+- **Config**: derive from `config.home.homeDirectory` or a Nix package.
+- **Confidence**: Verified statically.
+
+### 6. [Medium] `bash`/`zsh` buffers have no formatter
+- **Current**: `home/modules/core/toolchain.nix:105-106,235-237`; `home/modules/programs/nvim/lsp.nix:18`.
+- **Gap**: conform keys `sh` only, not `bash` or `zsh`.
+- **Config**: add both filetype keys.
+- **Default check**: headless `bash: <none>`, `zsh: <none>`.
+- **Confidence**: Verified headless.
+
+### 7. [Medium] Noctalia `started` hook no-ops; editor palette not regenerated on shell start
+- **Current**: `home/modules/programs/noctalia.nix:17-21`; `home/modules/programs/wallust.nix:73-77`.
+- **Gap**: `NOCTALIA_WALLPAPER_PATH` exists only on change events.
+- **Config**: read persisted wallpaper from `settings.toml` on start.
+- **Confidence**: Verified in source; upstream env behavior inherited from V12.
+
+### 8. [Medium] D78 palette authority absent
+- **Current**: `home/modules/programs/nvim/ui.nix:12-29`; `assets/wallust-templates/nvim-colors.lua:19-36`; `ARCHITECTURE.md:27`.
+- **Gap**: no `palette.nix` or `styles.palette`; neutral hexes duplicated.
+- **Confidence**: Verified absence; live drift latent.
+
+### 9. [Low] Rendered template collapses four base16 roles
+- **Current**: `assets/wallust-templates/nvim-colors.lua:29-30,35-36`.
+- **Gap**: `base08`/`base09` share slot 9; `base0E`/`base0F` share slot 13.
+- **Config**: map to distinct ANSI slots.
+- **Confidence**: Verified via rendered wallust output.
+
+### 10. [Low] Home check is string-only for editor behavior
+- **Current**: `tests/home.nix:20-24,52-54,234-239,343-344`.
+- **Gap**: no evaluated or headless assertions for nvf/conform/keymaps/dashboard.
+- **Confidence**: Verified.
+
+### 11. [Low] `pill_load_wallust` helper has no callers
+- **Current**: `home/modules/styles/pills.nix:442-549`.
+- **Gap**: documented EOF-safe helper is dead code.
+- **Default check**: `rg -n pill_load_wallust` → one definition hit.
+- **Confidence**: Verified statically.

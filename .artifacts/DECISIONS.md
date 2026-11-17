@@ -419,6 +419,206 @@
   - Consequences: Caddy obtains trusted Let's Encrypt certs via DuckDNS TXT API calls (no inbound WAN 80/443 needed, cached 90 days offline), removes per-service `SSL_CERT_FILE` point fixes, transfers cleanly when `acervus` becomes the server, and pairs with `acl.hujson` allowing mesh SSH port `22`; public CT logs observe the subdomain names.
   - Supersedes: D09, D22
 
+- [ ] D81 [R30]: Adapt the shared `ai.hooks` contract to harness builtins and drop external hook executions a harness already performs natively.
+  - Context: One hook contract currently spawns external commands for git policy and repomap across harnesses, duplicating native capabilities and paying per-tool overhead.
+  - Alternatives: keep one uniform external hook invocation for every harness; let each harness hand-maintain its own hooks.
+  - Consequences: add a per-harness hook-drop mechanism analogous to `dropDisciplines`/`dropRules`; shared hooks declare intent, adapters omit implementations covered by builtins, and remaining hooks keep one command/matcher/timeout schema.
+
+- [ ] D82 [R29]: Render MCP servers from one shared registry into every harness that supports MCP, including Pi.
+  - Context: `programs.mcp.servers` is empty and Pi carries a private hardcoded `mcp.json`; MCP-capable agents receive no tools.
+  - Alternatives: per-harness MCP files; keep Pi exempt with a private registry.
+  - Consequences: populate the shared registry, gate servers on `capabilities.mcp`, render them in all capable adapters, and remove Pi's private registry file.
+
+- [ ] D83 [R28]: Enable Codex without recompiling it on every rebuild.
+  - Context: the adapter is disabled and its `package` override builds vendored aws-lc and extra libraries at evaluation time.
+  - Alternatives: leave Codex disabled; accept repeated native compilation on each switch.
+  - Consequences: use a prebuilt or cached Codex derivation with the same runtime inputs, then enable the adapter.
+
+- [ ] D84 [R28]: Keep Kiro a neutral adapter; remove `subagentOnly` capability stripping.
+  - Context: `kiro-cli.nix` strips `web` and other tools for `role = "subagent"` even though the shared AI schema declares those capabilities.
+  - Alternatives: keep harness-specific capability pruning for subagents; change agent roles to satisfy Kiro.
+  - Consequences: harnesses render the shared `ai.*` data without harness-specific subagent pruning; capability enforcement stays in the shared schema and non-Kiro adapters.
+
+- [ ] D85 [R28]: Drop `ai.tiers`, `modelFor`, and `effortFor`; model and effort selection belong to each harness adapter.
+  - Context: model availability and reasoning effort are not harness-agnostic, so a shared abstraction hides real per-harness differences and creates dead tier contracts.
+  - Alternatives: keep a shared tier table and per-harness overrides; add the missing `ai.tiers` option.
+  - Consequences: delete the shared model/effort helpers and tier table, set model and effort directly in each adapter, and treat model choice as adapter-local policy.
+
+- [ ] D86 [R10]: Drop the repomap hook, repomap generator, and all repomap artifacts.
+  - Context: `.artifacts/REPOMAP.md` is the canonical path, but the hook writes lowercase `.artifacts/repomap.md` and duplicate maps exist across repositories.
+  - Alternatives: keep the hook and fix the path case; keep generated maps as review evidence.
+  - Consequences: remove `ai.hooks.session-start`/`post-tool` repomap entries, remove `pkgs/repomap.nix`, delete repomap artifacts under `~/repos/*`, and update docs and checks that reference them.
+
+- [ ] D87 [R15]: Accept every V16 flake discovery and tests finding as valid and fix them.
+  - Context: the seam review found unchecked discovered users and hosts, inline checks shadowing `tests/`, missing `outputs.lib`, missing fovea overlay and specialArgs, hardcoded HM unfree policy, static-only assertions, whole-tree check sources, and missing app metadata/package outputs.
+  - Alternatives: fix only a subset; defer the seam until a later design pass.
+  - Consequences: drive checks from discovered configurations, relocate inline checks, export `lib`, overlay fovea, mirror `unfreePackages` into HM, add evaluation-based assertions, narrow check sources, and register package outputs.
+
+- [ ] D88 [R04]: Enable HDR only on lacuna and consume it on both NixOS and Home Manager layers.
+  - Context: `hardware/hdr.nix` declares a setter no host imports; HM never sets `desktop.hdr`, so Hyprland HDR branches are unreachable.
+  - Alternatives: enable HDR on all desktops; keep the trait dead.
+  - Consequences: lacuna imports the HDR trait, its HM host overlay sets `desktop.hdr = true`, and acervus stays false.
+
+- [ ] D89 [R08]: Move laptop geometry defaults out of shared `desktop.*` options into lacuna host data.
+  - Context: `eDP-1`, `1.25`, and `2880x1800@120` leak onto acervus and standalone HM.
+  - Alternatives: keep shared fallbacks; null them everywhere.
+  - Consequences: shared defaults become neutral, lacuna owns monitor/output values, and HM consumers skip monitors when no host supplies them.
+
+- [ ] D90 [R07]: Derive greeter output, layout, refresh rate, keyboard variant/options, and fonts from shared `desktop.*`.
+  - Context: greeter hardcodes `eDP-1` and forwards only `layout`, diverging from the session.
+  - Alternatives: keep greeter literals; configure greeter independently.
+  - Consequences: greeter and compositor consume the same host-provided desktop contract.
+
+- [ ] D91 [R04]: Treat shell touch and compositor touch as separate abstractions, each consumed by its own layer.
+  - Context: one `desktop.touch` setter is duplicated in NixOS and HM with no NixOS consumer.
+  - Alternatives: keep one shared boolean for every layer; drop touch configuration entirely.
+  - Consequences: desktop shell and compositor each receive touch policy from their own host-scoped abstraction; no orphan NixOS setter.
+
+- [ ] D92 [R33]: Drop the lid/caffeine policy; the Super Caffeine plugin supersedes it.
+  - Context: NixOS lid action and Noctalia caffeine coordination are split, and tests assert stale `suspend`.
+  - Alternatives: implement logind inhibitor switching; keep the split policy.
+  - Consequences: remove lid-action policy and its stale assertion, leaving caffeine handling to the desktop shell plugin.
+
+- [ ] D93 [R39]: Power-saving mode must lower frame rates from actual monitor modes.
+  - Context: `replaceStrings "@120" "@60"` silently misses other refresh rates.
+  - Alternatives: keep literal substitution; drop power-saving refresh changes.
+  - Consequences: parse `<WxH>@<Hz>` and emit a lower Hz value, preserving per-monitor position and scale.
+
+- [ ] D94 [R07]: Install `desktop.fonts` packages on the NixOS side for greeter rendering.
+  - Context: fonts are installed only in Home Manager, so the login greeter falls back to generic fonts.
+  - Alternatives: keep fonts user-only; hardcode greeter font family.
+  - Consequences: the desktop system role installs sans, serif, and monospace packages and sets the greeter font family.
+
+- [ ] D95 [R07]: Drop `desktop.compositor.barHeight`.
+  - Context: the option has no consumer in Hyprland, Noctalia, or any adapter.
+  - Alternatives: wire it into panel geometry.
+  - Consequences: remove the option and any test references.
+
+- [ ] D96 [R07]: Keep `xdg.portal` system-level and use Hyprland's portal for now.
+  - Context: portal ownership is absent from `roles/desktop/system`, while rules match a literal portal app id.
+  - Alternatives: move portal config to Home Manager; add multiple portals.
+  - Consequences: compose the Hyprland portal in the system desktop role and align rules with it.
+
+- [ ] D97 [R10]: Assert every declared Wallust template has a matching asset and check.
+  - Context: `starship-palette.toml` is declared but omitted from the template list in `tests/home.nix`.
+  - Alternatives: keep hand-maintained lists.
+  - Consequences: derive or enumerate all declared templates so a missing asset fails its check.
+
+- [ ] D98 [R08]: Parameterize Wacom and Yoga switch names in host-scoped options.
+  - Context: vendor strings are hardcoded in shared `import-tree` modules.
+  - Alternatives: keep vendor literals as defaults.
+  - Consequences: add `desktop.touchscreen.switchDevice`, set it on lacuna, and render shell/compositor bindings from it.
+
+- [ ] D99 [R52]: Markdown formatting must respect the unified toolchain contract.
+  - Context: nvf's Markdown language module installs `deno fmt` into conform despite `formattersByFt.markdown = lib.mkForce [ ]`.
+  - Alternatives: accept nvf's default formatter; configure a prose-preserving formatter.
+  - Consequences: disable the nvf Markdown format integration so no formatter runs on Markdown saves.
+
+- [ ] D100 [R52]: Drop Neovim session restore.
+  - Context: dashboard restore entry relies on `lazy.nvim` while nvf uses `lz.n`, and no restore binding exists.
+  - Alternatives: add a `mini.sessions.read()` action and keybinding.
+  - Consequences: remove the dead restore entry and session plugin wiring instead of restoring it.
+
+- [ ] D101 [R52]: Keep the Avante `<leader>a*` keymaps; the headless unbound report is not trusted.
+  - Context: a headless `maparg` probe reported six unbound keys, but the user confirms they work.
+  - Alternatives: delete or rebind the six entries.
+  - Consequences: no change to Avante keymaps; future reviews must not treat the headless probe as evidence without a real-session reproduction.
+
+- [ ] D102 [R52]: Register ACP providers for every harness that supports them and remove impure checkout paths.
+  - Context: Avante's `pi` provider hardcodes `/home/hollowheap/repos/my-pi-agent/...`; other ACP-capable harnesses are unregistered.
+  - Alternatives: keep one provider with a machine-local path.
+  - Consequences: derive the provider path from Home Manager or a Nix package and register the confirmed ACP harnesses.
+
+- [ ] D103 [R52]: Register `shfmt` for both `bash` and `zsh` filetypes.
+  - Context: conform receives `sh = [ "shfmt" ]` from nvf, but not `bash` or `zsh`.
+  - Alternatives: keep the gap and rely on manual formatting.
+  - Consequences: add both filetype keys to the unified formatter map.
+
+- [ ] D104 [R50]: The Noctalia `started` hook must derive the wallpaper from persisted settings.
+  - Context: `NOCTALIA_WALLPAPER_PATH` exists only on wallpaper change, so editor palettes stay stale after a shell restart.
+  - Alternatives: rely on the change event only.
+  - Consequences: read the last wallpaper from `settings.toml` on start and apply Wallust templates.
+
+- [ ] D105 [R50]: Preserve distinct base16 syntax roles for readability.
+  - Context: the rendered template maps `base09` to the same ANSI slot as `base08`, and `base0F` to the same slot as `base0E`.
+  - Alternatives: keep collapsed roles and shared bright grays.
+  - Consequences: use distinct ANSI slots so constants, errors, keywords, and deprecated tags remain visually separable.
+
+- [ ] D106 [R10]: Editor checks must assert evaluated configuration and behavior, not only file presence.
+  - Context: conform, keymap, and dashboard gaps pass the current string-only check.
+  - Alternatives: keep static `rg`/`test -f` assertions.
+  - Consequences: add `nix eval` assertions for formatter maps and a bounded headless behavior probe.
+
+- [ ] D107 [R10]: Drop the dead `pill_load_wallust` helper.
+  - Context: reverification found one match, its definition at `home/modules/styles/pills.nix:442`, and no callers.
+  - Alternatives: wire it into a consumer.
+  - Consequences: remove the helper and any claim that its EOF-safe parsing is active.
+
+- [ ] D108 [R50]: Dynamic Wallust/Noctalia colorschemes supersede a static palette registry.
+  - Context: D78 claimed a canonical `home/modules/styles/palette.nix`; the module does not exist, and colors are now generated per wallpaper.
+  - Alternatives: add a static neutral-ramp module that templates consume.
+  - Consequences: retire D78, remove the architecture claim, and keep palette work limited to dynamic template correctness such as D105.
+
+- [ ] D109 [R52]: Register every ACP provider Avante supports, including Pi, Claude Code, agy, and OpenCode.
+  - Context: only a Pi provider is registered, with an impure `/home/hollowheap/...` path.
+  - Alternatives: keep one provider with a machine-local path.
+  - Consequences: derive provider paths from Nix or Home Manager, add the four named providers, and enumerate further supported providers from the installed Avante configuration before registration.
+
+- [ ] D110 [R12]: Keep the HTTPS ingress design open until further discussion; do not adopt Tailscale certificates.
+  - Context: public-trusted certs alone do not solve reachability from public Wi-Fi, and the user does not want Tailscale as the transport.
+  - Alternatives: Tailscale HTTPS certs, split DNS with DNS-01, or WAN-forwarded 443 with DNS-01.
+  - Consequences: defer changes to Caddy vhosts, `SSL_CERT_FILE`, and firewall ingress until a routing model is chosen.
+
+- [ ] D111 [R06]: Build a squashfs NixOS installer image for acervus and supply the GPG private key externally at install time.
+  - Context: `#install` is only a helper script, not an image; the user needs disko, `nixos-install`, and working Wi-Fi on first boot.
+  - Alternatives: commit a passphrase-protected private key or document manual installation.
+  - Consequences: add an ISO/squashfs output; never commit private keys, even passphrase-protected; read the key from external media or a prompt during installation.
+
+- [ ] D112 [R13]: Declarative identity uses the GPG-derived SSH public key.
+  - Context: `mutableUsers = false` requires declarative password and authorized-key sources.
+  - Alternatives: plain SSH key or imperative identity.
+  - Consequences: add the GPG-derived SSH public key to `users.users.hollowheap.openssh.authorizedKeys.keys` and source the password hash from sops.
+
+- [ ] D113 [R39]: Keep the rclone mount and tune VFS/cache behavior for browsing speed.
+  - Context: full VFS mount makes Nautilus directory loads slow; the user prefers to keep mount.
+  - Alternatives: switch to one-way sync mirror or guarded bisync.
+  - Consequences: tune `--dir-cache-time`, polling, fast fingerprinting, chunk size, and transfer concurrency; still add delete caps and backups to the bisync path.
+
+- [x] D114 [R04]: Set iwd regulatory country to SG.
+  - Context: world domain `00` reduces 5 GHz channels and transmit power.
+  - Alternatives: leave iwd unset.
+  - Consequences: `networking.wireless.iwd.settings.General.Country = "SG"` for hosts with Wi-Fi.
+
+- [x] D115 [R37]: Keep ddclient IPv4-only.
+  - Context: `usev6 = ""` disables AAAA updates.
+  - Alternatives: enable IPv6 updates.
+  - Consequences: no change to `roles/server/system/ddclient.nix`.
+
+- [ ] D116 [R12]: Defer fovea HTTPS until acervus is installed and becomes the server.
+  - Context: lacuna is a temporary host, DuckDNS points at a home that is not deployed, and fovea access is only required after acervus exists.
+  - Alternatives: implement a temporary mesh-pin or WAN-forwarding workaround now.
+  - Consequences: leave `tls internal`, `SSL_CERT_FILE`, and ingress unchanged until the server role moves to acervus.
+
+- [ ] D117 [R06]: The squashfs installer uses a build-time ephemeral SSH/age keypair and never stores private key material in git or the target.
+  - Context: the real GPG private key cannot be securely fetched remotely and must not be committed.
+  - Alternatives: commit an encrypted private key or require a hardware token.
+  - Consequences: build the ISO where the operator already has secret access, encrypt install-time secrets to an ephemeral age recipient, install with the ephemeral key, then bootstrap the real public key and rekey to the host key after first boot.
+
+- [x] D118 [R13]: The declarative SSH key is the GPG auth subkey `FEEF0424DED6FB762A6F4747BD8DF946E631B8B9`.
+  - Context: the email matches two GPG secret keys; only this subkey carries SSH auth capability.
+  - Alternatives: use the primary signing/certification key.
+  - Consequences: `users.users.hollowheap.openssh.authorizedKeys.keys` contains `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmWse+nAkLVADDX/hM3wO8ywLuIBXTyLj3ccor7r8NS openpgp:0xE631B8B9`.
+
+- [x] D119 [R28]: Pi receives only the `opencode-go` provider; OpenCode and Crush keep both providers.
+  - Context: Pi should not expose the `opencode` provider, while OpenCode may use both.
+  - Alternatives: keep one shared wrapper that injects both API keys everywhere.
+  - Consequences: `wrapWithOpenCodeKey` takes an explicit provider list; Pi passes only `opencode-go`.
+
+- [x] D120 [R27]: End-of-turn output prints only non-empty lines, with `Blocked:` on its own line.
+  - Context: empty `Next: none` or `Blocked: none` lines are noise, and a combined `Next|Blocked:` line hides state.
+  - Alternatives: always print four lines with a combined status line.
+  - Consequences: emit `Done:`, `Verified:`, `Next:`, and `Blocked:` only when each has content; keep `Blocked:` separate.
+
 ## Non-Goals
 - Automated backup and restore for Vaultwarden, Headscale, Caddy state, or home data; rclone safety is the only sync change in this backlog.
 - UKI/lanzaboote initrd signing, measured boot, and TPM PCR policy changes.

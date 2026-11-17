@@ -90,3 +90,77 @@ Observed: `builtin_ids = ["hyprland"]`; `wallpaper_changed` resolves to `/nix/st
 1. **Single Palette Authority (`R50`)** → route to `/design`: standardize on Noctalia Material 3 (feeding Wallust) vs Wallust salience (feeding GTK/OpenRGB).
 2. **Unified Theme Consumer Registry (`R50`, `R51`)** → route to `/design`: centralize `styles.theme.consumers` schema vs per-module `programs.wallust.settings.templates` with eval assertions.
 3. **Dark-Only vs Dynamic Theme Mode Switching** → route to `/design`: formalize dark-only non-goal vs wiring `theme_mode_changed` + light templates.
+
+---
+
+## Robust re-review 2026-11-18
+
+All seven lenses plus simplicity were loaded explicitly. Findings were reported at `eadec4d` with a clean source tree.
+
+### 1. [High] `started` hook no-ops on compositor start
+- **Current**: `home/modules/programs/noctalia.nix:17-21`.
+- **Gap**: `NOCTALIA_WALLPAPER_PATH` is provided only on `wallpaper-changed`; `started` has no env var.
+- **Failure/impact**: no theme re-apply on shell or panel restart.
+- **Config**: read persisted wallpaper from `settings.toml` and share one apply script.
+- **Confidence**: Verified in source and upstream hook docs.
+
+### 2. [High] Cold boot has no palette seed
+- **Current**: `home/modules/programs/wallust.nix:73-77`; `pkgs/wallust-palette.py:294-295`.
+- **Gap**: `--apply` runs only when Noctalia state already has a wallpaper; nothing writes that state before the first change.
+- **Failure/impact**: 15 template targets and 7 consumer hooks remain ungenerated on a fresh host.
+- **Config**: seed a bundled preset when state is absent.
+- **Confidence**: Verified in source; warm-host format UNVERIFIED.
+
+### 3. [Medium] `checks.x86_64-linux.home` fails on stale assertions
+- **Current**: `tests/home.nix:206,256`.
+- **Gap**: `theme.name = "wallust"` and `hideThinkingBlock = true;` no longer exist in source.
+- **Config**: align both assertions.
+- **Confidence**: Verified via build and `rg`.
+
+### 4. [Medium] `wallpaper_changed` hook lacks fail-closed shell
+- **Current**: `pkgs/noctalia-wallpaper-hook.nix:12-33`.
+- **Gap**: no `set -euo pipefail`; failed steps still run later actions with suppressed stderr.
+- **Config**: fail closed and guard each step.
+- **Confidence**: Verified in source.
+
+### 5. [Medium] `on_primary` discarded; GTK foreground hardcoded white
+- **Current**: `pkgs/noctalia-wallpaper-hook.nix:16,18,22`; `pkgs/mactahoe-gtk-accent.nix:31-33,50-53`.
+- **Gap**: faithful primary can be near-white; white foreground becomes unreadable.
+- **Config**: extract `.on_primary` and pass it as `$2`.
+- **Confidence**: Verified via CLI output; rendered contrast UNVERIFIED.
+
+### 6. [Medium] Wallpaper change kills on-screen keyboard without restart
+- **Current**: `pkgs/noctalia-wallpaper-hook.nix:31`; `home/lib/hyprland.nix:34-59`.
+- **Gap**: bare `pkill wvkbd-mobintl` with no relaunch path.
+- **Confidence**: Verified in source; live UX UNVERIFIED.
+
+### 7. [Medium] Icon accent writes to store-linked `settings.ini`
+- **Current**: `pkgs/mactahoe-icon-accent.py:87-110`; `home/modules/programs/gtk/theme.nix`.
+- **Gap**: `PermissionError` swallowed; GTK apps reading `settings.ini` keep the static fallback.
+- **Config**: skip symlinks or provision mutable overlays.
+- **Confidence**: Verified via source and `nix eval`.
+
+### 8. [Low] OSC sequences broadcast to every writable pty
+- **Current**: `home/modules/programs/wallust.nix:30-39`.
+- **Gap**: no TTY targeting or opt-in.
+- **Confidence**: Verified in source; live effects UNVERIFIED.
+
+### 9. [Low] `dconf-theme.txt` read but never written
+- **Current**: `pkgs/mactahoe-icon-accent.py:46,56-65`.
+- **Gap**: dead recovery branch.
+- **Confidence**: Verified via `rg`.
+
+### 10. [Low] `theme_mode_changed` unhandled
+- **Current**: `home/modules/programs/noctalia.nix:16-25`.
+- **Gap**: dark-only is currently forced; override would diverge external surfaces.
+- **Confidence**: Verified in source; event firing UNVERIFIED.
+
+### 11. [Low] SIGUSR1 handler registered too late
+- **Current**: `home/modules/programs/nvim/ui.nix:363`; `assets/wallust-templates/nvim-colors.lua:40-51`.
+- **Gap**: duplicate of V20 finding 3.
+- **Confidence**: Verified in source.
+
+### 12. [Low] Hook chain serializes repeated extractions
+- **Current**: `pkgs/noctalia-wallpaper-hook.nix:14-31`.
+- **Gap**: no memoization; latency unmeasured.
+- **Confidence**: Verified in source.

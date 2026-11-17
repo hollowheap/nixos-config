@@ -35,7 +35,7 @@
 in {
   programs.crush = {
     enable = true;
-    package = aiRender.wrapWithOpenCodeKey "crush" pkgs.crush;
+    package = aiRender.wrapWithOpenCodeKey "crush" pkgs.crush ["opencode" "opencode-go"];
     enableMcpIntegration = true;
     settings = {
       providers."opencode-go".api_key = "$OPENCODE_API_KEY";

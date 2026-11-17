@@ -146,3 +146,79 @@
 ## Blocking Design Forks
 
 None
+
+---
+
+## Robust re-review 2026-11-18
+
+All seven lenses plus simplicity were loaded explicitly. Findings were reported at `eadec4d` with a clean source tree.
+
+### 1. [High] `rclone mount` uses `Type = notify` without `READY=1`
+- **Current**: `home/modules/services/rclone.nix:25,33-36`.
+- **Gap**: rclone 1.76.0 has no sd_notify support; systemd waits for a notification that never arrives.
+- **Failure/impact**: mount never becomes active; restart loop every 10s; `~/Drive/gdrive` stays empty.
+- **Config**: use `Type = simple`/`exec` and bound restarts.
+- **Default check**: eval of `rclone-mount-gdrive.Service.Type` → `"notify"`; binary strings contain no `NOTIFY_SOCKET`/`READY=1`.
+- **Confidence**: High; live runtime UNVERIFIED.
+
+### 2. [High] `bisync` lacks delete caps, backup dirs, and resync
+- **Current**: `home/modules/services/rclone.nix:52-55`.
+- **Gap**: `sync` branch caps deletes and keeps backups; `bisync` does neither.
+- **Failure/impact**: uncapped bidirectional deletion on divergence; no recovery copy.
+- **Config**: add `--max-delete`, `--backup-dir1/2`, and a resync runbook.
+- **Confidence**: High.
+
+### 3. [High] `rclone.conf` unprovisioned while `enable = true`
+- **Current**: `home/modules/services/rclone.nix:63,91-94,132-136`.
+- **Gap**: config directory is in `ReadWritePaths` but never created; no preflight check; default enable imports on every host.
+- **Failure/impact**: fresh host fails with opaque *Remote not found* and mount restart loop.
+- **Config**: gate enable on config existence, create the directory, add `ExecStartPre` check.
+- **Confidence**: High.
+
+### 4. [Medium] FUSE teardown unbounded
+- **Current**: `home/modules/services/rclone.nix:24-37`.
+- **Gap**: no `TimeoutStopSec`, `SuccessExitStatus`, or lazy unmount.
+- **Failure/impact**: logout/shutdown can stall; SIGTERM exits may trigger restarts.
+- **Confidence**: High; runtime stall UNVERIFIED.
+
+### 5. [Medium] `rbw-agent` has no restart policy or sandboxing
+- **Current**: `home/modules/services/auth-agents.nix:32,48-56`.
+- **Gap**: `Restart=no`, no `NoNewPrivileges`/`ProtectSystem`/`PrivateTmp`; `PIDFile` origin unverified.
+- **Failure/impact**: crash leaves SSH/git auth dead; long-lived vault keys with full privileges.
+- **Confidence**: High; PIDFile behavior UNVERIFIED.
+
+### 6. [Medium] Host service checks live in portable user module
+- **Current**: `home/modules/services/health-check.nix:15-24,33`.
+- **Gap**: user-scope unit checks lacuna system services and `/var`; `notify-send || true` hides failure.
+- **Failure/impact**: false alarms on headless hosts; no alert channel.
+- **Config**: move daemon checks to server role; gate notification on session.
+- **Confidence**: High.
+
+### 7. [Medium] Generation expiry shorter than Nix GC retention
+- **Current**: `home/modules/services/store-hygiene.nix:7,18,23-40`.
+- **Gap**: 7-day generation expiry vs 14-day GC retention; redundant timer.
+- **Failure/impact**: rollback window 8-14d broken.
+- **Config**: align to 14 days; drop duplicate timer.
+- **Confidence**: High.
+
+### 8. [Medium] `git-maintenance` aborts on first failure and skips suspended days
+- **Current**: `home/modules/cli/git.nix:184-201`.
+- **Gap**: `|| exit 1` halts remaining repos; no `Persistent` or `RandomizedDelaySec`.
+- **Failure/impact**: silent maintenance gaps.
+- **Config**: accumulate errors; configure timer persistence and jitter.
+- **Confidence**: High.
+
+### 9. [Low] Backup directory grows without bound
+- **Current**: `home/modules/services/rclone.nix:16,55,132-136`.
+- **Gap**: no rotation of `~/Drive/.rclone-backup`.
+- **Confidence**: Medium.
+
+### 10. [Low] `udiskie` coupled to `tray.target`; health alerts swallowed
+- **Current**: `home/modules/services/udiskie.nix:3`; `health-check.nix:33`.
+- **Gap**: automount may wait on an unstarted tray; notification failures hidden.
+- **Confidence**: Low; rendered checks UNVERIFIED.
+
+### 11. [Medium] Home check asserts file presence only
+- **Current**: `tests/home.nix:38-50`.
+- **Gap**: no evaluated assertions on units, delete caps, retention, or timers.
+- **Confidence**: High.

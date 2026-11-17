@@ -144,3 +144,61 @@ nix eval .#homeConfigurations.hollowheap.config.programs.omp.enable
 
 1. **Subagent capability contract vs. `subagent-io` read-only discipline** → route to `/design` (`home/modules/ai/disciplines.nix:98` vs. `worker` `write = true`).
 2. **Requirement `R23` (`omp`) disposition** → route to `/design` (`R23` marked `[x]` in `REQUIREMENTS.md:165` while `home/modules/programs/omp.nix` was removed).
+
+---
+
+## Robust re-review 2026-11-18
+
+All seven lenses plus simplicity were loaded explicitly. Findings were reported at `eadec4d` with a clean tree.
+
+### 1. [High] Pi agent profiles omit `tools`, `skills`, and `harness`
+- **Current**: `home/modules/programs/pi-coding-agent.nix:19-37`.
+- **Gap**: `pi-agent`/`pi-subagents` only enforce tool and skill gates when frontmatter fields exist; rendered profiles have none.
+- **Failure/impact**: read-only scout keeps write/shell tools; all skills load for every profile.
+- **Config**: derive `tools` from `agent.capabilities` and emit `skills`/`harness`/`thinking`.
+- **Confidence**: Verified in source; runtime TUI UNVERIFIED.
+
+### 2. [High] Pi profiles carry only the engineer brief globally
+- **Current**: `home/modules/programs/pi-coding-agent.nix:17,366`.
+- **Gap**: `appendSystem` is the engineer body for every session; profile bodies are documentation-only per `pi-agent/README.md:20`.
+- **Failure/impact**: selecting `/agent architect` still shows the engineer brief.
+- **Config**: inject the selected profile body via `before_agent_start` or per-profile rules, and drop the global engineer append.
+- **Confidence**: Verified in source; live switch UNVERIFIED.
+
+### 3. [Medium] Write-capable Pi agents get `ask`/manual mode
+- **Current**: `home/modules/programs/pi-coding-agent.nix:27-31`; `pi-modes` maps `ask` to manual.
+- **Gap**: every write or shell call requires approval; non-TTY worker children can stall.
+- **Config**: map write capability to `auto`/`edit`.
+- **Confidence**: Verified in source; approval behavior UNVERIFIED.
+
+### 4. [Medium] Crush brief contradicts itself on delegation
+- **Current**: `home/modules/programs/crush.nix:12-17,24-34`; `home/modules/ai/rules.nix:41-46`.
+- **Gap**: shared delegate rule and Crush single-agent footer both appear.
+- **Config**: drop the `delegate` rule for Crush and strip delegate prompts from its footer.
+- **Confidence**: Verified via rendered output.
+
+### 5. [Medium] OpenCode plugin dispatches only three of seven hook events
+- **Current**: `home/modules/programs/opencode-ai-hooks.ts:60-91`; `home/lib/ai-render.nix:31-39,175-188`.
+- **Gap**: additional events written to the manifest have no handler.
+- **Config**: add bridges or limit rendering to supported events.
+- **Default check**: manifest keys → `session-start`, `pre-tool`, `post-tool`.
+- **Confidence**: Verified in source.
+
+### 6. [Medium] Copilot drops model and effort
+- **Current**: `home/modules/programs/github-copilot-cli.nix:23-29,39-47`; no `ai.harnesses.copilot`.
+- **Gap**: settings contain only `autoUpdate`; model/effort unset.
+- **Config**: adapter-local mapping.
+- **Confidence**: Verified statically.
+
+### 7. [Medium] `configure-nixos` skill rendered only for Claude Code
+- **Current**: `home/modules/ai/skills.nix:32-41`; `.agents/skills/configure-nixos/SKILL.md`; `.claude/skills/configure-nixos` symlink.
+- **Gap**: `.agents/skills` is not an `ai.skills` source.
+- **Config**: add the source or relocate the skill.
+- **Default check**: `nix eval ...ai.skills --apply 's: hasAttr "configure-nixos" s'` → `false`.
+- **Confidence**: Verified.
+
+### 8. [Low] Repomap post-tool matchers omit write tools
+- **Current**: `home/modules/ai/hooks.nix:146-153`.
+- **Gap**: OpenCode, Antigravity, and Crush matchers omit their `write` tool names.
+- **Config**: superseded by `D86` repomap removal.
+- **Confidence**: Verified statically.

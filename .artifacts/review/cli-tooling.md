@@ -154,3 +154,78 @@
 
 1. **SSH Agent Resolution & Forwarding Policy** → route to `/design`: decide whether `IdentityAgent` in `ssh.nix` should defer to `$SSH_AUTH_SOCK` so forwarded agents (`ssh -A`) win over local `rbw-agent` (paired with `systemd.user.sessionVariables.SSH_AUTH_SOCK`).
 2. **Repository-Specific vs. Global Git Hook Boundary** → route to `/design` (`R54`): separate machine-wide signing/merge hooks (`core.hooksPath`) from repo-local `.artifacts/` guards vs. keeping global regex excluding `.gitkeep`, and confirm whether `.artifacts/` stays ignored wholesale (`doctor-iridescent`) or tracks RDST files with selective ignores.
+
+---
+
+## Robust re-review 2026-11-18
+
+All seven lenses plus simplicity were loaded explicitly. Findings were reported at `eadec4d` with a clean source tree.
+
+### 1. [High] zsh completion cache uses raw `$XDG_CACHE_HOME`
+- **Current**: `home/modules/terminal/zsh.nix:149-150`.
+- **Gap**: the fallback exists at `:283-284` but not in `completionInit`; unset variable expands to `/zsh`.
+- **Failure/impact**: completion breaks and startup errors appear in SSH/TTY/`su` shells.
+- **Config**: `${XDG_CACHE_HOME:-$HOME/.cache}`.
+- **Default check**: `env -u XDG_CACHE_HOME zsh -fc 'mkdir -p "$XDG_CACHE_HOME/zsh"'` → permission denied.
+- **Confidence**: Verified.
+
+### 2. [High] SSH `IdentityAgent` overrides forwarded agent
+- **Current**: `home/modules/cli/ssh.nix:6-7`; `home/modules/services/auth-agents.nix:42-46`.
+- **Gap**: global `IdentityAgent` ignores `$SSH_AUTH_SOCK` guard.
+- **Failure/impact**: `ssh -A` forwarding silently fails.
+- **Config**: remove the global option and rely on exported socket.
+- **Confidence**: Verified.
+
+### 3. [High] `rbw` pinentry bypasses fallback wrapper
+- **Current**: `home/modules/services/auth-agents.nix:3-8,33`.
+- **Gap**: GUI-only pinentry selected; headless unlock hangs.
+- **Config**: use `pinentry-fallback`.
+- **Confidence**: Verified.
+
+### 4. [High] pre-push skips ancestor verification for new branches
+- **Current**: `home/modules/cli/git.nix:50-57`.
+- **Gap**: zero `remote_sha` verifies only the tip.
+- **Failure/impact**: unsigned intermediate commits can be pushed.
+- **Config**: use `git rev-list "$local_sha" --not --remotes` on new branches.
+- **Confidence**: Verified.
+
+### 5. [Medium] Global `core.hooksPath` suppresses other hook types
+- **Current**: `home/modules/cli/git.nix:5-60`; generated git config.
+- **Gap**: only `pre-commit`, `pre-merge-commit`, `pre-push` exist; repo-local hooks for other events never run.
+- **Failure/impact**: commit-msg, post-checkout, and framework hooks are skipped.
+- **Confidence**: Verified.
+
+### 6. [Medium] `SSH_AUTH_SOCK` lacks `XDG_RUNTIME_DIR` fallback
+- **Current**: `home/modules/services/auth-agents.nix:42-46`.
+- **Gap**: unset runtime dir yields `/rbw/ssh-agent-socket`.
+- **Confidence**: Verified.
+
+### 7. [Medium] Codex module dead
+- **Current**: `home/modules/programs/codex.nix:42`.
+- **Gap**: `enable = true` is commented out; static tests assert inert declarations.
+- **Confidence**: Verified.
+
+### 8. [Medium] Codex hardcodes host paths and auto-trusts them
+- **Current**: `home/modules/programs/codex.nix:73-74,80`.
+- **Gap**: host-specific trust entries and theme path bypass `xdg.configHome`.
+- **Confidence**: Verified.
+
+### 9. [Medium] tmux/zsh still steal EOF `C-d`
+- **Current**: `home/modules/terminal/tmux.nix:259`; `home/modules/terminal/zsh.nix:272`.
+- **Gap**: D75 migration not applied.
+- **Confidence**: Static; key behavior UNVERIFIED.
+
+### 10. [Low] git-maintenance skips worktrees and aborts on first error
+- **Current**: `home/modules/cli/git.nix:189-193`.
+- **Gap**: `[ -d "$repo/.git" ]` false for worktrees; `|| exit 1`.
+- **Confidence**: Verified.
+
+### 11. [Low] CLI checks are string-only
+- **Current**: `tests/home.nix:47-50,176-178,252-258`.
+- **Gap**: no evaluated assertions for signing, agent, pinentry, or bindings.
+- **Confidence**: Verified.
+
+### 12. [Low] fastfetch runs on every interactive non-tmux shell
+- **Current**: `home/modules/terminal/zsh.nix:287-289`; `home/modules/cli/fastfetch.nix:56-102`.
+- **Gap**: repeated hardware probing; headless shells emit N/A fields.
+- **Confidence**: Medium; rendered output UNVERIFIED.

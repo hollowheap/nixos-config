@@ -57,10 +57,7 @@ in {
       target = "primary";
       rules = {
         formula = ''
-          End every turn with:
-          Done: <changed files with :line>
-          Verified: <command → result>
-          Next|Blocked: <one line>
+          End every turn with only the lines that have content: Done: <changed files with :line>, Verified: <command → result>, Next: <one line>, and Blocked: <one line>. Omit a line that has no content; never print Next: none or Blocked: none. Keep Blocked on its own line.
         '';
         review = "When asked for a code review, lead with severity-ordered findings (file:line), risks, and missing tests before any change summary.";
         verbatim = "Paths, commands, and results verbatim; no prose recap outside the formula. Standing user request defers unslop no-restate rule.";

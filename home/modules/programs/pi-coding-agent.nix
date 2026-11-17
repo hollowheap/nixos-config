@@ -342,7 +342,7 @@
 in {
   programs.pi-coding-agent = {
     enable = true;
-    package = aiRender.wrapWithOpenCodeKey "pi" pkgs.pi-coding-agent;
+    package = aiRender.wrapWithOpenCodeKey "pi" pkgs.pi-coding-agent ["opencode-go"];
     extraPackages = [
       pkgs.git
       pkgs.nodejs
