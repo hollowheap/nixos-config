@@ -329,7 +329,7 @@
   - Ledger: tests/S100.md
 
 - [ ] S102 [R13] [D112]: Declarative identity uses the GPG auth subkey public credential
-  - Verify: `nix eval --raw .#nixosConfigurations.lacuna.config.users.mutableUsers | grep -qx false && nix eval --json .#nixosConfigurations.lacuna.config.users.users.hollowheap.openssh.authorizedKeys.keys | jq -e 'any(.[]; startswith("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmWse"))'`
+  - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.users.mutableUsers | jq -e '. == false' && nix eval --json .#nixosConfigurations.lacuna.config.users.users.hollowheap.openssh.authorizedKeys.keys | jq -e 'any(.[]; startswith("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmWse"))'`
   - Seam: modules/system/users.nix.
   - Behavior: The host accepts the GPG-derived SSH key and rejects imperative user drift..
   - Failures: Wrong key, mutable users, lockout after rebuild..
@@ -642,7 +642,7 @@
   - Failures: unfree license evaluation errors, missing CLI executables, start/opt plugin collision warnings.
   - Ledger: tests/S59.md
 - [ ] S78 [R04] [D88]: HDR is available on the hardware that supports it and absent elsewhere
-  - Verify: `nix eval --raw .#nixosConfigurations.lacuna.config.desktop.hdr | grep -qx true && nix eval --raw .#nixosConfigurations.acervus.config.desktop.hdr | grep -qx false && nix eval --raw .#homeConfigurations.hollowheap.config.desktop.hdr | grep -qx true`
+  - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.desktop.hdr | jq -e '. == true' && nix eval --json .#nixosConfigurations.acervus.config.desktop.hdr | jq -e '. == false' && nix eval --json .#homeConfigurations.hollowheap.config.desktop.hdr | jq -e '. == true'`
   - Seam: hardware/hdr.nix, hosts/lacuna/hardware.nix, home/hollowheap.nix, home/modules/programs/hyprland/hyprland.nix.
   - Behavior: Lacuna compositor enables HDR; acervus and headless contexts stay SDR..
   - Failures: Orphan trait setter, HDR on unsupported hardware, cross-layer disagreement..
@@ -671,7 +671,7 @@
 
 #### Data & Contracts
 - [ ] S79 [R08] [D89]: Laptop geometry is supplied by host data, not shared defaults
-  - Verify: `nix eval --raw .#nixosConfigurations.acervus.config.desktop.primaryOutput | grep -qx null && nix eval --raw .#nixosConfigurations.lacuna.config.desktop.primaryOutput | grep -qx eDP-1`
+  - Verify: `nix eval --json .#nixosConfigurations.acervus.config.desktop.primaryOutput | jq -e '. == null' && nix eval --raw .#nixosConfigurations.lacuna.config.desktop.primaryOutput | grep -qx eDP-1`
   - Seam: modules/options/desktop.nix, hosts/lacuna/default.nix, home/hosts/lacuna.nix.
   - Behavior: Headless hosts carry no phantom panel layout; compositor values come from lacuna data..
   - Failures: Laptop defaults leak to acervus, HM overlay missing, monitor list empty..
@@ -735,7 +735,7 @@
   - Ledger: tests/S85.md
 
 - [ ] S86 [R07] [D96]: Portal ownership stays system-level with the Hyprland portal selected
-  - Verify: `nix eval --raw .#nixosConfigurations.lacuna.config.xdg.portal.enable | grep -qx true && nix eval --json .#nixosConfigurations.lacuna.config.xdg.portal.extraPortals | jq -e 'length > 0'`
+  - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.xdg.portal.enable | jq -e '. == true' && nix eval --json .#nixosConfigurations.lacuna.config.xdg.portal.extraPortals | jq -e 'length > 0'`
   - Seam: roles/desktop/system/default.nix, home/modules/environment/rules.nix.
   - Behavior: Screen-share and file-picker rules match the installed portal..
   - Failures: Portal config in user scope, portal app id mismatch..

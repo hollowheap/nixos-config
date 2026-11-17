@@ -800,7 +800,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T99.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T100 [S68] [T99]: Enable Codex with a prebuilt package
+- [x] T100 [S68] [T99]: Enable Codex with a prebuilt package
   - Verify: `nix eval .#homeConfigurations.hollowheap.config.programs.codex.enable | grep -qx true && ! rg -q 'AWS_LC_SYS_USE_SYSTEM' home/modules/programs/codex.nix && nix build .#homeConfigurations.hollowheap.activationPackage --no-link`
   - Files: `home/modules/programs/codex.nix`, `tests/home.nix`.
   - Notes: enable the adapter and source a cached or upstream binary without local native compilation.
@@ -808,7 +808,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T100.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T101 [S69] [T99]: Remove Kiro subagent capability stripping
+- [x] T101 [S69] [T99]: Remove Kiro subagent capability stripping
   - Verify: `! rg -q 'subagentOnly' home/modules/programs/kiro-cli.nix && nix eval --raw .#homeConfigurations.hollowheap.config.home.file.'".kiro/agents/worker.json"'.text | jq -e '.tools | index("web")'`
   - Files: `home/modules/programs/kiro-cli.nix`, `tests/home.nix`.
   - Notes: render shared capabilities for subagent roles without harness-local pruning.
@@ -848,7 +848,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T108.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T109 [S73]: Host-specific display, Wacom, and Yoga values stay outside shared desktop options
+- [x] T109 [S73]: Host-specific display, Wacom, and Yoga values stay outside shared desktop options
   - Verify: `test -d home/hosts && nix eval --raw .#homeConfigurations.hollowheap.config.desktop.touchscreen.switchDevice >/dev/null && nix eval --json .#homeConfigurations.hollowheap.config.desktop.monitors | jq -e 'length > 0'`
   - Files: `modules/options/desktop.nix, home/hollowheap.nix, home/hosts/lacuna.nix, hosts/lacuna/default.nix`.
   - Notes: Shared desktop defaults stay neutral while lacuna supplies concrete hardware values..
@@ -856,7 +856,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T109.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T110 [S74]: Checks, license policy, and shared helpers are exposed through stable flake seams
+- [x] T110 [S74]: Checks, license policy, and shared helpers are exposed through stable flake seams
   - Verify: `nix eval --raw .#lib >/dev/null && nix eval --json .#homeConfigurations.hollowheap.config.unfreePackages --apply 'ps: builtins.isList ps' | grep -qx true && test -f tests/default.nix`
   - Files: `flake/default.nix, tests/default.nix, modules/system/nixpkgs.nix, home/modules/core/unfree.nix`.
   - Notes: A new domain check or unfree package registers without editing the composition root..
@@ -880,7 +880,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T112.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T113 [S77]: Every discovered host and user is covered by evaluated checks
+- [x] T113 [S77]: Every discovered host and user is covered by evaluated checks
   - Verify: `nix eval --json .#nixosConfigurations --apply 'c: builtins.length (builtins.attrNames c)' | grep -qx 2 && nix eval --json .#checks.x86_64-linux --apply 'c: builtins.hasAttr "ai-rendered" c && builtins.hasAttr "skills-rendered" c' | grep -qx true && nix flake check --no-build >/dev/null`
   - Files: `flake/default.nix, tests/default.nix, tests/layout.nix, tests/home.nix`.
   - Notes: Adding a host or user adds corresponding checks; no inline derivation shadows tests/..
@@ -888,23 +888,23 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T113.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T114 [S78]: HDR is available on the hardware that supports it and absent elsewhere
-  - Verify: `nix eval --raw .#nixosConfigurations.lacuna.config.desktop.hdr | grep -qx true && nix eval --raw .#nixosConfigurations.acervus.config.desktop.hdr | grep -qx false && nix eval --raw .#homeConfigurations.hollowheap.config.desktop.hdr | grep -qx true`
+- [x] T114 [S78]: HDR is available on the hardware that supports it and absent elsewhere
+  - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.desktop.hdr | jq -e '. == true' && nix eval --json .#nixosConfigurations.acervus.config.desktop.hdr | jq -e '. == false' && nix eval --json .#homeConfigurations.hollowheap.config.desktop.hdr | jq -e '. == true'`
   - Files: `hardware/hdr.nix, hosts/lacuna/hardware.nix, home/hollowheap.nix, home/modules/programs/hyprland/hyprland.nix`.
   - Notes: Lacuna compositor enables HDR; acervus and headless contexts stay SDR..
   - Risk: Orphan trait setter, HDR on unsupported hardware, cross-layer disagreement..
   - Detail: tasks/T114.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T115 [S79]: Laptop geometry is supplied by host data, not shared defaults
-  - Verify: `nix eval --raw .#nixosConfigurations.acervus.config.desktop.primaryOutput | grep -qx null && nix eval --raw .#nixosConfigurations.lacuna.config.desktop.primaryOutput | grep -qx eDP-1`
+- [x] T115 [S79]: Laptop geometry is supplied by host data, not shared defaults
+  - Verify: `nix eval --json .#nixosConfigurations.acervus.config.desktop.primaryOutput | jq -e '. == null' && nix eval --raw .#nixosConfigurations.lacuna.config.desktop.primaryOutput | grep -qx eDP-1`
   - Files: `modules/options/desktop.nix, hosts/lacuna/default.nix, home/hosts/lacuna.nix`.
   - Notes: Headless hosts carry no phantom panel layout; compositor values come from lacuna data..
   - Risk: Laptop defaults leak to acervus, HM overlay missing, monitor list empty..
   - Detail: tasks/T115.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T116 [S80]: Login and desktop sessions consume the same output, layout, input, and font policy
+- [x] T116 [S80]: Login and desktop sessions consume the same output, layout, input, and font policy
   - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.services.displayManager.noctalia-greeter.settings.output | jq -e 'has("name")' && nix eval --json .#nixosConfigurations.lacuna.config.services.displayManager.noctalia-greeter.settings.keyboard | jq -e 'has("variant") and has("options")' && nix eval --raw .#nixosConfigurations.lacuna.config.services.displayManager.noctalia-greeter.settings.appearance.font_family | grep -q .`
   - Files: `roles/desktop/system/default.nix, modules/options/desktop.nix, home/modules/programs/hyprland/hyprland.nix`.
   - Notes: Changing shared desktop data changes both login and compositor surfaces..
@@ -912,7 +912,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T116.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T117 [S81]: Desktop shell touch and compositor touch are separate host-scoped policies
+- [x] T117 [S81]: Desktop shell touch and compositor touch are separate host-scoped policies
   - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.desktop.touch | grep -qx true && nix eval --json .#homeConfigurations.hollowheap.config.desktop.touch | grep -qx true && rg -q 'config.desktop.touch' home/modules/programs/hyprland/hyprland.nix`
   - Files: `hardware/touch.nix, home/hollowheap.nix, home/hosts/lacuna.nix, home/modules/environment/touch.nix, home/modules/programs/hyprland/hyprland.nix`.
   - Notes: Each layer owns its touch integration; no orphan NixOS setter or unconditional HM flag..
@@ -920,7 +920,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T117.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T118 [S82]: Stay-awake behavior owns lid-close policy; stale suspend assertions are gone
+- [x] T118 [S82]: Stay-awake behavior owns lid-close policy; stale suspend assertions are gone
   - Verify: `! rg -q 'HandleLidSwitch' profiles/laptop/default.nix tests/policy.nix && rg -q 'caffeine' home/modules/programs/noctalia.nix`
   - Files: `profiles/laptop/default.nix, tests/policy.nix, home/modules/programs/noctalia.nix`.
   - Notes: Active stay-awake prevents suspend; no split logind policy remains..
@@ -928,7 +928,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T118.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T119 [S83]: Power saving lowers the actual configured refresh rate
+- [x] T119 [S83]: Power saving lowers the actual configured refresh rate
   - Verify: `nix eval --raw .#homeConfigurations.hollowheap.config.home.file.'".config/hypr/scripts/power-mode.sh"'.text | rg -q '@60' && ! rg -q 'replaceStrings' home/modules/services/power-mode.nix`
   - Files: `home/modules/services/power-mode.nix, modules/options/desktop.nix`.
   - Notes: A 120 Hz monitor drops to 60 Hz in power-saver without literal substitution..
@@ -936,7 +936,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T119.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T120 [S84]: Login screen uses the installed shared font families
+- [x] T120 [S84]: Login screen uses the installed shared font families
   - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.fonts.packages | jq -e 'length > 0' && nix eval --raw .#nixosConfigurations.lacuna.config.services.displayManager.noctalia-greeter.settings.appearance.font_family | grep -q .`
   - Files: `roles/desktop/system/default.nix, modules/options/desktop.nix`.
   - Notes: Sans, serif, and monospace packages are installed for the greeter..
@@ -944,7 +944,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T120.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T121 [S85]: Compositor geometry no longer exposes an unused bar-height option
+- [x] T121 [S85]: Compositor geometry no longer exposes an unused bar-height option
   - Verify: `! rg -q 'barHeight' home/modules/environment/compositor.nix home/modules/programs/hyprland home/modules/programs/noctalia.nix`
   - Files: `home/modules/environment/compositor.nix, home/modules/programs/noctalia.nix`.
   - Notes: Setting or removing bar height has no dead option surface..
@@ -952,15 +952,15 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T121.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T122 [S86]: Portal ownership stays system-level with the Hyprland portal selected
-  - Verify: `nix eval --raw .#nixosConfigurations.lacuna.config.xdg.portal.enable | grep -qx true && nix eval --json .#nixosConfigurations.lacuna.config.xdg.portal.extraPortals | jq -e 'length > 0'`
+- [x] T122 [S86]: Portal ownership stays system-level with the Hyprland portal selected
+  - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.xdg.portal.enable | jq -e '. == true' && nix eval --json .#nixosConfigurations.lacuna.config.xdg.portal.extraPortals | jq -e 'length > 0'`
   - Files: `roles/desktop/system/default.nix, home/modules/environment/rules.nix`.
   - Notes: Screen-share and file-picker rules match the installed portal..
   - Risk: Portal config in user scope, portal app id mismatch..
   - Detail: tasks/T122.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T123 [S87]: Every declared theme template has a matching asset and a checked consumer
+- [x] T123 [S87]: Every declared theme template has a matching asset and a checked consumer
   - Verify: `nix build .#checks.x86_64-linux.home --no-link >/dev/null && rg -q 'starship-palette.toml' tests/home.nix`
   - Files: `tests/home.nix, home/modules/programs/wallust.nix, assets/wallust-templates`.
   - Notes: Removing or renaming a declared template fails a check..
@@ -968,7 +968,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T123.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T124 [S88]: Wacom and Yoga switch names are host-scoped options
+- [x] T124 [S88]: Wacom and Yoga switch names are host-scoped options
   - Verify: `nix eval --raw .#homeConfigurations.hollowheap.config.desktop.touchscreen.switchDevice | grep -q . && ! rg -q 'wacom-hid-53b7' home/modules/environment/touch.nix home/modules/programs/hyprland/keybinds.nix`
   - Files: `home/modules/environment/touch.nix, home/modules/programs/hyprland/keybinds.nix, home/hosts/lacuna.nix`.
   - Notes: Non-Yoga hosts do not receive vendor-specific device bindings..
@@ -976,7 +976,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T124.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T125 [S89]: Markdown saves do not run a formatter outside the unified toolchain
+- [x] T125 [S89]: Markdown saves do not run a formatter outside the unified toolchain
   - Verify: `nix eval --json .#homeConfigurations.hollowheap.config.programs.nvf.settings.vim.formatter.conform-nvim.setupOpts.formatters_by_ft | jq -e 'has("markdown") | not'`
   - Files: `home/modules/core/toolchain.nix, home/modules/programs/nvim/lsp.nix`.
   - Notes: Prose and bullets are preserved on save while other filetypes keep their formatters..
@@ -984,7 +984,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T125.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T126 [S90]: Neovim no longer advertises or restores sessions
+- [x] T126 [S90]: Neovim no longer advertises or restores sessions
   - Verify: `! rg -q 'Restore Session|section = "session"' home/modules/programs/nvim/snacks.nix && ! rg -q 'mini.sessions' home/modules/programs/nvim/mini.nix`
   - Files: `home/modules/programs/nvim/snacks.nix, home/modules/programs/nvim/mini.nix`.
   - Notes: Dashboard and keymaps contain no session-restore entry..
@@ -992,7 +992,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T126.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T127 [S91]: Agent keymaps remain present despite headless maparg limitations
+- [x] T127 [S91]: Agent keymaps remain present despite headless maparg limitations
   - Verify: `rg -q '"<leader>ar"' home/modules/programs/nvim/keymaps.nix && rg -q 'AvanteAsk|AvanteToggle|AvanteFocus' home/modules/programs/nvim/keymaps.nix`
   - Files: `home/modules/programs/nvim/keymaps.nix`.
   - Notes: The documented leader-a commands remain bound in a real session..
@@ -1000,7 +1000,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T127.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T128 [S92]: ACP providers use Nix-resolved paths instead of machine-local checkout literals
+- [x] T128 [S92]: ACP providers use Nix-resolved paths instead of machine-local checkout literals
   - Verify: `! rg -q '/home/hollowheap/repos' home/modules/programs/nvim/completion.nix && rg -q 'acp_providers' home/modules/programs/nvim/completion.nix`
   - Files: `home/modules/programs/nvim/completion.nix, pkgs/default.nix`.
   - Notes: Provider paths resolve from Nix on every host..
@@ -1008,7 +1008,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T128.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T129 [S93]: Shell scripts format with the unified formatter
+- [x] T129 [S93]: Shell scripts format with the unified formatter
   - Verify: `nix eval --json .#homeConfigurations.hollowheap.config.programs.nvf.settings.vim.formatter.conform-nvim.setupOpts.formatters_by_ft | jq -e '.bash == ["shfmt"] and .zsh == ["shfmt"]'`
   - Files: `home/modules/core/toolchain.nix, home/modules/programs/nvim/lsp.nix`.
   - Notes: Format-on-save works for bash and zsh buffers..
@@ -1016,7 +1016,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T129.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T130 [S94]: Compositor start re-applies the persisted wallpaper theme
+- [x] T130 [S94]: Compositor start re-applies the persisted wallpaper theme
   - Verify: `rg -q 'settings.toml' home/modules/programs/noctalia.nix && rg -q 'wallpaper.last' home/modules/programs/noctalia.nix`
   - Files: `home/modules/programs/noctalia.nix`.
   - Notes: Restarting the shell restores GTK, icon, and Wallust state without a wallpaper change..
@@ -1024,7 +1024,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T130.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T131 [S95]: Syntax roles keep distinguishable generated colors
+- [x] T131 [S95]: Syntax roles keep distinguishable generated colors
   - Verify: `rg -q -F "base08 = '{{color9}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base09 = '{{color11}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base0A = '{{color3}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base0F = '{{color5}}'" assets/wallust-templates/nvim-colors.lua`
   - Files: `assets/wallust-templates/nvim-colors.lua, home/modules/programs/nvim/ui.nix`.
   - Notes: Errors, constants, keywords, and deprecated tags remain visually separable..
@@ -1032,7 +1032,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T131.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T132 [S96]: Editor checks assert evaluated behavior rather than file presence
+- [x] T132 [S96]: Editor checks assert evaluated behavior rather than file presence
   - Verify: `rg -q 'programs.nvf.settings' tests/home.nix && rg -q 'maparg|list_formatters|formatters_by_ft' tests/home.nix`
   - Files: `tests/home.nix`.
   - Notes: A regression in formatter maps or keymap binding fails a check..
@@ -1040,7 +1040,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T132.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T133 [S97]: Dead wallust pill helper is removed
+- [x] T133 [S97]: Dead wallust pill helper is removed
   - Verify: `! rg -q 'pill_load_wallust' home/modules/styles/pills.nix`
   - Files: `home/modules/styles/pills.nix`.
   - Notes: No uncalled helper claims EOF-safe palette parsing..
@@ -1048,7 +1048,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T133.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T134 [S98]: Dynamic colorschemes remain the only palette authority
+- [x] T134 [S98]: Dynamic colorschemes remain the only palette authority
   - Verify: `! test -e home/modules/styles/palette.nix && rg -q 'wallust' home/modules/programs/wallust.nix && rg -q 'theme' home/modules/programs/noctalia.nix`
   - Files: `home/modules/programs/wallust.nix, home/modules/programs/noctalia.nix, home/modules/styles`.
   - Notes: New colors come from wallpaper-derived schemes and no static ramp is planned..
@@ -1056,7 +1056,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T134.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T135 [S99]: Every supported ACP provider is registered in the editor
+- [x] T135 [S99]: Every supported ACP provider is registered in the editor
   - Verify: `rg -q 'pi =' home/modules/programs/nvim/completion.nix && rg -q 'claude' home/modules/programs/nvim/completion.nix && rg -q 'agy' home/modules/programs/nvim/completion.nix && rg -q 'opencode' home/modules/programs/nvim/completion.nix`
   - Files: `home/modules/programs/nvim/completion.nix, docs/avante provider list`.
   - Notes: The named harnesses appear as selectable ACP providers..
@@ -1064,7 +1064,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T135.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T136 [S100]: HTTPS ingress remains unchanged while the routing decision is open
+- [x] T136 [S100]: HTTPS ingress remains unchanged while the routing decision is open
   - Verify: `rg -q 'tls internal' roles/server/system/headscale.nix roles/server/system/vaultwarden.nix && ! rg -q 'tailscale cert' roles/server/system flake`
   - Files: `roles/server/system/caddy.nix, roles/server/system/headscale.nix, roles/server/system/vaultwarden.nix, roles/server/system/default.nix`.
   - Notes: No WAN exposure or Tailscale certificate dependency is introduced by this pass..
@@ -1080,8 +1080,8 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T137.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T138 [S102]: Declarative identity uses the GPG auth subkey public credential
-  - Verify: `nix eval --raw .#nixosConfigurations.lacuna.config.users.mutableUsers | grep -qx false && nix eval --json .#nixosConfigurations.lacuna.config.users.users.hollowheap.openssh.authorizedKeys.keys | jq -e 'any(.[]; startswith("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmWse"))'`
+- [x] T138 [S102]: Declarative identity uses the GPG auth subkey public credential
+  - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.users.mutableUsers | jq -e '. == false' && nix eval --json .#nixosConfigurations.lacuna.config.users.users.hollowheap.openssh.authorizedKeys.keys | jq -e 'any(.[]; startswith("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmWse"))'`
   - Files: `modules/system/users.nix`.
   - Notes: The host accepts the GPG-derived SSH key and rejects imperative user drift..
   - Risk: Wrong key, mutable users, lockout after rebuild..
@@ -1096,7 +1096,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T139.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T140 [S104]: Handheld HTTPS access stays unchanged until the server moves
+- [x] T140 [S104]: Handheld HTTPS access stays unchanged until the server moves
   - Verify: `rg -q 'tls internal' roles/server/system/headscale.nix && rg -q 'SSL_CERT_FILE' roles/server/system/default.nix && nix eval --raw .#nixOnDroidConfigurations.fovea.config.system.stateVersion | grep -qx 24.05`
   - Files: `roles/server/system/default.nix, roles/server/system/headscale.nix, nix-on-droid.nix`.
   - Notes: No temporary mesh-pin or WAN forwarding workaround is introduced..
