@@ -157,6 +157,66 @@ in {
               message = mkLuaInline "function() return 'Use <C-u>, ?search, or relative line jump instead of repeated k' end";
               length = 3;
             };
+            "hhh" = {
+              message = mkLuaInline "function() return 'Use f/t or /search instead of repeated h' end";
+              length = 3;
+            };
+            "lll" = {
+              message = mkLuaInline "function() return 'Use f/t or /search instead of repeated l' end";
+              length = 3;
+            };
+            "eee" = {
+              message = mkLuaInline "function() return 'Use w, }, or a text object instead of repeated e' end";
+              length = 3;
+            };
+            "gc" = {
+              message = mkLuaInline "function() return 'Use rc instead of gc' end";
+              length = 2;
+            };
+            "gx" = {
+              message = mkLuaInline "function() return 'Use <leader>x instead of gx' end";
+              length = 2;
+            };
+            "g~" = {
+              message = mkLuaInline "function() return 'Use r~ instead of g~' end";
+              length = 2;
+            };
+            "gu" = {
+              message = mkLuaInline "function() return 'Use ru instead of gu' end";
+              length = 2;
+            };
+            "gU" = {
+              message = mkLuaInline "function() return 'Use rU instead of gU' end";
+              length = 2;
+            };
+            "g?" = {
+              message = mkLuaInline "function() return 'Use r? instead of g?' end";
+              length = 2;
+            };
+            "gv" = {
+              message = mkLuaInline "function() return 'Use rv instead of gv' end";
+              length = 2;
+            };
+            "gn" = {
+              message = mkLuaInline "function() return 'Use rn instead of gn' end";
+              length = 2;
+            };
+            "gN" = {
+              message = mkLuaInline "function() return 'Use rN instead of gN' end";
+              length = 2;
+            };
+            "g8" = {
+              message = mkLuaInline "function() return 'Use r8 instead of g8' end";
+              length = 2;
+            };
+            "g*" = {
+              message = mkLuaInline "function() return 'Use rW instead of g*' end";
+              length = 2;
+            };
+            "g#" = {
+              message = mkLuaInline "function() return 'Use rQ instead of g#' end";
+              length = 2;
+            };
           };
         };
       };
@@ -438,6 +498,18 @@ in {
         mode = "n";
         action = "#";
         desc = "Search word backward";
+      }
+      {
+        key = "rW";
+        mode = "n";
+        action = "g*";
+        desc = "Search WORD forward";
+      }
+      {
+        key = "rQ";
+        mode = "n";
+        action = "g#";
+        desc = "Search WORD backward";
       }
       {
         key = "rp";
@@ -1119,8 +1191,33 @@ in {
         { "rm", desc = "Multiply" },
         { "ro", desc = "Replace" },
         { "rs", desc = "Sort" },
-        { "rw", desc = "Search selection forward" },
-        { "rq", desc = "Search selection backward" },
+        { "rw", desc = "Search word forward" },
+        { "rq", desc = "Search word backward" },
+        { "rW", desc = "Search WORD forward" },
+        { "rQ", desc = "Search WORD backward" },
+        { "r8", desc = "Print hex UTF-8 bytes" },
+        { "rv", desc = "Reselect visual area" },
+        { "rn", desc = "Search forward and select" },
+        { "rN", desc = "Search backward and select" },
+        { "rp", desc = "Put after and leave cursor" },
+        { "rP", desc = "Put before and leave cursor" },
+        { "ry", desc = "Yank to system clipboard" },
+        { "ryy", desc = "Yank line to system clipboard" },
+        { "rY", desc = "Yank to EOL to system clipboard" },
+        { "r~", desc = "Toggle case" },
+        { "r~~", desc = "Toggle case line" },
+        { "ru", desc = "Lowercase" },
+        { "ruu", desc = "Lowercase line" },
+        { "rU", desc = "Uppercase" },
+        { "rUU", desc = "Uppercase line" },
+        { "r?", desc = "ROT13 encoding" },
+        { "r??", desc = "ROT13 line" },
+        { "sa", desc = "Add surrounding" },
+        { "sd", desc = "Delete surrounding" },
+        { "sr", desc = "Replace surrounding" },
+        { "sf", desc = "Find right surrounding" },
+        { "sF", desc = "Find left surrounding" },
+        { "sh", desc = "Highlight surrounding" },
         { "<C-r>", hidden = true },
         { "<C-e>", hidden = true },
         { "<C-y>", hidden = true },

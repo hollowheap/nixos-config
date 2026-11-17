@@ -12,7 +12,7 @@
     worker = "sonnet";
     scout = "haiku";
     researcher = "haiku";
-    code-reviewer = "opus";
+    code-reviewer = "haiku";
   };
 
   efforts = {
@@ -21,7 +21,7 @@
     worker = "high";
     scout = "max";
     researcher = "max";
-    code-reviewer = "medium";
+    code-reviewer = "max";
   };
 
   # Claude's built-in prompt covers untrusted pasted content, secrets privacy, native Read/Grep/Glob search tools,
@@ -77,10 +77,9 @@
     hooks = config.ai.hooks;
     preToolFormat = "claude-json";
     # Native Bash permission denies already block the git policy patterns.
-    dropHooks = [ "pre-tool" ];
+    dropHooks = ["pre-tool"];
   };
 in {
-
   config.programs.claude-code = {
     enable = true;
     enableMcpIntegration = true;

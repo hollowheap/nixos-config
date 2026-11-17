@@ -362,6 +362,10 @@ pkgs.runCommand "check-home" {
   rg -q 'goldenGateCss' pkgs/mactahoe-gtk-accent.nix
   rg -q '\{\s*"r",\s*mode\s*=' home/modules/programs/nvim/keymaps.nix
   rg -q '\{\s*"s",\s*mode\s*=' home/modules/programs/nvim/keymaps.nix
+  rg -q 'key = "rW"' home/modules/programs/nvim/keymaps.nix
+  rg -q 'key = "rQ"' home/modules/programs/nvim/keymaps.nix
+  rg -q '\{ "sa", desc = "Add surrounding" \}' home/modules/programs/nvim/keymaps.nix
+  no_match -q '"gege"' home/modules/programs/nvim/keymaps.nix
 
   touch $out
 ''
