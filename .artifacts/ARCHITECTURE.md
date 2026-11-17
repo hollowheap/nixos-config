@@ -68,7 +68,7 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 ## Known Debt
 
 - **Accepted, pending implementation (`D81`-`D109`)**: whole-system review `V22` resolved all design forks. Work is queued by decision ID:
-  - `D81`-`D85`: hook builtin adaptation, shared MCP registry, Codex without recompilation, Kiro adapter neutrality, and adapter-local model/effort.
+  - `D81`-`D84`: hook builtin adaptation, shared MCP registry, Codex without recompilation, and Kiro adapter neutrality.
   - `D87`: all V16 flake-seam findings must be fixed.
   - `D88`-`D98`: lacuna-only HDR, host-scoped geometry, greeter parity, separate touch abstractions, caffeine supersession, frame-rate-aware power saving, NixOS fonts, `barHeight` removal, Hyprland portal, full Wallust template checks, and host-scoped Wacom/Yoga switches.
   - `D99`-`D109`: unified Markdown formatter contract, no Neovim session restore, ACP provider registration, bash/zsh formatters, Noctalia started hook, distinct base16 roles, evaluated editor checks, dead helper removal, dynamic colorscheme authority, and ACP provider enumeration.

@@ -1,8 +1,4 @@
-{
-  lib,
-  ...
-}:
-let
+{lib, ...}: let
   inherit (lib.generators) mkLuaInline;
   modes = {
     nvo = [
@@ -15,8 +11,7 @@ let
       "v"
     ];
   };
-in
-{
+in {
   programs.nvf.settings.vim = {
     binds = {
       whichKey = {
@@ -63,7 +58,6 @@ in
           "<leader>ae" = "Edit selection";
           "<leader>at" = "Toggle sidebar";
           "<leader>af" = "Focus sidebar";
-          "<leader>ar" = "Refresh repomap";
           "<leader>an" = "New chat session";
           "<leader>ah" = "Select history";
           "<leader>as" = "Toggle suggestion";
@@ -103,10 +97,10 @@ in
           hint = true;
           notification = true;
           disabled_keys = {
-            "<Up>" = { };
-            "<Down>" = { };
-            "<Left>" = { };
-            "<Right>" = { };
+            "<Up>" = {};
+            "<Down>" = {};
+            "<Left>" = {};
+            "<Right>" = {};
           };
           disabled_filetypes = [
             "qf"
@@ -168,7 +162,7 @@ in
       };
     };
 
-    luaConfigRC.keymapRelocationsAndClears = lib.hm.dag.entryBefore [ "mappings" ] ''
+    luaConfigRC.keymapRelocationsAndClears = lib.hm.dag.entryBefore ["mappings"] ''
       local set = vim.keymap.set
       local nop = function(m, l)
         set(m, l, "<Nop>", { noremap = true, desc = "<Nop>" })

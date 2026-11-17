@@ -360,7 +360,7 @@
   - Behavior: Kiro emits the same declared tools and skills for primary and subagent roles; no harness-local pruning changes agent capability.
   - Failures: subagent-only gate, stripped `web` or write tools, capability drift from shared schema.
 
-- [ ] S70 [R28] [D85]: Adapter-local model and effort replace shared routing abstractions
+- [x] S70 [R28] [D85]: Adapter-local model and effort replace shared routing abstractions
   - Verify: `! rg -q 'modelFor|effortFor|ai\.tiers|harness-routing' home/modules home/lib --glob '*.nix' && nix build .#homeConfigurations.hollowheap.activationPackage --no-link`
   - Seam: `home/modules/ai/options.nix`, `home/lib/ai-render.nix`, and every `home/modules/programs/*` adapter.
   - Behavior: each adapter sets its own model and effort; shared code contributes no model or tier table.
@@ -400,7 +400,7 @@
   - Behavior: the shared contract declares hook intent once; an adapter omits an external command when its harness performs the same policy natively, while remaining hooks keep one command, matcher, and timeout shape.
   - Failures: duplicate external hook beside a builtin, dropped hook with no builtin substitute, per-harness hook reimplementation, fail-open pre-tool execution.
 
-- [ ] S71 [R10] [D86]: Repomap hook, generator, and artifacts are removed
+- [x] S71 [R10] [D86]: Repomap hook, generator, and artifacts are removed
   - Verify: `! rg -q 'repomap' home/modules/ai/hooks.nix && test ! -f pkgs/repomap.nix && test ! -e .artifacts/repomap.md && ! rg -q 'repomap' .artifacts/ARCHITECTURE.md`
   - Seam: `home/modules/ai/hooks.nix`, `pkgs/repomap.nix`, `.artifacts/REPOMAP.md`, and Kiro resource declarations.
   - Behavior: no hook generates or consumes a repomap; no tracked or generated repomap remains in this repository.

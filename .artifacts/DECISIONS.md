@@ -439,12 +439,12 @@
   - Alternatives: keep harness-specific capability pruning for subagents; change agent roles to satisfy Kiro.
   - Consequences: harnesses render the shared `ai.*` data without harness-specific subagent pruning; capability enforcement stays in the shared schema and non-Kiro adapters.
 
-- [ ] D85 [R28]: Drop `ai.tiers`, `modelFor`, and `effortFor`; model and effort selection belong to each harness adapter.
+- [x] D85 [R28]: Drop `ai.tiers`, `modelFor`, and `effortFor`; model and effort selection belong to each harness adapter.
   - Context: model availability and reasoning effort are not harness-agnostic, so a shared abstraction hides real per-harness differences and creates dead tier contracts.
   - Alternatives: keep a shared tier table and per-harness overrides; add the missing `ai.tiers` option.
   - Consequences: delete the shared model/effort helpers and tier table, set model and effort directly in each adapter, and treat model choice as adapter-local policy.
 
-- [ ] D86 [R10]: Drop the repomap hook, repomap generator, and all repomap artifacts.
+- [x] D86 [R10]: Drop the repomap hook, repomap generator, and all repomap artifacts.
   - Context: `.artifacts/REPOMAP.md` is the canonical path, but the hook writes lowercase `.artifacts/repomap.md` and duplicate maps exist across repositories.
   - Alternatives: keep the hook and fix the path case; keep generated maps as review evidence.
   - Consequences: remove `ai.hooks.session-start`/`post-tool` repomap entries, remove `pkgs/repomap.nix`, delete repomap artifacts under `~/repos/*`, and update docs and checks that reference them.
