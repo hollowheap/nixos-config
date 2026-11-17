@@ -37,6 +37,21 @@
             args = ["${config.home.homeDirectory}/repos/my-pi-agent/packages/pi-acp/dist/main.js"];
             env = {};
           };
+          claude = {
+            command = "${pkgs.claude-agent-acp}/bin/claude-agent-acp";
+            args = [];
+            env = {};
+          };
+          agy = {
+            command = "${config.home.homeDirectory}/.gemini/antigravity-cli/bin/agy";
+            args = ["acp"];
+            env = {};
+          };
+          opencode = {
+            command = "${pkgs.opencode}/bin/opencode";
+            args = ["acp"];
+            env = {};
+          };
         };
       };
 
