@@ -380,7 +380,7 @@
   - Behavior: event, command, args, matcher, timeout, enablement, and harness filters produce equivalent native adapters; unsupported event/harness pairs fail evaluation; malformed pre-tool payloads exit nonzero.
   - Failures: ignored command, divergent matcher, fail-open pre-tool hook.
 
-- [ ] S67 [R29] [D82]: MCP servers render from one shared registry into every capable harness, including Pi
+- [x] S67 [R29] [D82]: MCP servers render from one shared registry into every capable harness, including Pi
   - Verify: `nix eval --json .#homeConfigurations.hollowheap.config.programs.mcp.servers | jq -e '.refero.exposure == "codemode"' && ! rg -q 'mcpServers' home/modules/programs/pi-coding-agent.nix`
   - Seam: `home/modules/ai/options.nix`, `programs.mcp.servers`, and every MCP-capable harness adapter.
   - Behavior: one server definition controls URL, command, environment, enablement, and codemode exposure; Pi consumes the registry instead of a private file.
@@ -394,7 +394,7 @@
   - Behavior: deny-all precedes specific allows; architect can edit artifacts and delegate to scout; task allows derive from `availableAgents`; non-OpenCode harnesses map capabilities to native tool lists.
   - Failures: deny-last ordering, `write` permission key, denied delegation, capability tool mismatch.
 
-- [ ] S66 [R30] [D81]: Hook contracts drop external hooks when a harness provides an equivalent builtin
+- [x] S66 [R30] [D81]: Hook contracts drop external hooks when a harness provides an equivalent builtin
   - Verify: `nix build .#checks.x86_64-linux.home --no-link && nix eval --json .#homeConfigurations.hollowheap.config.ai.hooks --apply 'h: builtins.hasAttr "pre-tool" h' | grep -qx true`
   - Seam: `home/modules/ai/hooks.nix`, `home/lib/ai-render.nix`, and each harness hook adapter.
   - Behavior: the shared contract declares hook intent once; an adapter omits an external command when its harness performs the same policy natively, while remaining hooks keep one command, matcher, and timeout shape.

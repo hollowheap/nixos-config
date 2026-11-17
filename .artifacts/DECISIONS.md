@@ -419,12 +419,12 @@
   - Consequences: Caddy obtains trusted Let's Encrypt certs via DuckDNS TXT API calls (no inbound WAN 80/443 needed, cached 90 days offline), removes per-service `SSL_CERT_FILE` point fixes, transfers cleanly when `acervus` becomes the server, and pairs with `acl.hujson` allowing mesh SSH port `22`; public CT logs observe the subdomain names.
   - Supersedes: D09, D22
 
-- [ ] D81 [R30]: Adapt the shared `ai.hooks` contract to harness builtins and drop external hook executions a harness already performs natively.
+- [x] D81 [R30]: Adapt the shared `ai.hooks` contract to harness builtins and drop external hook executions a harness already performs natively.
   - Context: One hook contract currently spawns external commands for git policy and repomap across harnesses, duplicating native capabilities and paying per-tool overhead.
   - Alternatives: keep one uniform external hook invocation for every harness; let each harness hand-maintain its own hooks.
   - Consequences: add a per-harness hook-drop mechanism analogous to `dropDisciplines`/`dropRules`; shared hooks declare intent, adapters omit implementations covered by builtins, and remaining hooks keep one command/matcher/timeout schema.
 
-- [ ] D82 [R29]: Render MCP servers from one shared registry into every harness that supports MCP, including Pi.
+- [x] D82 [R29]: Render MCP servers from one shared registry into every harness that supports MCP, including Pi.
   - Context: `programs.mcp.servers` is empty and Pi carries a private hardcoded `mcp.json`; MCP-capable agents receive no tools.
   - Alternatives: per-harness MCP files; keep Pi exempt with a private registry.
   - Consequences: populate the shared registry, gate servers on `capabilities.mcp`, render them in all capable adapters, and remove Pi's private registry file.
