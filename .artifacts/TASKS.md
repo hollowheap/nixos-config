@@ -1025,7 +1025,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
 - [ ] T131 [S95]: Syntax roles keep distinguishable generated colors
-  - Verify: `rg -q "base09 = '{{color11}}'" assets/wallust-templates/nvim-colors.lua && rg -q "base0F = '{{color9}}'" assets/wallust-templates/nvim-colors.lua`
+  - Verify: `rg -q -F "base08 = '{{color9}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base09 = '{{color11}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base0A = '{{color3}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base0F = '{{color5}}'" assets/wallust-templates/nvim-colors.lua`
   - Files: `assets/wallust-templates/nvim-colors.lua, home/modules/programs/nvim/ui.nix`.
   - Notes: Errors, constants, keywords, and deprecated tags remain visually separable..
   - Risk: Four roles collapse into two bright slots..

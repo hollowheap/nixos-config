@@ -685,7 +685,7 @@
   - Ledger: tests/S88.md
 
 - [ ] S95 [R50] [D105]: Syntax roles keep distinguishable generated colors
-  - Verify: `rg -q "base09 = '{{color11}}'" assets/wallust-templates/nvim-colors.lua && rg -q "base0F = '{{color9}}'" assets/wallust-templates/nvim-colors.lua`
+  - Verify: `rg -q -F "base08 = '{{color9}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base09 = '{{color11}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base0A = '{{color3}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base0F = '{{color5}}'" assets/wallust-templates/nvim-colors.lua`
   - Seam: assets/wallust-templates/nvim-colors.lua, home/modules/programs/nvim/ui.nix.
   - Behavior: Errors, constants, keywords, and deprecated tags remain visually separable..
   - Failures: Four roles collapse into two bright slots..

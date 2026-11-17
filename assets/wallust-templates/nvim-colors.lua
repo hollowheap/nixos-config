@@ -10,7 +10,7 @@
 --
 -- PIN: base00-base07 are pinned to a clean monochromatic neutral ramp (#000000 to #ffffff)
 -- so dark themes maintain readable neutrals regardless of dynamic palette extraction.
--- base08-base0F use high-contrast bright ANSI variants for syntax highlighting.
+-- base08-base0F use high-contrast ANSI variants for syntax highlighting.
 local M = {}
 
 function M.setup()
@@ -25,15 +25,15 @@ function M.setup()
     base05 = '#e0e0e0',       -- Default Foreground (soft off-white)
     base06 = '#eeeeee',       -- Light Foreground
     base07 = '#ffffff',       -- Lightest Foreground (pure white)
-    -- Accent colors (bright ANSI variants for dark theme contrast)
+    -- Accent colors (high-contrast ANSI variants for dark theme contrast)
     base08 = '{{color9}}',    -- Bright Red (Variables, XML Tags, Errors)
     base09 = '{{color11}}',   -- Bright Yellow (Integers, Constants)
-    base0A = '{{color11}}',   -- Bright Yellow (Classes, Search Background)
+    base0A = '{{color3}}',    -- Yellow (Classes, Search Background)
     base0B = '{{color10}}',   -- Bright Green (Strings, Diff Inserted)
     base0C = '{{color14}}',   -- Bright Cyan (Regex, Escape Chars)
     base0D = '{{color12}}',   -- Bright Blue (Functions, Methods)
     base0E = '{{color13}}',   -- Bright Magenta (Keywords, Storage)
-    base0F = '{{color9}}',    -- Bright Red (Deprecated, Embedded Tags)
+    base0F = '{{color5}}',    -- Magenta (Deprecated, Embedded Tags)
   })
 end
 
