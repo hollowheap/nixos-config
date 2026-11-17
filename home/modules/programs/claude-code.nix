@@ -76,6 +76,8 @@
     harness = "claude-code";
     hooks = config.ai.hooks;
     preToolFormat = "claude-json";
+    # Native Bash permission denies already block the git policy patterns.
+    dropHooks = [ "pre-tool" ];
   };
 in {
 

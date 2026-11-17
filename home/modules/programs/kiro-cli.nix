@@ -169,7 +169,11 @@ in
 
       ".kiro/hooks/ai-hooks.json".text = lib.generators.toJSON { } {
         version = "v1";
-        hooks = aiRender.renderKiroHooks config.ai.hooks;
+        hooks = aiRender.renderKiroHooks {
+          hooks = config.ai.hooks;
+          # Native permission rules deny the same git policy patterns.
+          dropHooks = [ "pre-tool" ];
+        };
       };
     }
   );

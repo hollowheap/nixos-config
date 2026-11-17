@@ -76,6 +76,15 @@ pkgs.runCommand "check-home" {
   rg -q "libnotify" home/modules/cli/utilities.nix
   rg -q "programs.claude-code" home/modules/programs/claude-code.nix
   rg -q "renderGroupedHooks" home/modules/programs/claude-code.nix
+  rg -q 'hooksForWith \{ inherit dropHooks; \}' home/lib/ai-render.nix
+  for adapter in opencode claude-code kiro-cli; do
+    rg -q 'dropHooks = \[\s*"pre-tool"\s*\]' home/modules/programs/$adapter.nix
+  done
+  for adapter in codex antigravity crush hermes; do
+    no_match -q 'dropHooks' home/modules/programs/$adapter.nix
+  done
+  rg -q 'pre-tool' home/modules/ai/hooks.nix
+  rg -q 'ai-git-policy' home/modules/ai/hooks.nix
   rg -q "music.youtube.com" home/modules/programs/gui/zen-browser.nix
   rg -q "username = \"hollowheap\"" home/hollowheap.nix
   rg -q "desktop.touch = true" home/hollowheap.nix

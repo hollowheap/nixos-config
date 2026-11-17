@@ -91,14 +91,18 @@ rec {
     hook.matchers.${harness} or hook.matcher or null;
 
   # Hooks enabled for a harness. An empty harness list targets every renderer.
-  hooksFor =
+  hooksForWith =
+    { dropHooks ? [] }:
     harness: hooks:
     lib.filterAttrs (
-      _: hook:
-      hook.enabled
+      name: hook:
+      !builtins.elem name dropHooks
+      && hook.enabled
       && (hook.harnesses == [ ] || lib.elem harness hook.harnesses)
       && (hook.event != "post-tool" || (matcherFor harness hook) != null || hook.harnesses != [ ])
     ) hooks;
+
+  hooksFor = hooksForWith {};
 
   # Render grouped hook specs used by Claude Code, Codex, and Antigravity.
   renderGroupedHooks =
@@ -108,6 +112,7 @@ rec {
       preToolFormat,
       eventMap ? defaultHookEvents,
       wrapNonToolEvents ? true,
+      dropHooks ? [],
     }:
     let
       mkEntry =
@@ -133,7 +138,7 @@ rec {
               else
                 handler;
           };
-      entries = filter (entry: entry != null) (mapAttrsToList mkEntry (hooksFor harness hooks));
+      entries = filter (entry: entry != null) (mapAttrsToList mkEntry (hooksForWith { inherit dropHooks; } harness hooks));
     in
     mapAttrs (_event: evEntries: map (e: e.spec) evEntries) (
       builtins.groupBy (entry: entry.event) entries
@@ -141,7 +146,7 @@ rec {
 
   # Render Kiro CLI hook list (`.kiro/hooks/ai-hooks.json`).
   renderKiroHooks =
-    hooks:
+    { hooks, dropHooks ? [] }:
     let
       kiroEvents = {
         session-start = "SessionStart";
@@ -170,11 +175,11 @@ rec {
           }
           // optionalAttrs (matcher != null) { inherit matcher; };
     in
-    filter (h: h != null) (mapAttrsToList mkHook (hooksFor "kiro" hooks));
+    filter (h: h != null) (mapAttrsToList mkHook (hooksForWith { inherit dropHooks; } "kiro" hooks));
 
   # Render OpenCode plugin hook manifest (`.config/opencode/ai-hooks.json`).
   renderOpencodeHooks =
-    hooks:
+    { hooks, dropHooks ? [] }:
     mapAttrs (
       _name: hook:
       let
@@ -185,11 +190,11 @@ rec {
         inherit (hook) timeout;
       }
       // optionalAttrs (matcher != null) { inherit matcher; }
-    ) (hooksFor "opencode" hooks);
+    ) (hooksForWith { inherit dropHooks; } "opencode" hooks);
 
   # Render Charm Crush `crushrc` hook commands (`PreToolUse` / `PostToolUse`).
   renderCrushRcHooks =
-    hooks:
+    { hooks, dropHooks ? [] }:
     let
       crushEvents = {
         pre-tool = "PreToolUse";
@@ -217,7 +222,7 @@ rec {
               --timeout ${toString hook.timeout}
           '';
     in
-    concatStringsSep "\n" (filter (l: l != null) (mapAttrsToList mkLine (hooksFor "crush" hooks)));
+    concatStringsSep "\n" (filter (l: l != null) (mapAttrsToList mkLine (hooksForWith { inherit dropHooks; } "crush" hooks)));
 
   # Replace `{{skill:name}}` markers with the harness's invocation syntax.
   renderSkillInvocation =

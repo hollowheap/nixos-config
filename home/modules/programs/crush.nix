@@ -73,7 +73,7 @@ in {
 
       ${instructions}
     '';
-    "crush/crushrc".text = aiRender.renderCrushRcHooks config.ai.hooks;
+    "crush/crushrc".text = aiRender.renderCrushRcHooks {hooks = config.ai.hooks;};
   };
 
   programs.wallust.settings.templates.crush = {

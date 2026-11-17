@@ -620,7 +620,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: replace Pi's private registry with the shared registry and keep codemode exposure.
   - Risk: private registry survives, direct exposure, server missing from an adapter.
 
-- [ ] T103 [S66]: Adapt hook contracts to harness builtins
+- [x] T103 [S66]: Adapt hook contracts to harness builtins
   - Verify: `nix build .#checks.x86_64-linux.home --no-link && nix eval --json .#homeConfigurations.hollowheap.config.ai.hooks --apply 'h: builtins.hasAttr "pre-tool" h' | grep -qx true`
   - Files: `home/modules/ai/hooks.nix`, `home/lib/ai-render.nix`, `home/modules/programs/*.nix`, `tests/home.nix`.
   - Notes: add per-harness drops for hooks already provided natively while preserving one shared command, matcher, and timeout shape.

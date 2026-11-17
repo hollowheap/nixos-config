@@ -219,7 +219,11 @@ in {
 
   home.file = {
     ".config/opencode/ai-hooks.json".text = builtins.toJSON (
-      aiRender.renderOpencodeHooks config.ai.hooks
+      aiRender.renderOpencodeHooks {
+        hooks = config.ai.hooks;
+        # Native bash permission deny rules already block the git policy patterns.
+        dropHooks = ["pre-tool"];
+      }
     );
     ".config/opencode/plugins/ai-hooks/index.ts".text = builtins.readFile ./opencode-ai-hooks.ts;
   };
