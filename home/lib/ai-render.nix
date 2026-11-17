@@ -332,4 +332,6 @@ rec {
         }) skill.scripts
       ) skills
     );
+
+  renderMcpServers = servers: { mcpServers = servers; };
 }

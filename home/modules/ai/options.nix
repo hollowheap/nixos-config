@@ -408,6 +408,10 @@ in {
   };
 
   config.programs.mcp.enable = true;
+  config.programs.mcp.servers.refero = {
+    url = "https://api.refero.design/mcp";
+    exposure = "codemode";
+  };
   config.ai.render = rec {
     inherit
       (aiRenderBase)
@@ -418,6 +422,7 @@ in {
       mkSkillDir
       mkSkillFileEntries
       renderCrushRcHooks
+      renderMcpServers
       renderGroupedHooks
       renderKiroHooks
       renderOpencodeHooks

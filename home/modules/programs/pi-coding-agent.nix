@@ -326,12 +326,7 @@
       name = "${configDir}/mcp.json";
       value = {
         force = true;
-        text = builtins.toJSON {
-          mcpServers.refero = {
-            url = "https://api.refero.design/mcp";
-            exposure = "codemode";
-          };
-        };
+        text = builtins.toJSON (aiRender.renderMcpServers config.programs.mcp.servers);
       };
     }
   ];

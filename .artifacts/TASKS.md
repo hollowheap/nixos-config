@@ -614,7 +614,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: render shared capabilities for subagent roles without harness-local pruning.
   - Risk: stripped tools, capability drift, broken JSON agent files.
 
-- [ ] T102 [S67]: Render MCP servers from one shared registry into every capable harness
+- [x] T102 [S67]: Render MCP servers from one shared registry into every capable harness
   - Verify: `nix eval --json .#homeConfigurations.hollowheap.config.programs.mcp.servers | jq -e '.refero.exposure == "codemode"' && ! rg -q 'mcpServers' home/modules/programs/pi-coding-agent.nix`
   - Files: `home/modules/ai/options.nix`, `home/lib/ai-render.nix`, `home/modules/programs/*.nix`, `tests/home.nix`.
   - Notes: replace Pi's private registry with the shared registry and keep codemode exposure.

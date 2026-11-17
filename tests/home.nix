@@ -113,7 +113,11 @@ pkgs.runCommand "check-home" {
   rg -q 'event\.systemPromptOptions\.sections\.docs' home/modules/programs/pi-coding-agent.nix
   rg -q 'agents: \$\{concatStringsSep' home/modules/programs/pi-coding-agent.nix
   no_match -q 'pi-statusline\.json' home/modules/programs/pi-coding-agent.nix
-  rg -q 'exposure = "codemode"' home/modules/programs/pi-coding-agent.nix
+  rg -q 'exposure = "codemode"' home/modules/ai/options.nix
+  rg -q 'config.programs.mcp.servers.refero' home/modules/ai/options.nix
+  rg -q 'renderMcpServers' home/lib/ai-render.nix
+  rg -q 'aiRender.renderMcpServers config.programs.mcp.servers' home/modules/programs/pi-coding-agent.nix
+  no_match -q 'mcpServers' home/modules/programs/pi-coding-agent.nix
   no_match -q 'defaultTools' home/modules/programs/pi-coding-agent.nix
   no_match -q 'type = "thinking"' home/modules/programs/pi-coding-agent.nix
   rg -q 'type = "cost"' home/modules/programs/pi-coding-agent.nix
