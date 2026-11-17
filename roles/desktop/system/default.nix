@@ -2,13 +2,10 @@
   pkgs,
   config,
   ...
-}:
-
-{
-  imports = [ ./services.nix ];
+}: {
+  imports = [./services.nix];
 
   programs = {
-
     uwsm.enable = true;
 
     # Window Managers
@@ -29,6 +26,7 @@
     settings = {
       appearance = {
         hide_logo = true;
+        font_family = config.desktop.fonts.sansSerif;
       };
 
       cursor = {
@@ -37,10 +35,15 @@
         path = "${pkgs.bibata-cursors}/share/icons";
       };
 
-      keyboard.layout = config.desktop.input.layout;
+      keyboard = {
+        layout = config.desktop.input.layout;
+        variant = config.desktop.input.variant;
+        options = config.desktop.input.options;
+      };
 
       output = {
-        scales = "eDP-1:${toString config.desktop.primaryScale}";
+        name = config.desktop.primaryOutput;
+        scales = "${config.desktop.primaryOutput}:${toString config.desktop.primaryScale}";
       };
 
       session = {
