@@ -1,0 +1,83 @@
+/* MacTahoe polish: dialog spacing, menu focus, and sidebar row styling.
+   Surface geometry and color stay native: the theme's 20px window radius,
+   inset floating sidebar, gradients, and translucent menu backing are kept. */
+
+/* AlertDialog and MessageDialog inner spacing (Ghostty / libadwaita popups) */
+window.messagedialog .message-area,
+window.background.messagedialog .message-area,
+dialog.alert .message-area,
+window.dialog-window.alert .message-area,
+window.dialog.message box.dialog-vbox.vertical {
+  padding-top: 28px;
+  padding-bottom: 10px;
+  border-spacing: 14px;
+}
+
+window.messagedialog .message-area.has-heading.has-body,
+window.background.messagedialog .message-area.has-heading.has-body,
+dialog.alert .message-area.has-heading.has-body,
+window.dialog-window.alert .message-area.has-heading.has-body {
+  border-spacing: 10px;
+}
+
+window.messagedialog .message-area > .heading-bin,
+window.messagedialog .message-area > .body,
+window.messagedialog .message-area > .child,
+window.background.messagedialog .message-area > .heading-bin,
+window.background.messagedialog .message-area > .body,
+window.background.messagedialog .message-area > .child,
+dialog.alert .message-area > .heading-bin,
+dialog.alert .message-area > .body,
+dialog.alert .message-area > .child,
+window.dialog-window.alert .message-area > .heading-bin,
+window.dialog-window.alert .message-area > .body,
+window.dialog-window.alert .message-area > .child,
+window.dialog.message box.dialog-vbox.vertical > box {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+window.messagedialog .response-area,
+window.background.messagedialog .response-area,
+dialog.alert .response-area,
+window.dialog-window.alert .response-area,
+window.dialog.message .dialog-action-area {
+  padding: 20px 24px 24px 24px;
+  border-spacing: 12px;
+}
+
+window.messagedialog .response-area > button,
+window.background.messagedialog .response-area button,
+dialog.alert .response-area > button,
+window.dialog-window.alert .response-area > button,
+window.dialog.message .dialog-action-area > button {
+  min-height: 28px;
+  min-width: 72px;
+  padding: 8px 18px;
+}
+
+/* Menu focus is a filled row, not a second outline around the section */
+popover.menu modelbutton:focus,
+popover.menu button.model:focus {
+  box-shadow: none;
+  background-color: alpha(@theme_fg_color, 0.08);
+}
+
+/* Sidebar rows: breathing room above Home and a strong selected label. */
+.sidebar-pane .navigation-sidebar,
+placessidebar .navigation-sidebar,
+placessidebar list {
+  padding-top: 10px;
+  padding-bottom: 6px;
+}
+
+.navigation-sidebar > row:selected image.sidebar-icon,
+.sidebar row:selected image.sidebar-icon {
+  color: @theme_selected_fg_color;
+}
+
+.navigation-sidebar > row:selected label,
+.navigation-sidebar > row:selected label.sidebar-label,
+.sidebar row:selected label {
+  font-weight: 700;
+}

@@ -13,13 +13,13 @@ in
       rounding = {
         radius = mkOption {
           type = int;
-          default = 8;
+          default = 20;
           description = "Corner rounding radius for windows.";
         };
 
         power = mkOption {
           type = number;
-          default = 2.0;
+          default = 2.5;
           description = "Continuous rounding (squircle) power for windows.";
         };
       };

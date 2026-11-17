@@ -1,4 +1,4 @@
-{ config, ... }:
+{ ... }:
 {
   home.sessionVariables._ZO_ECHO = "1";
 

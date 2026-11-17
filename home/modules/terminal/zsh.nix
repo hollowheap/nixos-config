@@ -278,63 +278,18 @@ in
       bindkey -M viins -r -R '\M-^@'-'\M-^?'
 
       # -----------------------------------------------------------------------
-      # 4. Terminal Integration (Wallust, Window Title, Login Fastfetch)
+      # 4. Terminal Integration (Wallust, Window Title, Fastfetch)
       # -----------------------------------------------------------------------
       if [[ -t 1 && -f "''${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences" ]]; then
         command tr -d '\r\n' < "''${XDG_CACHE_HOME:-$HOME/.cache}/wallust/sequences"
       fi
 
-      if [[ -o login && -z "$TMUX" ]] && (( ''${+commands[fastfetch]} )); then
+      if [[ -t 1 && -z "$TMUX" ]] && (( ''${+commands[fastfetch]} )); then
         fastfetch
       fi
 
       set_win_title() { print -Pn "\e]2;%~\a" }
       precmd_functions+=(set_win_title)
-
-      # -----------------------------------------------------------------------
-      # 5. On-Demand Vaultwarden AI Keys (rbw)
-      # -----------------------------------------------------------------------
-      _load_ai_keys() {
-        if (( ''${+commands[rbw]} )) && rbw unlocked >/dev/null 2>&1; then
-          local key exa_key
-          key="$(rbw get --folder dev/keys opencode 2>/dev/null || true)"
-          if [[ -n "$key" ]]; then
-            export OPENCODE_API_KEY="$key"
-            export OPENCODE_GO_API_KEY="$key"
-          fi
-          exa_key="$(rbw get --folder dev/keys exa 2>/dev/null || rbw get exa 2>/dev/null || true)"
-          if [[ -n "$exa_key" ]]; then
-            export EXA_API_KEY="$exa_key"
-          fi
-        fi
-      }
-
-      _ensure_ai_keys_preexec() {
-        if [[ -z "$OPENCODE_API_KEY" || -z "$EXA_API_KEY" ]]; then
-          case "$1" in
-            opencode*|pi*|crush*|kiro*|codex*|agy*|antigravity*|hermes*|copilot*)
-              _load_ai_keys
-              ;;
-          esac
-        fi
-      }
-      autoload -Uz add-zsh-hook
-      add-zsh-hook preexec _ensure_ai_keys_preexec
-
-      load-ai-keys() {
-        if ! rbw unlocked >/dev/null 2>&1; then
-          rbw unlock || return 1
-        fi
-        _load_ai_keys
-        local loaded=()
-        [[ -n "$OPENCODE_API_KEY" ]] && loaded+=("OPENCODE_API_KEY")
-        [[ -n "$EXA_API_KEY" ]] && loaded+=("EXA_API_KEY")
-        if (( ''${#loaded[@]} > 0 )); then
-          echo "AI keys loaded into environment: ''${(j:, :)loaded}."
-        else
-          echo "Warning: No keys retrieved from rbw (check folder dev/keys)." >&2
-        fi
-      }
     '';
   };
 }

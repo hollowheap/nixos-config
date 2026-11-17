@@ -1,6 +1,6 @@
 # Pull Request Format
 
-Load only when drafting a PR description. Inspect `git log --oneline main..HEAD` and `git diff --stat main..HEAD`, choose the template that fits change size, and write `artifacts/pr/<branch>.md` locally so the user can open the PR remotely.
+Load only when drafting a PR description. Inspect `git log --oneline main..HEAD` and `git diff --stat main..HEAD`, choose the template that fits change size, and write `.artifacts/pr/<branch>.md` locally (or inline if `.artifacts/` is absent) so the user can open the PR remotely.
 
 ## Small Template (1-2 commits or narrow fix)
 
@@ -44,4 +44,5 @@ Explicit notes if options, paths, or dependencies changed; omit when none.
 - Never open or submit a remote PR (`gh pr create` etc.); only write the local PR file for the user.
 - Use the actual PR title as the H1; never use `Pull Request Description`.
 - Target human engineers; omit `Verification` sections, raw logs, traces, and unverified claims.
+- Use simple active sentences (`<= 25` words) with explicit subjects and `must`/`can` wording; avoid stacked nouns and ambiguous pronouns.
 - Keep commands and file paths verbatim, and keep any Markdown tables `<= 80` characters wide.

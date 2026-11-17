@@ -7,6 +7,11 @@ agents: architect, engineer
 
 # Doctor Harness
 
+## Scope
+
+- Covers: diagnosing harness configuration, hooks, MCPs, prompt bloat, and one-session or multi-session behavior.
+- Excludes: feature implementation, code review, and edits made without user confirmation.
+
 ## Workflow
 
 1. Route by request: load `references/doctor.md` for harness setup, user misconfigurations, hooks, MCPs, or prompt bloat; `references/session.md` for one transcript's loops, tokens, or model-tier fit; or `references/corpus.md` for multi-session patterns, then resume at step 2.
@@ -14,7 +19,7 @@ agents: architect, engineer
 3. Inspect verbatim logs, live harness settings, workspace instruction files (`AGENTS.md`, `CLAUDE.md`, rules), or declarative config files when present; never rely on agent self-reports.
 4. Quantify evidence with exact step indices, session IDs, wasted tool counts, `chars/4` token estimates, or failing config lines, including user-caused misconfigurations.
 5. Propose concrete fixes to user harness settings, hooks, MCPs, `AGENTS.md`, or declarative AI config modules (if used by the repo); wait for confirmation before editing.
-6. Report findings inline, or write `retro.md` (`session`) or `audit.md` (`corpus`) into `artifacts/` when present and requested, or verify repaired config (`doctor`).
+6. Report findings inline, or write `retro.md` (`session`) or `audit.md` (`corpus`) into `.artifacts/` when present and requested, or verify repaired config (`doctor`).
 
 ## Rules
 

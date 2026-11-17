@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   ...
 }:
@@ -28,6 +27,11 @@ let
         type = nullOr bool;
         default = null;
         description = "Match XWayland or native Wayland clients.";
+      };
+      modal = mkOption {
+        type = nullOr bool;
+        default = null;
+        description = "Match modal dialog windows.";
       };
     };
   };
@@ -82,6 +86,11 @@ let
         type = nullOr str;
         default = null;
         description = "Window event to suppress.";
+      };
+      noInitialFocus = mkOption {
+        type = bool;
+        default = false;
+        description = "Prevent taking focus when the window maps.";
       };
     };
   };

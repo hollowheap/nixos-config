@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   pkgs,
   ...
 }:
@@ -22,6 +21,11 @@
       name = "MacTahoe-Dark";
       package = null;
     };
+    gtk3.extraConfig = {
+      gtk-menu-images = false;
+      gtk-button-images = false;
+    };
+
     font = {
       name = config.styles.fonts.sansSerif.name;
       size = config.styles.fonts.sizes.applications;

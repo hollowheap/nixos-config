@@ -123,7 +123,7 @@ in
         "--max-lines"
         "2000"
         "--output"
-        "artifacts/repomap.md"
+        ".artifacts/repomap.md"
       ];
       timeout = 30;
     };
@@ -141,7 +141,7 @@ in
         "--max-lines"
         "2000"
         "--output"
-        "artifacts/repomap.md"
+        ".artifacts/repomap.md"
       ];
       matchers = {
         claude-code = "Edit|MultiEdit";

@@ -8,9 +8,7 @@
   programs.wallust = {
     enable = true;
     settings = {
-      backend = "resized";
-      color_space = "salience";
-      palette = "saliencedarkbalanced16";
+      backend = "full";
       check_contrast = true;
       fallback_generator = "interpolate";
       saturation = 35;
@@ -75,7 +73,8 @@
     settings="$HOME/.local/state/noctalia/settings.toml"
     wp="$(${pkgs.gawk}/bin/awk -F'"' '/^\[wallpaper\.last\]/{f=1;next} /^\[/{f=0} f&&/^path =/{print $2; exit}' "$settings" 2>/dev/null || true)"
     if [ -n "$wp" ] && [ -f "$wp" ]; then
-      ${pkgs.wallust}/bin/wallust run --templates-dir "${config.xdg.dataHome}/templates" "$wp" -s || true
+      ${pkgs.wallust-palette}/bin/wallust-palette --image "$wp" --templates-dir "${config.xdg.dataHome}/templates" --apply || true
     fi
+    ${pkgs.systemd}/bin/systemctl --user set-environment STARSHIP_CONFIG="$starship_out" 2>/dev/null || true
   '';
 }

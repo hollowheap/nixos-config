@@ -17,3 +17,6 @@ home/modules/programs/accounts.local.nix
 
 # Rust build output for local review tooling
 pkgs/ui-probe/target/
+
+# Iridescent workspace artifacts
+.artifacts/

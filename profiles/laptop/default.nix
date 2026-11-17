@@ -6,8 +6,8 @@
   services.thermald.enable = true;
 
   services.logind.settings.Login = {
-    HandleLidSwitch = lib.mkDefault "lock";
-    HandleLidSwitchExternalPower = lib.mkDefault "lock";
+    HandleLidSwitch = lib.mkDefault "suspend";
+    HandleLidSwitchExternalPower = lib.mkDefault "suspend";
   };
 
   systemd.services.systemd-logind.reloadTriggers = [

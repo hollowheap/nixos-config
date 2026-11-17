@@ -12,7 +12,6 @@
     filterAttrs
     mapAttrsToList
     mkOption
-    optionalString
     ;
   inherit
     (lib.types)
@@ -35,8 +34,14 @@
   aiRenderBase = import ../../lib/ai-render.nix {inherit lib pkgs;};
 
   agentSubmodule = submodule (
-    {config, ...}: {
+    {config, name, ...}: {
       options = {
+        name = mkOption {
+          type = str;
+          default = name;
+          readOnly = true;
+          description = "Agent attribute name, used to key per-harness overrides.";
+        };
         description = mkOption {
           type = str;
           description = "Brief summary of the agent's purpose and role.";
@@ -51,24 +56,6 @@
             then "subagent"
             else "primary";
           description = "Agent role: primary or subagent.";
-        };
-        tier = mkOption {
-          type = enum [
-            "high"
-            "medium"
-            "low"
-          ];
-          default = "medium";
-          description = "Tier for model and effort routing.";
-        };
-        effort = mkOption {
-          type = enum [
-            "low"
-            "medium"
-            "high"
-          ];
-          default = cfg.tiers.${config.tier}.effort;
-          description = "Harness-neutral reasoning effort override (low, medium, high).";
         };
         dropDisciplines = mkOption {
           type = listOf str;
@@ -137,16 +124,6 @@
           type = listOf str;
           default = [];
           description = "List of skills associated with this agent.";
-        };
-        model = mkOption {
-          type = nullOr str;
-          default = "${cfg.tiers.${config.tier}.provider}/${cfg.tiers.${config.tier}.model}";
-          description = "Harness-neutral model override. Each renderer maps this to its own model identifier; defaults to tier provider/model.";
-        };
-        models = mkOption {
-          type = attrsOf str;
-          default = {};
-          description = "Harness-specific model overrides keyed by harness name (opencode, pi, codex, ...).";
         };
         prompt = mkOption {
           type = lines;
@@ -288,99 +265,6 @@
   };
 in {
   options.ai = {
-    tiers = mkOption {
-      type = attrsOf (submodule {
-        options = {
-          provider = mkOption {
-            type = str;
-            description = "Provider name.";
-          };
-          model = mkOption {
-            type = str;
-            description = "Model name.";
-          };
-          effort = mkOption {
-            type = enum [
-              "low"
-              "medium"
-              "high"
-            ];
-            description = "Reasoning effort level.";
-          };
-          models = mkOption {
-            type = attrsOf str;
-            default = {};
-            description = "Harness-specific model overrides for this tier.";
-          };
-          efforts = mkOption {
-            type = attrsOf str;
-            default = {};
-            description = "Harness-specific effort overrides for this tier.";
-          };
-        };
-      });
-      default = {
-        high = {
-          provider = "opencode-go";
-          model = "deepseek-v4.1-flash";
-          effort = "high";
-          models = {
-            opencode = "opencode-go/deepseek-v4.1-flash";
-            codex = "gpt-6-luna";
-            kiro = "claude-opus-5.5";
-            "claude-code" = "opus";
-            antigravity = "Gemini 4 Argon (Medium)";
-            crush = "deepseek-v4.1-flash";
-            pi = "opencode-go/deepseek-v4.1-flash";
-          };
-          efforts = {
-            codex = "xhigh";
-            kiro = "low";
-            crush = "high";
-          };
-        };
-        medium = {
-          provider = "opencode-go";
-          model = "deepseek-v4.1-flash";
-          effort = "medium";
-          models = {
-            opencode = "opencode-go/deepseek-v4.1-flash";
-            codex = "gpt-6-luna";
-            kiro = "claude-haiku-5.5";
-            "claude-code" = "sonnet";
-            antigravity = "Gemini 4 Hydrogen (High)";
-            crush = "deepseek-v4.1-flash";
-            pi = "opencode-go/deepseek-v4.1-flash";
-          };
-          efforts = {
-            codex = "xhigh";
-            kiro = "xhigh";
-            crush = "medium";
-          };
-        };
-        low = {
-          provider = "opencode-go";
-          model = "beam-free";
-          effort = "low";
-          models = {
-            opencode = "opencode-go/beam-free";
-            codex = "gpt-6-luna";
-            kiro = "claude-haiku-5.5";
-            "claude-code" = "haiku";
-            antigravity = "Gemini 4 Hydrogen (High)";
-            crush = "beam-free";
-            pi = "opencode-go/beam-free";
-          };
-          efforts = {
-            codex = "xhigh";
-            kiro = "xhigh";
-            crush = "low";
-          };
-        };
-      };
-      description = "3-tier model and effort routing table.";
-    };
-
     hooks = mkOption {
       type = attrsOf (submodule {
         options = {
@@ -472,6 +356,24 @@ in {
       };
     };
 
+    compaction = {
+      maxTokens = mkOption {
+        type = int;
+        default = 400000;
+        description = "Maximum context tokens before auto-compaction triggers; smaller-window models clamp to their native limit.";
+      };
+      reserveTokens = mkOption {
+        type = int;
+        default = 16384;
+        description = "Default headroom tokens reserved before compaction triggers on smaller-window models.";
+      };
+      keepRecentTokens = mkOption {
+        type = int;
+        default = 20000;
+        description = "Recent verbatim token budget preserved across compaction.";
+      };
+    };
+
     agents = mkOption {
       type = attrsOf agentSubmodule;
       default = {};
@@ -517,14 +419,43 @@ in {
       renderKiroHooks
       renderOpencodeHooks
       renderSkillInvocation
+      rulesText
       slugToTitle
       ;
 
-    tierModelFor = harness: tierName:
-      cfg.tiers.${tierName}.models.${harness} or cfg.tiers.${tierName}.model;
+    wrapWithOpenCodeKey = binName: pkg:
+      pkgs.symlinkJoin {
+        name = "${pkg.name}-opencode-wrapped";
+        paths = [ pkg ];
+        nativeBuildInputs = [ pkgs.makeWrapper ];
+        postBuild = ''
+          rm -f "$out/bin/${binName}"
+          makeWrapper "${pkg}/bin/${binName}" "$out/bin/${binName}" --run '
+            if [ -z "''${OPENCODE_API_KEY:-}" ] || [ -z "''${OPENCODE_GO_API_KEY:-}" ]; then
+              if ( [ -n "''${WAYLAND_DISPLAY:-}''${DISPLAY:-}" ] || [ -t 0 ] ) && ! ${pkgs.rbw}/bin/rbw unlocked >/dev/null 2>&1; then
+                ${pkgs.rbw}/bin/rbw unlock || true
+              fi
+              if ${pkgs.rbw}/bin/rbw unlocked >/dev/null 2>&1; then
+                _k="$(${pkgs.rbw}/bin/rbw get --folder dev/keys opencode 2>/dev/null || true)"
+                if [ -n "$_k" ]; then
+                  : "''${OPENCODE_API_KEY:=$_k}"
+                  : "''${OPENCODE_GO_API_KEY:=$_k}"
+                  export OPENCODE_API_KEY OPENCODE_GO_API_KEY
+                fi
+                unset _k
+              fi
+            fi
+          '
+        '';
+        meta = pkg.meta or {};
+      };
 
-    tierEffortFor = harness: tierName:
-      cfg.tiers.${tierName}.efforts.${harness} or cfg.tiers.${tierName}.effort;
+    modelFor = harness: agent:
+      cfg.harnesses.${harness}.agents.${agent.name}.model
+      or (throw "ai.harnesses.${harness}.agents.${agent.name}.model is not set");
+
+    effortFor = harness: agent:
+      cfg.harnesses.${harness}.agents.${agent.name}.effort or null;
 
     capabilityNames = [
       "read"
@@ -578,35 +509,6 @@ in {
         filter (s: s != "") (map (rule: formatRuleLines rule.text) rules)
       );
 
-    rulesText = rules: agent: let
-      matched =
-        if agent.role == "subagent"
-        then []
-        else builtins.filter (matchesCaps agent) rules;
-    in
-      optionalString (matched != []) (
-        "\n\n" + concatStringsSep "\n\n" (map (rule: rule.text) matched)
-      );
-
-    modelFor = harness: agent: let
-      tier = cfg.tiers.${agent.tier};
-      harnessModel = agent.models.${harness} or tier.models.${harness} or null;
-    in
-      if harnessModel != null
-      then harnessModel
-      else agent.model;
-
-    effortFor = harness: agent: let
-      tier = cfg.tiers.${agent.tier};
-      harnessEffort = agent.models.${harness + "Effort"} or tier.efforts.${harness} or null;
-      eff =
-        if harnessEffort != null
-        then harnessEffort
-        else agent.effort;
-    in
-      if eff == null
-      then null
-      else eff;
 
     agentBodyForWith = {
       dropDisciplines ? [],

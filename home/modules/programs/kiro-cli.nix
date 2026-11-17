@@ -37,12 +37,12 @@ let
             {
               capability = "fs_write";
               match = [ "**" ];
-              exclude = [ "artifacts/tasks.md" "artifacts/specs.md" ];
+              exclude = [ ".artifacts/*.md" ];
               effect = "deny";
             }
             {
               capability = "fs_write";
-              match = [ "artifacts/tasks.md" "artifacts/specs.md" ];
+              match = [ ".artifacts/*.md" ];
               effect = "allow";
             }
           ]
@@ -93,9 +93,9 @@ let
     writeRules ++ (optionals caps.execute executeRules) ++ (optionals caps.delegate delegateRules);
 
   preventOverwriteHook = pkgs.writeShellScript "prevent-overwrite.sh" ''
+    set -euo pipefail
     PAYLOAD="$(cat)"
-    CMD="$(echo "$PAYLOAD" | ${pkgs.jq}/bin/jq -r '.tool_input.command // empty')"
-    PATH_VAL="$(echo "$PAYLOAD" | ${pkgs.jq}/bin/jq -r '.tool_input.file_path // .tool_input.path // empty')"
+    PATH_VAL="$(printf '%s' "$PAYLOAD" | ${pkgs.jq}/bin/jq -r '.tool_input.file_path // .tool_input.path // empty')"
     if [ -n "$PATH_VAL" ] && [ -e "$PATH_VAL" ]; then
       echo "Overwriting existing files with create is denied by discipline. Use hunk editing instead." >&2
       exit 2
@@ -109,7 +109,7 @@ let
       caps = agent.capabilities;
       readOnly = !caps.write && !caps.execute;
       skillResources = map (s: "skill://.kiro/skills/${s}/SKILL.md") agent.skills;
-      repomapResource = optionals readOnly [ "file://artifacts/repomap.md" ];
+      repomapResource = optionals readOnly [ "file://.artifacts/repomap.md" ];
       rules = kiroRulesFor name agent;
       kiroModel = aiRender.modelFor "kiro" agent;
     in

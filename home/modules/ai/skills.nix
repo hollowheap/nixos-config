@@ -32,29 +32,13 @@ let
   baseSkills = readSkills ../../../skills;
 
   assetSkills = readSkills ../../../assets/skills;
-
-  artifactsScript = ''
-    #!/usr/bin/env bash
-    exec ${pkgs.artifacts-helper}/bin/artifacts.sh "$@"
-  '';
-
-  scripted = [
-    "init"
-    "update"
-    "brainstorm"
-    "design"
-    "specify"
-    "plan"
-    "implement"
-    "review"
-  ];
-
-  scriptOverrides = lib.genAttrs scripted (name: {
-    scripts."artifacts.sh" = artifactsScript;
-  });
 in
 {
-  ai.skills = lib.recursiveUpdate (externalSkills // baseSkills // assetSkills) scriptOverrides;
+  home.packages = [
+    inputs.iridescent.packages.${pkgs.stdenv.hostPlatform.system}.iridescent-artifacts
+  ];
+
+  ai.skills = externalSkills // baseSkills // assetSkills;
 
   assertions = [
     {

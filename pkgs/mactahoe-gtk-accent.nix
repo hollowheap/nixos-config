@@ -79,6 +79,7 @@ writeShellApplication {
     # shellcheck disable=SC2016
     sed -i '/\$blur/s/false/true/' "$work/src/sass/_theme-options-temp.scss"
     sed -i "s/^\$theme_color_default:.*/\$theme_color_default: #$accent;/" "$work/src/sass/_colors-palette.scss"
+    ${mactahoe-gtk-theme.passthru.goldenGateScssPatch ''"$work/src"''}
 
     sassc -t expanded "$work/src/main/gtk-4.0/gtk-Dark.scss" "$work/out/c4.css" || exit 1
     sassc -t expanded "$work/src/main/gtk-3.0/gtk-Dark.scss" "$work/out/c3.css" || exit 1
@@ -100,6 +101,12 @@ writeShellApplication {
     } >> "$work/out/c4.css"
 
     {
+      cat "${mactahoe-gtk-theme.passthru.goldenGateCss}"
+      printf '%s\n' "${mactahoe-gtk-theme.passthru.goldenGateGtk4Css}"
+    } >> "$work/out/c4.css"
+
+    {
+      cat "${mactahoe-gtk-theme.passthru.goldenGateCss}"
       printf '\n/* mactahoe-accent: %s */\n' "$accent"
       printf '@define-color accent_color #%s;\n' "$accent"
       printf '@define-color accent_bg_color #%s;\n' "$accent"

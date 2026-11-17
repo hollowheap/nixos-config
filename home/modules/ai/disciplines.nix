@@ -1,12 +1,20 @@
-{ ... }:
 {
+  inputs,
+  lib,
+  ...
+}: let
+  iridescentRules = builtins.concatStringsSep "\n" (
+    builtins.filter (l: l != "" && !(lib.hasPrefix "#" l)) (
+      lib.splitString "\n" (builtins.readFile inputs.iridescent.lib.rulesFile)
+    )
+  );
+in {
   ai.disciplines = {
     artifacts = {
-      description = "Workspace artifact layout.";
+      description = "Iridescent workspace artifact placement.";
       target = "primary";
       rules = {
-        scripts = "Reusable probes and validation scripts live in artifacts/scripts/; throwaway scratch files live in artifacts/scratch/.";
-        output = "Pipe noisy command output through head, tail, or rg/grep; redirect long output to artifacts/logs/ or artifacts/errors/ and return the path with a targeted rg or tail command, never the dump.";
+        placement = iridescentRules;
       };
     };
 
@@ -17,7 +25,7 @@
         yagni = "Satisfy immediate request with minimal diff; reject premature abstractions, helper functions, and speculative generalizations.";
         preserve = "Preserve existing working code and out-of-context dirty edits; avoid unsolicited refactoring. If unexpected changes appear in files you did not touch, stop and ask the user.";
         halt-on-pass = "Stop immediately once verification passes; never add post-pass polish, extra tests, or unrequested cleanup.";
-        early-yield = "Yield turn on ambiguities, undocumented behavior, or after 2 consecutive command failures so user can steer.";
+        early-yield = "Verify codebase and docs first; never guess when unsure. Ask the user only for ambiguous intent, approach trade-offs, irreversible actions, or gaps unresolved after 2 failed commands or lookups.";
       };
     };
 
@@ -27,7 +35,7 @@
       rules = {
         narrow = "Start from the narrowest known path; use `rg -n --smart-case` with a glob or file type. Never search `/` or `$HOME`.";
         batch = "Batch independent read and search calls in one turn instead of serializing one file per turn.";
-        compact = "Return file:line plus the shortest decisive snippet; cap matches. Put large output in artifacts/logs/ and cite the path.";
+        compact = "Return file:line plus the shortest decisive snippet; cap matches.";
         slice = "Use file-read offset/limit parameters to read only needed sections; never `cat` files in shell, re-read unchanged files, or re-read right after editing unless an external tool modified them.";
         stop = "Stop on the first decisive match; widen scope only after a miss.";
       };
@@ -37,23 +45,10 @@
       description = "High-density, fluff-free communication with safety break-glass.";
       target = "primary";
       rules = {
-        density = "Answer first, then reason, then next step. One idea per sentence, <=20 words. Keep negations, subjects, and articles explicit. No filler (just/really/basically/actually/simply). Code, paths, commands, numbers, errors stay verbatim.";
+        density = "Answer first, then reason, then next step. Prioritize technical accuracy over agreement; flag flawed approaches directly. One idea per sentence, <=20 words. Keep negations, subjects, and articles explicit. No filler (just/really/basically/actually/simply). Code, paths, commands, numbers, errors stay verbatim.";
         break-glass = "Full sentences for: warnings, irreversible actions, order-sensitive steps, user repeats, persisted artifacts/code, status lines, and user questions.";
         tables = "Keep Markdown table cells short. Wrap long cells with `<br>` or move detail below the table; never force horizontal scrolling. Wrap paths and commands in backticks.";
         pre-send = "Pre-send check: delete announcement and recap sentences; verify negations and verbatim payloads; split ambiguous sentences.";
-      };
-    };
-
-    ste100 = {
-      description = "ASD-STE100 Simplified Technical English for technical prose.";
-      target = "primary";
-      rules = {
-        vocabulary = "Use plain, approved ASD-STE100 words in their approved meanings. Use one term for one item. Define technical nouns, verbs, and abbreviations at first use.";
-        sentences = "Use simple sentences. Put one instruction in each sentence. Use active voice, imperative steps, and simple present facts. Keep procedure sentences <=20 words and descriptive sentences <=25.";
-        structure = "Put steps in execution order. Use a vertical list for three or more steps or conditions. Keep one topic per paragraph and <=6 sentences.";
-        requirements = "Use `must` for mandatory requirements and `can` for capability. Do not use `should` for a requirement. Keep the subject and articles explicit.";
-        ambiguity = "Avoid stacked nouns, ambiguous pronouns, synonyms, and unexplained abbreviations. Split a sentence when its meaning is unclear.";
-        scope = "Apply to specs, PR descriptions, commit messages, runbooks, and user-facing docs. Keep code, paths, commands, numbers, and errors verbatim.";
       };
     };
 
@@ -86,8 +81,8 @@
       description = "Subagent I/O contract and boundaries.";
       target = "subagent";
       rules = {
-        telemetry = "Emit compact, self-contained fragments only (parent lacks your context): <path:line> — <symbol> — <note> (Scout) or <path:line>: [sev] <bug>. <fix>. (Reviewer). Report unverified gaps explicitly; never guess.";
-        bounded = "Answer only the delegated query using offset/limit slice reads (30-60 lines), rg -n, fd, or nix eval; pipe long output through head, tail, or rg, never `cat` or re-read full files, and stop once facts are collected.";
+        telemetry = "Emit compact, self-contained fragments only (parent lacks your context): <path:line> — <symbol> — <note> (Scout) or <path:line>: [sev] <bug>. <fix>. (Reviewer). Keep code, commands, paths, and errors verbatim. Zero prose, greetings, or recaps. Report unverified gaps explicitly; never guess.";
+        bounded = "Answer only the delegated query using offset/limit slice reads (30-60 lines), rg -n, fd, or nix eval; pipe long output through head, tail, or rg, never `cat`, re-read full files, dump large files, or run `strings`/`objdump`/`hexdump` on binaries, and stop once facts are collected.";
         read-only = "Subagents are strictly read-only; never mutate files, stage/commit, or expose secrets.";
       };
     };

@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  inherit (lib) concatStringsSep mapAttrs mapAttrsToList mkIf optionalAttrs;
+  inherit (lib) mapAttrs mapAttrsToList mkIf;
 
   aiRender = config.ai.render;
 
@@ -65,8 +65,9 @@ in {
     settings = {
       developer_instructions = bodyFor config.ai.agents.engineer;
       features.hooks = true;
-      model = aiRender.tierModelFor "codex" "high";
-      model_reasoning_effort = aiRender.tierEffortFor "codex" "high";
+      model = config.ai.harnesses.codex.agents.engineer.model;
+      model_reasoning_effort = config.ai.harnesses.codex.agents.engineer.effort;
+      model_auto_compact_token_limit = config.ai.compaction.maxTokens;
       tui.screen_reader_detection_done = true;
       tui.theme = "wallust";
       projects."${config.home.homeDirectory}/repos/home-manager".trust_level = "trusted";

@@ -57,6 +57,12 @@ in
       description = "LSP server map formatted for OpenCode settings.lsp.";
     };
 
+    claudeLsp = mkOption {
+      type = types.attrsOf types.anything;
+      default = { };
+      description = "LSP server map formatted for Claude Code lspServers.";
+    };
+
     opencodeFormatters = mkOption {
       type = types.attrsOf types.anything;
       default = { };
@@ -131,7 +137,10 @@ in
         yaml.enable = true;
         zsh.enable = true;
         markdown.enable = true;
-        markdown.extensions.render-markdown-nvim.enable = true;
+        markdown.extensions.render-markdown-nvim = {
+          enable = true;
+          setupOpts.file_types = [ "markdown" ];
+        };
       };
 
       lspServers = {
@@ -259,6 +268,47 @@ in
         command = [ srv.command ] ++ srv.args;
         inherit (srv) extensions;
       }) config.toolchain.lspServers;
+
+      claudeLsp =
+        let
+          extensionLanguageMap = {
+            ".nix" = "nix";
+            ".lua" = "lua";
+            ".py" = "python";
+            ".pyi" = "python";
+            ".ts" = "typescript";
+            ".tsx" = "typescriptreact";
+            ".js" = "javascript";
+            ".jsx" = "javascriptreact";
+            ".c" = "c";
+            ".h" = "c";
+            ".cpp" = "cpp";
+            ".cc" = "cpp";
+            ".hpp" = "cpp";
+            ".sh" = "shellscript";
+            ".bash" = "shellscript";
+            ".zsh" = "shellscript";
+            ".json" = "json";
+            ".jsonc" = "jsonc";
+            ".yaml" = "yaml";
+            ".yml" = "yaml";
+            ".toml" = "toml";
+            ".md" = "markdown";
+            ".markdown" = "markdown";
+          };
+        in
+        lib.mapAttrs (
+          _name: srv:
+          {
+            inherit (srv) command;
+            extensionToLanguage = lib.genAttrs srv.extensions (
+              ext: extensionLanguageMap.${ext} or (lib.removePrefix "." ext)
+            );
+          }
+          // lib.optionalAttrs (srv.args != [ ]) {
+            inherit (srv) args;
+          }
+        ) config.toolchain.lspServers;
 
       opencodeFormatters = {
         alejandra = {

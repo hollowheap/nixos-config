@@ -8,8 +8,8 @@
         if [ -x "$local_hook" ]; then
           "$local_hook" || exit $?
         fi
-        if git diff --cached --name-only | grep -qE '^artifacts/(errors|logs)/'; then
-          echo "ERROR: Refusing to commit ephemeral files under artifacts/errors/ or artifacts/logs/" >&2
+        if git diff --cached --name-only | grep -qE '^\.?artifacts/(errors|logs)/'; then
+          echo "ERROR: Refusing to commit ephemeral files under .artifacts/errors/ or .artifacts/logs/" >&2
           exit 1
         fi
         if [ "$(git config --bool commit.gpgSign)" != "true" ]; then

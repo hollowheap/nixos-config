@@ -105,7 +105,16 @@ let
       ) (builtins.attrNames home.config.home.file)
     );
 
-  claudeAgentCount = builtins.length (builtins.attrNames home.config.ai.agents);
+  claudeAgentCount = builtins.length (builtins.attrNames home.config.programs.claude-code.agents);
+
+  claudePluginCount =
+    (if home.config.programs.claude-code.lspServers != { } then 1 else 0)
+    + builtins.length (
+      if builtins.isAttrs home.config.programs.claude-code.plugins then
+        builtins.attrNames home.config.programs.claude-code.plugins
+      else
+        home.config.programs.claude-code.plugins
+    );
 
   agentNameFromFile = file: inputs.nixpkgs.lib.removeSuffix ".md" (baseNameOf file);
 
@@ -124,15 +133,16 @@ let
     file: entry:
     let
       name = agentNameFromFile file;
-      tier = home.config.ai.agents.${name}.tier;
-      model = home.config.ai.agents.${name}.models."claude-code"
-        or home.config.ai.tiers.${tier}.models."claude-code";
+      agent = home.config.ai.agents.${name};
+      model = home.config.ai.render.modelFor "claude-code" agent;
+      effort = home.config.ai.render.effortFor "claude-code" agent;
     in
     ''
       test "$(head -n 1 "${entry.source}")" = "---"
       sed -n '2p' "${entry.source}" | grep -Fq '"name":"${name}"'
       sed -n '2p' "${entry.source}" | grep -Fq '"description":'
       sed -n '2p' "${entry.source}" | grep -Fq '"model":"${model}"'
+      sed -n '2p' "${entry.source}" | grep -Fq '"effort":"${effort}"'
       sed -n '2p' "${entry.source}" | grep -Fq '"omitClaudeMd":true'
     ''
   ) claudeAgentFiles;
@@ -141,13 +151,15 @@ let
     file: entry:
     let
       name = agentNameFromFile file;
-      tier = home.config.ai.agents.${name}.tier;
-      model = home.config.ai.agents.${name}.models.pi or home.config.ai.tiers.${tier}.models.pi;
+      agent = home.config.ai.agents.${name};
+      model = home.config.ai.render.modelFor "pi" agent;
+      effort = home.config.ai.render.effortFor "pi" agent;
     in
     ''
       test "$(head -n 1 "${entry.source}")" = "---"
       grep -Fq 'name: ${name}' "${entry.source}"
-      grep -Fq 'model: ${model}' "${entry.source}"
+      grep -Fxq 'model: ${model}:${effort}' "${entry.source}"
+      ! grep -q '^effort:' "${entry.source}"
     ''
   ) piAgentFiles;
 
@@ -199,7 +211,9 @@ let
       )}
       test ${toString (fileSkillCount ".pi/agent/skills/")} -eq ${toString skillCount}
       test ${toString (fileSkillCount ".kiro/skills/")} -eq ${toString skillCount}
-      test ${toString (fileEntryCount "/.claude/skills/")} -eq ${toString skillCount}
+      test ${toString (fileEntryCount "/.claude/skills/")} -eq ${toString (skillCount + claudePluginCount)}
+      test -f "${home.config.home.file."${home.config.programs.claude-code.configDir}/skills/claude-code-home-manager".source}/.claude-plugin/plugin.json"
+      test -f "${home.config.home.file."${home.config.programs.claude-code.configDir}/skills/claude-code-home-manager".source}/.lsp.json"
       test ${toString (fileEntryCount "/.claude/agents/")} -eq ${toString claudeAgentCount}
       touch $out
     '';

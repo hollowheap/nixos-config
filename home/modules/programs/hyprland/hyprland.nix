@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  inherit (builtins) concatLists genList;
+  inherit (builtins) genList;
   inherit (lib.generators) mkLuaInline;
   hypr = import ../../../lib/hyprland.nix {inherit config lib;};
   inherit (hypr) mkArgs mkDsp mkDspExec mkLuaFn mkTouchKeyboard;
@@ -16,12 +16,23 @@
     hide-touch-keyboard = "pkill -USR1 wvkbd-mobintl || true";
   };
 
+  noctaliaGlassLayerNamespaces = [
+    "noctalia-bar-main"
+    "noctalia-attached-panel"
+    "noctalia-panel"
+    "noctalia-dock"
+    "noctalia-notification"
+    "noctalia-osd"
+    "noctalia-window-switcher"
+  ];
+
   mapMatch = match:
     lib.filterAttrs (_: value: value != null) {
       class = match.appId;
-      title = match.title;
+      inherit (match) title;
       initial_title = match.initialTitle;
-      xwayland = match.xwayland;
+      inherit (match) xwayland;
+      inherit (match) modal;
     };
 
   mapWindowRule = rule:
@@ -30,11 +41,12 @@
       match = mapMatch rule.match;
     }
     // lib.filterAttrs (_: value: value) {
-      float = rule.float;
-      center = rule.center;
-      opaque = rule.opaque;
-      pin = rule.pin;
+      inherit (rule) float;
+      inherit (rule) center;
+      inherit (rule) opaque;
+      inherit (rule) pin;
       persistent_size = rule.persistentSize;
+      no_initial_focus = rule.noInitialFocus;
     }
     // lib.optionalAttrs (rule.size != []) {inherit (rule) size;}
     // lib.optionalAttrs (rule.content != null) {inherit (rule) content;}
@@ -46,7 +58,7 @@
     {
       inherit (rule) name;
       match = {
-        namespace = rule.namespace;
+        inherit (rule) namespace;
       };
     }
     // lib.optionalAttrs rule.noAnim {no_anim = true;}
@@ -71,7 +83,7 @@ in {
       ++ (
         if config.desktop.touch
         then
-          if !(lib.elem pkgs.hyprland.version [ "0.57.0" "0.57.1" "0.57.2" ])
+          if !(lib.elem pkgs.hyprland.version ["0.57.0" "0.57.1" "0.57.2"])
           then throw "hyprgrass has no pin for Hyprland ${pkgs.hyprland.version}; update pkgs/hyprland-plugins/hyprgrass.nix"
           else [pkgs.hyprlandPlugins.hyprgrass]
         else []
@@ -79,34 +91,7 @@ in {
 
     settings = {
       colors = {
-        _var = mkLuaInline ''          (function()
-                    local function to_argb(c, alpha)
-                      local hex = type(c) == "string" and c:match("(%x%x%x%x%x%x)") or "000000"
-                      return tonumber((alpha or "ff") .. hex, 16)
-                    end
-                    local ok, m = pcall(require, "noctalia")
-                    if ok and type(m) == "table" and type(m.colors) == "table" then
-                      if type(m.apply_theme) == "function" then m.apply_theme() end
-                      return {
-                        active_border = m.colors.primary,
-                        inactive_border = m.colors.surface,
-                        active_shadow = m.colors.surface,
-                        inactive_shadow = m.colors.surface,
-                        bg_color = to_argb(m.colors.surface, "ff"),
-                        label_color = to_argb(m.colors.on_surface, "ff"),
-                        label_background = to_argb(m.colors.surface, "cc"),
-                      }
-                    end
-                    return {
-                      active_border = "rgba(ffffffff)",
-                      inactive_border = "rgba(ffffff88)",
-                      active_shadow = "rgba(000000ee)",
-                      inactive_shadow = "rgba(000000aa)",
-                      bg_color = 0xff000000,
-                      label_color = 0xffffffff,
-                      label_background = 0xcc000000,
-                    }
-                  end)()'';
+        _var = mkLuaInline (builtins.readFile ./colors.lua);
       };
 
       "plugin.hyprgrass.gesture" = lib.mkIf config.desktop.touch (
@@ -145,6 +130,62 @@ in {
         config.desktop.touchscreen.binds
       );
 
+      "plugin.hyprglass.config" = {
+        blur_strength = 0.65;
+        blur_iterations = 2;
+        lens_distortion = 0.34;
+        refraction_strength = 2.80;
+        refraction_spread = 0.78;
+        chromatic_aberration = 0.18;
+        fresnel_strength = 1.05;
+        specular_strength = 1.25;
+        edge_thickness = 0.04;
+        bevel_strength = 0.28;
+        noise_strength = 0.012;
+        xray = false;
+        layers = {enabled = true;};
+        dark = {
+          brightness = 0.88;
+          adaptive_dim = 0.12;
+        };
+        light = {
+          brightness = 1.04;
+          adaptive_boost = 0.10;
+        };
+      };
+
+      "plugin.hyprglass.preset" = [
+        (mkArgs [
+          "noctalia-clean"
+          {
+            inherits = "glass";
+            fresnel_strength = 0.0;
+            specular_strength = 0.0;
+            bevel_strength = 0.0;
+            lens_distortion = 0.0;
+            refraction_strength = 0.45;
+          }
+        ])
+      ];
+
+      "plugin.hyprglass.layer" =
+        [
+          (mkArgs ["noctalia-wallpaper" {exclude = true;}])
+          (mkArgs ["noctalia-screen-corner" {exclude = true;}])
+        ]
+        ++ map (
+          namespace:
+            mkArgs [
+              namespace
+              {
+                preset = "noctalia-clean";
+                mask_threshold = 0.55;
+                mask_feather = 0.25;
+              }
+            ]
+        )
+        noctaliaGlassLayerNamespaces;
+
       monitor =
         map (
           monitor: let
@@ -157,7 +198,7 @@ in {
               else configured
             )
             // lib.optionalAttrs hdr {
-              cm = "hdr";
+              cm = "hdredid";
               supports_hdr = 1;
             }
         )
@@ -233,6 +274,7 @@ in {
             repeat_rate = config.desktop.input.repeatRate;
             touchpad.natural_scroll = true;
             virtualkeyboard.release_pressed_on_close = true;
+            mouse_refocus = false;
           }
           (lib.mkIf config.desktop.touch {
             touchdevice.output = config.desktop.touchscreen.output;
@@ -275,11 +317,16 @@ in {
           rounding = config.desktop.compositor.rounding.radius;
           rounding_power = config.desktop.compositor.rounding.power;
 
-          inactive_opacity = 0.7;
-          active_opacity = 0.85;
+          inactive_opacity = 0.66;
+          active_opacity = 0.80;
 
           shadow = {
             enabled = true;
+            range = 34;
+            render_power = 4;
+            sharp = false;
+            offset = [0 8];
+            scale = 0.99;
             color = mkLuaInline "colors.active_shadow";
             color_inactive = mkLuaInline "colors.inactive_shadow";
           };
@@ -288,25 +335,43 @@ in {
             enabled = true;
             size = 3;
             passes = 2;
-            noise = 0.015;
+            noise = 0.014;
             ignore_opacity = true;
-            vibrancy_darkness = 0.0;
-            contrast = 0.95;
-            brightness = 0.85;
-            vibrancy = 0.25;
+            vibrancy_darkness = 0.08;
+            contrast = 1.04;
+            brightness = 0.88;
+            vibrancy = 0.28;
             new_optimizations = true;
-            xray = true;
+            xray = false;
             popups = true;
             popups_ignorealpha = 0.2;
           };
 
           motion_blur = {
             enabled = true;
+            samples = 2;
           };
 
           wobble = {
             enabled = true;
+            mesh = 8;
+            stiffness = 460;
+            damping = 34;
+            mass = 0.85;
+            intensity = 0.12;
+            value_epsilon = 0.5;
+            velocity_epsilon = 4.0;
           };
+        };
+
+        animations = {
+          enabled = true;
+        };
+
+        render = {
+          direct_scanout = 2;
+          new_render_scheduling = true;
+          async_commit = true;
         };
 
         binds = {
@@ -358,16 +423,177 @@ in {
               resolution = -1;
             };
           };
+
+          hyprtasking = {
+            layout = "linear";
+            bg_color = mkLuaInline "colors.bg_color";
+            gap_size = config.desktop.compositor.margin.inner;
+            border_size = 2;
+            exit_on_hovered = false;
+            warp_on_move_window = 1;
+            close_overview_on_reload = false;
+            jump = {
+              enabled = false;
+              label_color = mkLuaInline "colors.label_color";
+              label_background = mkLuaInline "colors.label_background";
+            };
+            gestures = {
+              enabled = true;
+              # Disable 3-finger overview swipes so Hyprland's native 3-finger gestures remain intact.
+              move_fingers = 0;
+              open_fingers = 4;
+              open_distance = 300;
+              open_positive = true;
+            };
+            linear = {
+              top = false;
+              height = 300;
+              scroll_speed = 1.0;
+              blur = false;
+            };
+          };
         };
       };
 
-      animation = mkArgs [
+      curve = [
+        (mkArgs [
+          "appleSheet"
+          {
+            type = "bezier";
+            points = [
+              [0.32 0.72]
+              [0.0 1.0]
+            ];
+          }
+        ])
+        (mkArgs [
+          "appleDecel"
+          {
+            type = "bezier";
+            points = [
+              [0.16 1.0]
+              [0.3 1.0]
+            ];
+          }
+        ])
+        (mkArgs [
+          "appleFluid"
+          {
+            type = "bezier";
+            points = [
+              [0.22 1.0]
+              [0.36 1.0]
+            ];
+          }
+        ])
+        (mkArgs [
+          "appleSnappy"
+          {
+            type = "bezier";
+            points = [
+              [0.2 0.9]
+              [0.1 1.0]
+            ];
+          }
+        ])
+        (mkArgs [
+          "appleSpring"
+          {
+            type = "spring";
+            mass = 1.0;
+            stiffness = 360.0;
+            damping = 28.0;
+          }
+        ])
+        (mkArgs [
+          "appleSnappySpring"
+          {
+            type = "spring";
+            mass = 0.85;
+            stiffness = 420.0;
+            damping = 30.0;
+          }
+        ])
+      ];
+
+      animation = [
+        {
+          enabled = true;
+          leaf = "global";
+          bezier = "appleFluid";
+          speed = 3.5;
+        }
+        {
+          enabled = true;
+          leaf = "border";
+          bezier = "appleSnappy";
+          speed = 2.8;
+        }
+        {
+          enabled = true;
+          leaf = "windows";
+          spring = "appleSpring";
+          style = "popin 88%";
+          speed = 3.6;
+        }
+        {
+          enabled = true;
+          leaf = "windowsIn";
+          spring = "appleSnappySpring";
+          style = "popin 86%";
+          speed = 3.4;
+        }
+        {
+          enabled = true;
+          leaf = "windowsOut";
+          bezier = "appleSheet";
+          style = "popin 90%";
+          speed = 2.2;
+        }
+        {
+          enabled = true;
+          leaf = "windowsMove";
+          spring = "appleSpring";
+          speed = 3.0;
+        }
+        {
+          enabled = true;
+          leaf = "layers";
+          bezier = "appleDecel";
+          style = "popin 94%";
+          speed = 2.6;
+        }
+        {
+          enabled = true;
+          leaf = "layersIn";
+          spring = "appleSnappySpring";
+          style = "popin 94%";
+          speed = 2.8;
+        }
+        {
+          enabled = true;
+          leaf = "layersOut";
+          bezier = "appleSheet";
+          style = "popin 94%";
+          speed = 2.0;
+        }
+        {
+          enabled = false;
+          leaf = "fade";
+        }
         {
           enabled = true;
           leaf = "workspaces";
           style = "slidevert";
-          bezier = "default";
-          speed = 8;
+          bezier = "appleFluid";
+          speed = 3.4;
+        }
+        {
+          enabled = true;
+          leaf = "specialWorkspace";
+          style = "slidevert";
+          bezier = "appleSheet";
+          speed = 3.2;
         }
       ];
 
@@ -419,60 +645,5 @@ in {
 
       window_rule = map mapWindowRule config.desktop.windowRules;
     };
-
-    # Guard plugin-specific Lua configuration so an unloaded or paused plugin
-    # cannot abort hyprland.lua before submaps and later rules are registered.
-    extraConfig = ''
-      if hl.plugin.hyprglass then
-        hl.plugin.hyprglass.config({
-          blur_strength = 0.5,
-          blur_iterations = 3,
-          lens_distortion = 1,
-          refraction_strength = 2,
-          chromatic_aberration = 0.9,
-          fresnel_strength = 1,
-          specular_strength = 1,
-          xray = true,
-          layers = { enabled = false },
-          dark = { brightness = 1, adaptive_dim = 0.05 },
-          light = { brightness = 1, adaptive_boost = 0.05 },
-        })
-      end
-
-      if hl.plugin.hyprtasking then
-        hl.config({
-          plugin = {
-            hyprtasking = {
-              layout = "linear",
-              bg_color = colors.bg_color,
-              gap_size = ${toString config.desktop.compositor.margin.inner},
-              border_size = 2,
-              exit_on_hovered = false,
-              warp_on_move_window = 1,
-              close_overview_on_reload = false,
-              jump = {
-                enabled = false,
-                label_color = colors.label_color,
-                label_background = colors.label_background,
-              },
-              gestures = {
-                enabled = true,
-                -- Disable 3-finger overview swipes so Hyprland's native 3-finger gestures remain intact.
-                move_fingers = 0,
-                open_fingers = 4,
-                open_distance = 300,
-                open_positive = true,
-              },
-              linear = {
-                top = false,
-                height = 300,
-                scroll_speed = 1.0,
-                blur = false,
-              },
-            },
-          },
-        })
-      end
-    '';
   };
 }

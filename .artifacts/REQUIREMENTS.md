@@ -1,0 +1,394 @@
+# Requirements
+
+### Platform
+
+- [x] R01: The flake evaluates NixOS hosts and Home Manager from one lockfile.
+  - Verify: nix eval .#homeConfigurations.hollowheap.activationPackage.drvPath >/dev/null && nix eval .#nixosConfigurations.lacuna.config.system.build.toplevel.drvPath >/dev/null
+  - Acceptance: The standalone Home Manager output evaluates from the same `home/` trees while NixOS rebuilds separately.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: One lockfile keeps the system and user layers reproducible together, but each is applied by its own rebuild command.
+
+- [x] R02: System packages and drivers use stable nixpkgs while the kernel, Home Manager, and user programs use unstable.
+  - Verify: nix eval --raw .#nixosConfigurations.lacuna.pkgs.lib.version | grep -q "26\.05" && nix eval --raw .#homeConfigurations.hollowheap.pkgs.lib.version | grep -q "26\.11"
+  - Acceptance: The NixOS primary and Home Manager package sets report different channels.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Stable drivers avoid regressions while user programs track current nixpkgs.
+
+- [x] R03: Hosts compose one chassis profile, role modules, and explicit hardware and boot traits.
+  - Verify: grep -q "profiles/laptop" hosts/lacuna/default.nix && grep -q "roles/server/system" hosts/lacuna/default.nix && test -f hosts/lacuna/hardware.nix
+  - Acceptance: Imports express chassis, duty, and capability without `config.profile` checks.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: The tree makes host intent reviewable without per-module enable flags.
+
+- [x] R04: Touch, HDR, and hybrid graphics are gated by hardware traits.
+  - Verify: grep -q "desktop.touch = true" hardware/touch.nix && grep -q "desktop.hdr = true" hardware/hdr.nix && grep -q "desktop.touch = true" home/hollowheap.nix && grep -q "hybrid-gpu" hosts/acervus/default.nix
+  - Acceptance: Lacuna imports Intel, touch, and HDR traits; acervus imports hybrid Intel + Nvidia.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Hardware capabilities stay orthogonal and host-specific.
+
+- [x] R05: Boot, storage, TPM2, and Secure Boot are declarative.
+  - Verify: for f in grub tpm secure-boot minegrub kernel plymouth; do test -f boot/$f.nix; done && test -f hosts/lacuna/disko.nix
+  - Acceptance: GRUB, TPM2 initrd, sbctl signing, Plymouth, Minegrub, and LUKS/BTRFS are configured from the flake.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: The boot path is reproducible and auditable.
+
+### Services & Desktop
+
+- [x] R06: Lacuna runs the server role; acervus stays headless; secrets decrypt on lacuna.
+  - Verify: nix eval --json .#nixosConfigurations.lacuna.config.services --apply 's: map (n: s.${n}.enable or false) [ "headscale" "vaultwarden" "caddy" "ddclient" ]' | grep -qx '\[true,true,true,true\]'
+  - Acceptance: Headscale, Vaultwarden, Caddy, and ddclient run on lacuna with sops-managed secrets.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Keeping the server role local avoids a premature Vaultwarden migration.
+
+- [x] R07: The desktop keeps Hyprland, Noctalia, and UWSM system-managed while Home Manager owns the user session.
+  - Verify: nix eval .#nixosConfigurations.lacuna.config.programs.hyprland.withUWSM | grep -qx true && nix eval .#homeConfigurations.hollowheap.config.wayland.windowManager.hyprland.enable | grep -qx true
+  - Acceptance: Greeter, portals, and compositor package stay in `roles/desktop/system`; user settings live in `home/modules/environment` and `home/modules/styles`.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: The login path stays stable while user configuration iterates independently.
+
+- [ ] R08: Home Manager modules are discovered recursively and share desktop data centrally.
+  - Verify: grep -q "import-tree ./modules" home/hollowheap.nix && grep -q "primaryScale" modules/options/desktop.nix && grep -q "homeUserNames" flake/default.nix
+  - Acceptance: No `home/cli.nix` or `home/gui.nix` entrypoints; `home/modules` loads with `import-tree`; Hyprland and the greeter read the same monitor and scale values.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Modules own their options and wiring; only shared desktop data is centralized.
+
+### Special Hosts & Checks
+
+- [x] R09: `fovea` evaluates as a nix-on-droid output on unstable aarch64.
+  - Verify: nix eval --raw .#nixOnDroidConfigurations.fovea.config.system.stateVersion | grep -qx 24.05
+  - Acceptance: The root Termux config evaluates without a NixOS host directory.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Termux shares the repository without pulling NixOS boot or hardware modules.
+
+- [x] R10: Structural invariants are enforced by flake checks.
+  - Verify: nix flake check
+  - Acceptance: Profile, role, hardware, boot, Home Manager, and nix-on-droid layout are checked.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Regressions fail before activation instead of relying on prose.
+
+- [ ] R15: Flake checks live in a dedicated `tests/` tree and split by domain.
+  - Verify: nix build .#checks.x86_64-linux.layout .#checks.x86_64-linux.policy .#checks.x86_64-linux.hardware .#checks.x86_64-linux.home .#checks.x86_64-linux.services .#checks.x86_64-linux.users
+  - Acceptance: `tests/default.nix` loads each domain file as a separate flake check.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Domain checks isolate failures and keep the flake composition file small.
+
+- [x] R16: The CLI baseline includes a working shell and terminal toolset.
+  - Verify: test -f home/modules/terminal/zsh.nix && nix eval .#homeConfigurations.hollowheap.config.programs.zsh.enable | grep -qx true && nix eval .#homeConfigurations.hollowheap.config.programs.eza.enable | grep -qx true
+  - Acceptance: zsh, zoxide, git, direnv, tealdeer, eza, fzf, ripgrep, fd, bat, yazi, lazygit, and jq evaluate in the CLI tier.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: A usable terminal baseline should not depend on the graphical tier.
+
+### Open Work
+
+- [x] R11: App bundles separate CLI baseline, GUI apps, and gaming apps.
+  - Verify: test -f home/modules/programs/gaming/prismlauncher.nix && ! grep -Rq "prismlauncher" home/modules/ai home/modules/cli home/modules/core home/modules/environment home/modules/terminal home/modules/styles
+  - Acceptance: PrismLauncher is opt-in and absent from CLI-only hosts.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Optional apps should not expand the default CLI footprint.
+
+- [ ] R12: Publicly trusted Caddy certificates are available via DNS-01 for both public and internal mesh hostnames.
+  - Verify: grep -q "dns duckdns" roles/server/system/caddy.nix
+  - Acceptance: Caddy issues trusted ACME certs via DNS-01 without opening ports 80/443 or requiring manual client root CA installs.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: DNS-01 removes Untrusted CA errors across mobile laptops, server transitions, and handheld clients.
+
+- [ ] R13: User passwords and SSH keys are declarative.
+  - Verify: nix eval .#nixosConfigurations.lacuna.config.users.users.hollowheap.hashedPasswordFile >/dev/null
+  - Acceptance: Password hashes and authorized keys come from sops, and mutable users are disabled.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Declarative identity removes imperative `passwd` and key drift.
+
+- [x] R14: Additional hyprgrass gestures are available on the touch device.
+  - Verify: grep -q 'kind = "longpress"' home/modules/environment/touch.nix
+  - Acceptance: Long-press, multi-finger, and edge gestures map to window and launcher actions.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Touch navigation should cover more than workspace swipes and the on-screen keyboard.
+
+- [x] R17: Home Manager feature parity with the sibling repository across CLI, GUI, editor/AI, and auxiliary services.
+  - Verify: test -f home/modules/terminal/starship.nix && test -f home/modules/programs/gui/ghostty.nix && test -f home/modules/programs/opencode.nix
+  - Acceptance: Each functional slice is ported and evaluates before parity is claimed.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: The current HM tree ports the CLI core, visual baseline, editor/AI, and harness modules; verify the remaining parity inventory before closing.
+
+- [x] R18: Session review and workspace alignment skills absorb standalone retrospective audits.
+  - Verify: test ! -d skills/retro
+  - Acceptance: Workspace review and update workflows capture findings directly without maintaining a standalone retro skill.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Eliminates overlapping audit skills in favor of maintained core review and update workflows.
+
+- [x] R19: Shared AI harnesses enforce rules and disciplines without a standalone cross-session corpus audit skill.
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.ai.rules --apply 'r: builtins.length r > 0' | grep -qx true
+  - Acceptance: Shared constraints, harnesses, and tier policies stay enforced natively without maintaining an unused meta-audit skill.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Avoids maintaining dead skill scaffolding after folding audit lessons into active rules.
+
+- [x] R20: Neovim configuration is modularized into co-located domain modules for plugins, options, and keymaps.
+  - Verify: test -f home/modules/programs/nvim/quickfix.nix && test -f home/modules/programs/nvim/preview.nix && test -f home/modules/programs/nvim/editing.nix
+  - Acceptance: Domain modules (`quickfix.nix`, `preview.nix`, `editing.nix`, etc.) co-locate lazy plugin definitions, options, and keybinds instead of maintaining a monolithic `keymaps.nix`.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Co-locating keymaps and options with plugin declarations prevents orphan mappings and configuration scatter.
+
+- [x] R21: Server system role is decomposed into cohesive vertical domain slices.
+  - Verify: test -f roles/server/system/caddy.nix && test -f roles/server/system/headscale.nix && test -f roles/server/system/vaultwarden.nix && test -f roles/server/system/ddclient.nix
+  - Acceptance: `roles/server/system/` decomposes monolithic Caddy, Headscale, Vaultwarden, and DDclient into isolated service modules where daemons declare their own reverse proxy virtualHosts.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Slices co-locate daemon configuration, ports, secrets, and reverse proxy definitions without leaking into a monolithic Caddy block.
+
+- [x] R22: Home Manager modules are categorized into distinct terminal, cli, and programs domain boundaries.
+  - Verify: test -d home/modules/terminal && test -d home/modules/cli && test -d home/modules/programs
+  - Acceptance: Shell runtime and multiplexing live in `terminal/`, standalone headless utilities live in `cli/`, and GUI apps, editors, and agent harnesses live in `programs/`.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Clear architectural boundaries separate prompt/terminal lifecycle from headless CLI tools and heavy application packages.
+
+- [x] R23: Terminal coding-agent workflows consolidate onto the lighter primary agent harness without a redundant wrapper.
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.pi-coding-agent.enable | grep -qx true
+  - Acceptance: Primary terminal coding workflows run through the lightweight harness with shared skills, agents, disciplines, rules, and hooks intact.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Avoids maintaining two overlapping terminal coding harnesses when one lighter client covers the workflow.
+
+- [x] R24: Disable built-in Pi extensions (`tool-search`, `mcp`, `llama.cpp`) via settings overrides.
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.pi-coding-agent.settings.extensions | grep -q "builtin:tool-search"
+  - Acceptance: `programs.pi-coding-agent.settings.extensions` excludes `builtin:tool-search`, `builtin:mcp`, and `builtin:llama.cpp`.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: none
+
+- [x] R25: Consolidate wallpaper theming into Noctalia's native hook and Wallust templates.
+  - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.noctalia.settings.theme.templates.builtin_ids | grep -q '"hyprland"' && grep -q wallust "$(nix eval --raw .#homeConfigurations.hollowheap.config.programs.noctalia.settings.hooks.wallpaper_changed)"
+  - Acceptance: `wallpaper_changed` directly executes `wallust run` and triggers GTK/icon accents and OpenRGB; user stub templates are dropped; icon theme updates apply to dconf, gsettings, and GTK settings.ini.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: none
+
+- [x] R26: Neovim in-buffer diagram and image rendering with Kitty graphics protocol.
+  - Verify: nix eval .#homeConfigurations.hollowheap.config.programs.nvf.settings.vim.lazy.plugins."diagram.nvim".setupModule | grep -q "diagram"
+  - Acceptance: `diagram.nvim` and `image.nvim` are integrated into Neovim alongside CLI renderers (imagemagick, mermaid-cli, plantuml, d2, graphviz) to render diagrams inline in Markdown buffers under Ghostty.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: none
+
+- [ ] R27: Declared AI agent capabilities are the capabilities actually enforced.
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Acceptance: An architect subagent can write under `.artifacts/` and delegate to `scout`; no invalid permission key is emitted.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Tool stripping is an ordering bug, not an intended restriction.
+
+- [x] R28: Every AI harness gives each agent the same role brief and consistent model and effort policy.
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Acceptance: Non-OpenCode harnesses render the same agent brief as OpenCode; changing a shared tier changes every harness, and no harness hardcodes a model outside its adapter override.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: A single renderer prevents per-harness behavior drift.
+
+- [ ] R29: MCP-capable agents receive the same server set in every harness that supports MCP.
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Acceptance: Every MCP-capable harness exposes the same enabled servers, and harnesses without MCP support ignore them cleanly.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: `capabilities.mcp` currently yields no tools anywhere.
+
+- [x] R30: A hook definition behaves consistently across harnesses and malformed pre-tool input blocks the tool.
+  - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
+  - Acceptance: Changing one hook command or matcher affects every supporting harness; malformed pre-tool payloads fail closed.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Renderers currently reimplement the hook protocol inconsistently.
+
+- [ ] R32: Pointer, gesture, keyboard, and touch policy is explicit and shared across compositor, greeter, and console.
+  - Verify: nix eval --raw .#homeConfigurations.hollowheap.config.wayland.windowManager.hyprland.settings.config.input.touchpad.natural_scroll | grep -qx true
+  - Acceptance: Two-finger scrolling follows touch, a three-finger workspace gesture exists, and one keyboard layout, variant, and options policy drives all sessions.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Inversion is Hyprland's unset default, not hardware.
+
+- [ ] R33: Lid close and battery policy protects unsaved work.
+  - Verify: nix eval --raw .#nixosConfigurations.lacuna.config.services.logind.settings.Login.HandleLidSwitch | grep -qx suspend-then-hibernate
+  - Acceptance: Lid close hibernates after a bounded delay unless a stay-awake caffeine inhibitor is active (which locks instead), and a battery charge threshold is applied when the firmware exposes it.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Suspend-until-empty loses work while allowing explicit presentations or downloads to keep awake safely locked.
+
+- [ ] R34: Network services expose only intended ports and interfaces with no unauthenticated admin surface.
+  - Verify: nix build .#checks.x86_64-linux.services
+  - Acceptance: Caddy admin is off or authenticated, ports are scoped to loopback/mesh, and sshd disables password auth.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Mesh-only assumptions are currently false.
+
+- [ ] R35: Vaultwarden registration and client identity policy is explicit.
+  - Verify: nix eval --json .#nixosConfigurations.lacuna.config.services.vaultwarden.config.SIGNUPS_ALLOWED | grep -qx false
+  - Acceptance: Signups are closed or allowlisted, and the proxy identity header matches Caddy's output.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Open registration plus one rate-limit bucket is a lockout risk.
+
+- [ ] R36: Headscale enforces ACLs, node expiry, trusted proxies, and a declared relay policy.
+  - Verify: nix eval --raw .#nixosConfigurations.lacuna.config.services.headscale.settings.policy.path
+  - Acceptance: Default-deny ACLs exist, expired nodes are removed, and UDP 3478 is only open when a DERP server listens.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: The current tailnet is allow-all with permanent nodes.
+
+- [ ] R37: The public DNS record cannot silently freeze.
+  - Verify: nix build .#checks.x86_64-linux.services
+  - Acceptance: ddclient can read its secret as its service user, updates IPv6 where available, and a failed update is observable.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: A stale record makes the mesh unreachable.
+
+- [ ] R38: Internal TLS certificates renew automatically and expiry is monitored.
+  - Verify: nix build .#checks.x86_64-linux.services
+  - Acceptance: No static leaf certificate is trusted; renewal is automatic; expiry raises an alert before it fires.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Manual PEM expiry breaks every client at once.
+
+- [ ] R39: rclone mounts and syncs cannot delete or hang unbounded.
+  - Verify: nix build .#checks.x86_64-linux.home
+  - Acceptance: Syncs set a delete guard and backup directory, mounts have timeouts, and bisync has a resync procedure.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: The current mirror propagates remote deletion with unlimited deletes.
+
+- [ ] R40: A failed update cannot exhaust the rollback window.
+  - Verify: nix eval --raw .#nixosConfigurations.lacuna.config.boot.loader.grub.configurationLimit | grep -qx 10
+  - Acceptance: At least ten generations, a saved default, and a panic/watchdog policy exist.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Three generations and seven days is too narrow.
+
+- [ ] R41: LUKS and rescue access have a tested recovery path.
+  - Verify: nix build .#checks.x86_64-linux.policy
+  - Acceptance: A recovery key or header backup exists, and a rescue credential works without physical media.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Recovery must not depend on undocumented imperative state.
+
+- [ ] R42: Firmware capability belongs to every host, not to Bluetooth.
+  - Verify: nix eval .#nixosConfigurations.acervus.config.hardware.enableRedistributableFirmware | grep -qx true
+  - Acceptance: Wi-Fi, GPU, audio, and regulatory firmware are enabled on both hosts.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: A Bluetooth trait currently owns a host-wide capability.
+
+- [ ] R43: Storage layout and swap are owned by the host, not a shared trait.
+  - Verify: nix build .#checks.x86_64-linux.hardware
+  - Acceptance: One owner declares swap and mount options; no duplicate `swapDevices` entries.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: The shared trait duplicates disko and assumes one host's layout.
+
+- [ ] R44: Hybrid GPU policy is explicit per host.
+  - Verify: nix build .#checks.x86_64-linux.hardware
+  - Acceptance: Offload or reverse-sync is chosen per host, and Nvidia environment variables are not global.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Global Nvidia env defeats PRIME and drains battery.
+
+- [ ] R45: Disk health and store free space are observable.
+  - Verify: nix eval .#nixosConfigurations.lacuna.config.services.smartd.enable | grep -qx true
+  - Acceptance: SMART failures are surfaced, and Nix keeps a free-space floor.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: A full store stalls updates and vault writes.
+
+- [ ] R46: Wi-Fi regulatory country and WPA2 fallback are explicit.
+  - Verify: nix eval --raw .#nixosConfigurations.lacuna.config.networking.wireless.iwd.settings.General.Country
+  - Acceptance: A country is set and WPA2-only access points can be joined.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: SAE-only profiles fail on WPA2 hotspots.
+
+- [ ] R47: RGB state survives reboot and resume.
+  - Verify: nix eval --raw .#nixosConfigurations.lacuna.config.services.hardware.openrgb.startupProfile
+  - Acceptance: A startup profile is applied and re-applied after resume.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Controllers reset to firmware defaults.
+
+- [ ] R48: fovea runs a headless Home Manager profile that shares platform-neutral modules.
+  - Verify: nix eval --raw .#nixOnDroidConfigurations.fovea.config.system.stateVersion
+  - Acceptance: The fovea activation package evaluates with flakes, wake lock, storage helpers, and no desktop-only modules.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: A package stub is not a usable mobile environment.
+
+- [ ] R49: fovea has an explicit identity and secret policy.
+  - Verify: nix eval --raw .#nixOnDroidConfigurations.fovea.config.system.stateVersion
+  - Acceptance: Git identity and signing keys are separate from lacuna, and `sops` has no unusable recipient.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Copying the only age key to a phone is unacceptable.
+
+- [ ] R50: One palette authority and one theme-consumer registry own rendering.
+  - Verify: nix build .#checks.x86_64-linux.home
+  - Acceptance: A new consumer registers data only; the theme renders on activation and wallpaper change.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Two extractors currently produce two accent colors.
+
+- [ ] R51: Every theme consumer selects its generated artifact.
+  - Verify: nix build .#checks.x86_64-linux.home
+  - Acceptance: btop selects its theme, yazi loads its flavor and tmtheme, fzf uses the ANSI palette, and agent TUIs follow it.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Rendered-but-unselected files are dead config.
+
+- [ ] R52: The editor has one provider and working diagnostics, formatting, session, and clipboard.
+  - Verify: nix build .#checks.x86_64-linux.home
+  - Acceptance: One `nvim` package wins, diagnostics and format-on-save run, sessions restore, and clipboard works locally and over SSH.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Duplicate providers and inert options undermine the editor.
+
+- [ ] R53: Shell behavior has no dead aliases, invisible suggestions, or stolen EOF control keys.
+  - Verify: nix build .#checks.x86_64-linux.home
+  - Acceptance: fzf-tab resolves its helper, starship styles are valid, `LS_COLORS` and `PAGER` exist, startup handles unset cache directories safely, `C-d` preserves EOF, and `C-p`/`C-n`/`C-g`/`C-y`/`C-b` remain active per explicit keymap decisions.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Prompt, cache, and EOF failures are silent today.
+
+- [ ] R54: CLI signing, hooks, editor, and SSH agent policy has one owner.
+  - Verify: nix build .#checks.x86_64-linux.home
+  - Acceptance: A signing key is explicit, tag pushes verify tags, repo hooks still run, and one agent owns SSH.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Three partial agent configs disagree.
+
+- [ ] R55: Default handlers, DRM, media, and discovery point at installed working tools.
+  - Verify: nix build .#checks.x86_64-linux.home
+  - Acceptance: Text, image, video, and audio open the right app; internal DNS resolves in the browser; camera, printer, and scanner discovery work.
+  - Constraints: none
+  - Non-goals: none
+  - Rationale: Current handlers route common files to non-players.
+
+- [ ] R56: Shared and host-restricted secrets partition cleanly across hosts.
+  - Verify: nix eval --json .#nixosConfigurations.acervus.config.sops.secrets --apply 's: !(s ? vaultwarden_env)' | grep -qx true
+  - Acceptance: Both lacuna and acervus decrypt shared secrets while server-only credentials stay restricted to the server host.
+  - Constraints: Encrypted secret files only; no non-server host key in server-only secrets.
+  - Non-goals: none
+  - Rationale: Encrypting all host secrets with one recipient blocks laptop decryption or exposes server credentials.

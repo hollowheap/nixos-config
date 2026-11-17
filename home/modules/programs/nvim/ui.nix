@@ -3,11 +3,9 @@
   pkgs,
   lib,
   ...
-}:
-let
+}: let
   inherit (lib.generators) mkLuaInline;
-in
-{
+in {
   programs.nvf.settings.vim = {
     theme = {
       enable = true;
@@ -53,15 +51,14 @@ in
       enable = true;
       setupOpts = {
         options = {
-          disabled_filetypes = {
-            statusline = [
-              "snacks_dashboard"
-              "snacks_picker_list"
-              "snacks_picker_input"
-              "dashboard"
-              "alpha"
-            ];
-          };
+          disabled_filetypes.statusline = [
+            "snacks_dashboard"
+            "snacks_picker_list"
+            "snacks_picker_input"
+            "dashboard"
+            "alpha"
+          ];
+
           section_separators = {
             left = "";
             right = "";
@@ -199,7 +196,7 @@ in
                 removed = "- ";
               };
             }
-            [ "diagnostics" ]
+            ["diagnostics"]
           ];
           lualine_x = [
             (mkLuaInline ''
@@ -212,16 +209,16 @@ in
               end
             '')
           ];
-          lualine_y = [ ];
-          lualine_z = [ ];
+          lualine_y = [];
+          lualine_z = [];
         };
         inactive_sections = {
-          lualine_a = [ ];
-          lualine_b = [ ];
-          lualine_c = [ ];
-          lualine_x = [ ];
-          lualine_y = [ ];
-          lualine_z = [ ];
+          lualine_a = [];
+          lualine_b = [];
+          lualine_c = [];
+          lualine_x = [];
+          lualine_y = [];
+          lualine_z = [];
         };
       };
     };

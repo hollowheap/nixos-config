@@ -23,9 +23,6 @@ NixOS flake for `lacuna` and `acervus`, plus a `fovea` nix-on-droid output. The 
 - `tests/`: domain flake checks loaded by `tests/default.nix`.
 - `nix-on-droid.nix`: fovea Termux configuration.
 
-## Context
-- `artifacts/context.md` holds verified architecture, module seams, and the RDST lifecycle.
-
 ## Conventions
 - Home Manager is standalone; `nixos-rebuild switch` applies NixOS only. Activate user config with `home-manager switch --flake .#hollowheap`.
 - Per-user Home Manager entrypoints live at `home/<user>.nix`; the flake discovers them.

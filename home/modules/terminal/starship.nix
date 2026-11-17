@@ -8,6 +8,12 @@
 in {
   home.sessionVariables.STARSHIP_CONFIG = lib.mkForce "${config.xdg.cacheHome}/wallust/starship.toml";
 
+  # Ensure zsh shells inside an already-running session update stale STARSHIP_CONFIG
+  # even when __HM_SESS_VARS_SOURCED=1 causes hm-session-vars.sh to return early.
+  programs.zsh.envExtra = lib.mkAfter ''
+    export STARSHIP_CONFIG="${config.xdg.cacheHome}/wallust/starship.toml"
+  '';
+
   programs.wallust.settings = {
     templates.starship = {
       template = "starship-palette.toml";

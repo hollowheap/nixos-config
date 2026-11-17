@@ -3,8 +3,7 @@
   lib,
   pkgs,
   ...
-}:
-let
+}: let
   inherit (lib) concatStringsSep mapAttrsToList optionalAttrs;
 
   aiRender = config.ai.render;
@@ -15,25 +14,27 @@ let
     mapAttrsToList (name: agent: "- ${name}: ${agent.description}") config.ai.agents
   );
 
-  # Pi's SYSTEM.md defines codemode parallel batching; drop duplicate search.batch from addendum.
-  bodyFor = aiRender.agentBodyForWith {
-    dropDisciplineRules.search = [ "batch" ];
-  };
+  bodyFor = aiRender.agentBodyFor;
 
-  agentFiles = mapAttrsToList (name: agent: {
-    name = "${configDir}/agents/${name}.md";
-    value.text = ''
-      ---
-      name: ${name}
-      description: ${builtins.toJSON agent.description}
-      model: ${aiRender.modelFor "pi" agent}
-      effort: ${aiRender.effortFor "pi" agent}
-      mode: ${if agent.capabilities.write then "ask" else "plan"}
-      ---
+  agentFiles =
+    mapAttrsToList (name: agent: {
+      name = "${configDir}/agents/${name}.md";
+      value.text = ''
+        ---
+        name: ${name}
+        description: ${builtins.toJSON agent.description}
+        model: ${aiRender.modelFor "pi" agent}${lib.optionalString (aiRender.effortFor "pi" agent != null) ":${aiRender.effortFor "pi" agent}"}${lib.optionalString (agent.availableAgents != []) "\nagents: ${concatStringsSep ", " agent.availableAgents}"}
+        mode: ${
+          if agent.capabilities.write
+          then "ask"
+          else "plan"
+        }
+        ---
 
-      ${bodyFor agent}
-    '';
-  }) config.ai.agents;
+        ${bodyFor agent}
+      '';
+    })
+    config.ai.agents;
 
   dashboardFile = [
     {
@@ -44,7 +45,7 @@ let
           {
             type = "terminal";
             command = "${pkgs.hollowpi-colorscript}/bin/hollowpi-colorscript";
-            args = [ ];
+            args = [];
             intervalMs = 150;
             align = "center";
             gap = 1;
@@ -61,7 +62,9 @@ let
   statuslineContent = builtins.toJSON {
     extensions = [
       "mode-guard"
+      "agent"
       "usage"
+      "usage-pct"
     ];
     options = {
       componentSeparator = " ";
@@ -77,25 +80,11 @@ let
       ];
       b = [
         (config.styles.pills.pi.left {
-          icon = "";
+          icon = "󰘧";
           component = {
-            type = "git_branch";
+            type = "agent";
           };
-          accent = "bright-cyan";
-          bold = false;
-        })
-      ];
-      c = [
-        (config.styles.pills.pi.left {
-          icon = "󱈸";
-          component = {
-            type = "git_diff";
-            addedIcon = "+";
-            modifiedIcon = "~";
-            removedIcon = "-";
-            untrackedIcon = "?";
-          };
-          accent = "bright-yellow";
+          accent = "bright-green";
           bold = false;
         })
       ];
@@ -115,20 +104,9 @@ let
         (config.styles.pills.pi.right {
           icon = "󰚩";
           component = {
-            type = "model";
-            shorten = true;
+            type = "model-effort";
           };
           accent = "bright-purple";
-          bold = false;
-        })
-      ];
-      x = [
-        (config.styles.pills.pi.right {
-          icon = "󰧑";
-          component = {
-            type = "thinking";
-          };
-          accent = "bright-green";
           bold = false;
         })
       ];
@@ -163,7 +141,7 @@ let
         (config.styles.pills.pi.right {
           icon = "󰇁";
           component = {
-            type = "usage";
+            type = "usage-pct";
           };
           accent = "bright-yellow";
           bold = false;
@@ -172,38 +150,168 @@ let
     };
   };
 
+  usagePctExtensionFile = [
+    {
+      name = "${configDir}/extensions/statusline-usage-pct.ts";
+      value.text = ''
+        export function formatUsagePercent(usageText: string | undefined): string {
+          if (!usageText) return "";
+          const match = /^\s*\$?([\d.,]+)\s*\/\s*\$?([\d.,]+)\s*$/.exec(usageText);
+          if (!match) return "";
+          const spent = Number.parseFloat(match[1].replaceAll(",", ""));
+          const cap = Number.parseFloat(match[2].replaceAll(",", ""));
+          if (!Number.isFinite(spent) || !Number.isFinite(cap) || cap <= 0) return "";
+          return Math.round((spent / cap) * 100) + "%";
+        }
+
+        function readBranchUsagePercent(sessionManager: any): string {
+          const branch = sessionManager?.getBranch?.();
+          if (!Array.isArray(branch)) return "";
+          let latest:
+            | { totalCost?: unknown; budgetCap?: unknown; subagents?: unknown }
+            | undefined;
+          for (const entry of branch) {
+            if (
+              entry &&
+              entry.type === "custom" &&
+              entry.customType === "hollowheap.usage" &&
+              entry.data &&
+              typeof entry.data === "object"
+            ) {
+              latest = entry.data;
+            }
+          }
+          const cap =
+            typeof latest?.budgetCap === "number" ? latest.budgetCap : undefined;
+          if (cap === undefined || !Number.isFinite(cap) || cap <= 0) return "";
+          let spent =
+            typeof latest?.totalCost === "number" &&
+            Number.isFinite(latest.totalCost)
+              ? latest.totalCost
+              : 0;
+          if (Array.isArray(latest?.subagents)) {
+            for (const sub of latest.subagents) {
+              if (
+                sub &&
+                sub.available &&
+                typeof sub.cost === "number" &&
+                Number.isFinite(sub.cost)
+              ) {
+                spent += sub.cost;
+              }
+            }
+          }
+          return Math.round((spent / cap) * 100) + "%";
+        }
+
+        export default function (pi: any): void {
+          let lastCtx: any;
+          let lastText = "";
+          let forwardingRequest = false;
+
+          const emitPct = (text: string): void => {
+            if (text === lastText) return;
+            lastText = text;
+            pi.events.emit("statusline:values", {
+              name: "usage-pct",
+              text,
+            });
+          };
+
+          pi.events.on("statusline:values", (data: unknown) => {
+            if (!data || typeof data !== "object") return;
+            const payload = data as { name?: unknown; text?: unknown };
+            if (payload.name !== "usage" || typeof payload.text !== "string") {
+              return;
+            }
+            emitPct(formatUsagePercent(payload.text));
+          });
+
+          pi.on("session_start", (_event: unknown, ctx: any) => {
+            lastCtx = ctx;
+            lastText = readBranchUsagePercent(ctx?.sessionManager);
+            pi.events.emit("statusline:values", {
+              name: "usage-pct",
+              text: lastText,
+            });
+          });
+
+          pi.on("session_tree", (_event: unknown, ctx: any) => {
+            lastCtx = ctx;
+            lastText = readBranchUsagePercent(ctx?.sessionManager);
+            pi.events.emit("statusline:values", {
+              name: "usage-pct",
+              text: lastText,
+            });
+          });
+
+          pi.on("session_shutdown", () => {
+            emitPct("");
+          });
+
+          pi.events.on("statusline:request", (data: unknown) => {
+            const req = data as { names?: unknown } | undefined;
+            if (
+              req?.names &&
+              (!Array.isArray(req.names) || !req.names.includes("usage-pct"))
+            ) {
+              return;
+            }
+            const fallback =
+              lastText || readBranchUsagePercent(lastCtx?.sessionManager);
+            pi.events.emit("statusline:values", {
+              name: "usage-pct",
+              text: fallback,
+            });
+            if (!forwardingRequest) {
+              forwardingRequest = true;
+              try {
+                pi.events.emit("statusline:request", { names: ["usage"] });
+              } finally {
+                forwardingRequest = false;
+              }
+            }
+          });
+        }
+
+      '';
+    }
+  ];
+
   statuslineFile = [
     {
       name = "${configDir}/statusline.json";
       value.text = statuslineContent;
     }
+  ];
+
+  # Keep Pi's default prompt and shorten only its docs section.
+  docsExtensionFile = [
     {
-      name = "${configDir}/pi-statusline.json";
-      value.text = statuslineContent;
+      name = "${configDir}/extensions/system-prompt-docs.ts";
+      value.text = ''
+        export default function (pi: any): void {
+          pi.on("before_agent_start", (event: any) => {
+            event.systemPromptOptions.sections.docs =
+              "Pi docs (read only when asked about pi itself): ${pkgs.pi-coding-agent}/lib/node_modules/pi-monorepo/{README.md,docs,examples}";
+          });
+        }
+      '';
     }
   ];
 
-  # Custom Pi system prompt replacing built-in preamble, tools, rules, and docs.
-  # Pi still appends APPEND_SYSTEM.md, AGENTS.md, skills, cwd, and extension sections.
-  systemPromptFile = [
+  mcpFile = [
     {
-      name = "${configDir}/SYSTEM.md";
-      value.text = ''
-        You are an expert software and NixOS systems engineer operating inside pi.
-
-        <tools>
-        - read: Inspect file slices with offset and limit; never use bash cat or sed.
-        - bash: Run rg, fd, builds, tests, and git; pipe noisy output through head, tail, or rg.
-        - edit: Apply exact text replacements via edits[]. Each edits[].oldText matches the original file (not cumulative); batch disjoint edits into one edit call with minimal unique context.
-        - write: Create new files or write full rewrites only.
-        - codemode: Batch independent tool calls with Promise.allSettled, chain steps, or filter large outputs in JS instead of extra turns.
-        - Additional extension or MCP tools may be available per session.
-        </tools>
-
-        <docs>
-        Read Pi docs only when asked about pi itself: ${pkgs.pi-coding-agent}/lib/node_modules/pi-monorepo/{README.md,docs,examples}
-        </docs>
-      '';
+      name = "${configDir}/mcp.json";
+      value = {
+        force = true;
+        text = builtins.toJSON {
+          mcpServers.refero = {
+            url = "https://api.refero.design/mcp";
+            exposure = "codemode";
+          };
+        };
+      };
     }
   ];
 
@@ -214,27 +322,6 @@ let
     includeDisableModelInvocation = true;
   };
 
-  authFile = [
-    {
-      name = "${configDir}/auth.json";
-      value = {
-        force = true;
-        text = builtins.toJSON {
-          opencode = {
-            type = "api_key";
-            key = "!rbw get --folder dev/keys opencode";
-          };
-          opencode-go = {
-            type = "api_key";
-            key = "!rbw get --folder dev/keys opencode";
-          };
-        };
-      };
-    }
-  ];
-
-  # pi-memory observer uses the low tier: opencode-go/beam-free, the cheapest
-  # 64k+ route. Resolved through ai.tiers, not a separate model map.
   memoryFile = [
     {
       name = "${configDir}/memory.json";
@@ -242,7 +329,7 @@ let
         force = true;
         text = builtins.toJSON {
           enabled = true;
-          model = "${config.ai.tiers.low.provider}/${config.ai.tiers.low.model}";
+          model = config.ai.harnesses.pi.agents.scout.model;
           observeAfterTokens = 20000;
           maxObservations = 40;
           injectionTokens = 2000;
@@ -252,37 +339,27 @@ let
       };
     }
   ];
-
-  piWrapper = pkgs.writeShellScriptBin "pi" ''
-    if [ -z "$OPENCODE_API_KEY" ] && command -v ${pkgs.rbw}/bin/rbw >/dev/null && ${pkgs.rbw}/bin/rbw unlocked >/dev/null 2>&1; then
-      _k="$(${pkgs.rbw}/bin/rbw get --folder dev/keys opencode 2>/dev/null || true)"
-      if [ -n "$_k" ]; then
-        export OPENCODE_API_KEY="$_k"
-        export OPENCODE_GO_API_KEY="$_k"
-      fi
-      unset _k
-    fi
-    exec ${pkgs.pi-coding-agent}/bin/pi "$@"
-  '';
-in
-{
+in {
   programs.pi-coding-agent = {
     enable = true;
-    package = piWrapper;
+    package = aiRender.wrapWithOpenCodeKey "pi" pkgs.pi-coding-agent;
     extraPackages = [
       pkgs.git
       pkgs.nodejs
     ];
     settings = {
       enableInstallTelemetry = false;
-      defaultTools = [ "+codemode" ];
-      defaultThinkingLevel = aiRender.effortFor "pi" (config.ai.agents.engineer or { effort = "high"; });
+      defaultThinkingLevel = aiRender.effortFor "pi" (config.ai.agents.engineer or {effort = "high";});
+      compaction = {
+        enabled = true;
+        reserveTokens = config.ai.compaction.reserveTokens;
+        keepRecentTokens = config.ai.compaction.keepRecentTokens;
+      };
       packages = [
         "git:github.com/hollowheap/pi-extensions@main"
       ];
       extensions = [
         "-builtin:tool-search"
-        "-builtin:mcp"
         "-builtin:llama.cpp"
       ];
     };
@@ -296,7 +373,7 @@ in
 
   home.file = lib.mkIf config.programs.pi-coding-agent.enable (
     builtins.listToAttrs (
-      skills ++ agentFiles ++ dashboardFile ++ statuslineFile ++ systemPromptFile ++ authFile ++ memoryFile
+      skills ++ agentFiles ++ dashboardFile ++ statuslineFile ++ usagePctExtensionFile ++ docsExtensionFile ++ mcpFile ++ memoryFile
     )
   );
 }

@@ -1,47 +1,9 @@
-{ ... }:
-{
+{...}: {
   ai.agents = {
-    ask = {
-      description = "Conversational questions, code explanation, and architecture discussion without file edits or command execution.";
-      role = "primary";
-      subagent = false;
-      tier = "medium";
-      models.opencode = "opencode-go/beam-free";
-      models.antigravity = "inherit";
-      capabilities = {
-        read = true;
-        write = false;
-        execute = false;
-        delegate = true;
-        web = true;
-      };
-      dropDisciplines = [
-        "report"
-        "artifacts"
-        "lazy"
-      ];
-      availableAgents = [
-        "scout"
-        "researcher"
-      ];
-      trustedAgents = [
-        "scout"
-        "researcher"
-      ];
-      skills = [
-        "brainstorm"
-        "design"
-      ];
-      prompt = "Conversational technical advisor: answer questions, explain architectures, and brainstorm trade-offs without editing files or running commands.";
-    };
-
     architect = {
-      description = "System architect and specification author. Designs technical solutions and authors specs in artifacts/specs.md.";
+      description = "System architect and specification author. Designs technical solutions and authors specs in .artifacts/specs.md.";
       role = "primary";
       subagent = false;
-      tier = "high";
-      models.opencode = "opencode-go/deepseek-v4.1-flash#max";
-      models.antigravity = "pro";
       capabilities = {
         read = true;
         write = true;
@@ -71,9 +33,6 @@
       description = "Software engineer. Implements features, refactors code, and verifies changes directly with targeted tests and eval.";
       role = "primary";
       subagent = false;
-      tier = "medium";
-      models.opencode = "opencode-go/deepseek-v4.1-flash#max";
-      models.antigravity = "inherit";
       capabilities = {
         read = true;
         write = true;
@@ -102,17 +61,12 @@
         "review"
         "ship-changes"
       ];
-      prompt = "Software engineer: implement vertical tasks, refactor code, and verify with tests. Keep context minimal: delegate recon to Scout, research to Researcher, and diff review to Code Reviewer.";
+      prompt = "Software engineer: implement vertical tasks, refactor code, and verify with tests.";
     };
 
     worker = {
       description = "Task executor. Implements one assigned task in an isolated worktree, delegates recon/research/review, and commits linearly without design work.";
       role = "subagent";
-      tier = "medium";
-      models.opencode = "opencode-go/beam-free";
-      models.antigravity = "flash";
-      models.kiro = "claude-sonnet-5.5";
-      models.kiroEffort = "xhigh";
       capabilities = {
         read = true;
         write = true;
@@ -130,20 +84,18 @@
         "researcher"
         "code-reviewer"
       ];
+      dropDisciplines = ["subagent-io"];
       skills = [
         "implement"
         "review"
         "ship-changes"
       ];
-      prompt = "Task executor: implement one assigned task in an isolated worktree and verify. Delegate recon to Scout, research to Researcher, and review to Code Reviewer. Rebase linearly with signed commits; zero design work.";
+      prompt = "Task executor: implement one assigned task in an isolated worktree and verify. Delegate recon to Scout, research to Researcher, and review to Code Reviewer. Rebase linearly with signed commits; zero design work. Write no code comments by default. Add one only for a non-obvious why: a hidden constraint, workaround, or invariant. Never narrate what the code does, restate names, reference the task or change history, or add banners. Never remove existing comments unless your change makes them false.";
     };
 
     scout = {
       description = "Read-only codebase scout and search specialist. Locates exact file:line targets, symbols, and option shapes without modifying files.";
       role = "subagent";
-      tier = "low";
-      models.opencode = "opencode-go/beam-free";
-      models.antigravity = "flash";
       capabilities = {
         read = true;
         write = false;
@@ -151,16 +103,13 @@
         delegate = false;
         web = false;
       };
-      skills = [ ];
+      skills = [];
       prompt = "Read-only AST and code scout: locate exact file:line targets, symbols, and option shapes. Emit compact fragments; never edit files or fetch web.";
     };
 
     researcher = {
       description = "External research specialist. Searches and reads web sources; returns cited findings without touching the codebase.";
       role = "subagent";
-      tier = "low";
-      models.opencode = "opencode-go/beam-free";
-      models.antigravity = "flash";
       capabilities = {
         read = false;
         write = false;
@@ -168,16 +117,13 @@
         delegate = false;
         web = true;
       };
-      skills = [ ];
+      skills = [];
       prompt = "External research specialist: query and fetch web documentation. Cite source URLs for all claims; never inspect or edit local files.";
     };
 
     code-reviewer = {
       description = "Code and diff reviewer for correctness, regressions, security, and conventions. Runs tests and linters; never edits code.";
       role = "subagent";
-      tier = "medium";
-      models.opencode = "opencode-go/beam-free";
-      models.antigravity = "flash";
       capabilities = {
         read = true;
         write = false;
@@ -185,7 +131,7 @@
         delegate = false;
         web = false;
       };
-      skills = [ ];
+      skills = [];
       prompt = "Diff auditor: review staged changes for regressions, security leaks, type safety, and conventions. Cite file:line for every finding; never edit code.";
     };
   };

@@ -1,14 +1,23 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   aiRender = config.ai.render;
 
-  # Claude's built-in prompt covers untrusted pasted content, secrets privacy, and parallel tool calls.
+  # Claude's built-in prompt covers untrusted pasted content, secrets privacy, native Read/Grep/Glob search tools,
+  # dirty-worktree preservation, and native skill invocation rules.
   bodyFor = aiRender.agentBodyForWith {
     dropRules = ["security"];
-    dropDisciplineRules.search = ["batch"];
+    dropDisciplines = ["search"];
+    dropDisciplineRules = {
+      lazy = ["preserve"];
+      skills = [
+        "no-reload"
+        "obey"
+      ];
+    };
   };
 
   claudeTools = agent: let
@@ -36,6 +45,7 @@
       inherit (agent) description;
       tools = lib.concatStringsSep ", " (claudeTools agent);
       model = aiRender.modelFor "claude-code" agent;
+      effort = aiRender.effortFor "claude-code" agent;
       omitClaudeMd = true;
     } (bodyFor agent);
 
@@ -50,36 +60,64 @@
     preToolFormat = "claude-json";
   };
 in {
+
   config.programs.claude-code = {
     enable = true;
     enableMcpIntegration = true;
+    mutableSettings = true;
 
     context = bodyFor config.ai.agents.engineer;
 
     settings = {
       theme = "custom:wallust";
-      model = aiRender.tierModelFor "claude-code" "high";
       includeCoAuthoredBy = false;
       disableClaudeAiConnectors = true;
+      autoCompactEnabled = true;
+      verbose = true;
+      editorMode = "normal";
+      disableArtifact = true;
+      outputStyle = "default";
+      workflowKeywordTriggerEnabled = false;
+      statusLine = {
+        type = "command";
+        command = "${pkgs.claude-statusline}/bin/claude-statusline";
+        padding = 0;
+      };
       permissions = {
         defaultMode = "auto";
         deny =
           (map (pattern: "Bash(${pattern})") config.ai.guards.bashDeny)
           ++ [
+            "Agent(claude)"
+            "Agent(claude-code-guide)"
+            "Agent(statusline-setup)"
             "mcp__claude_ai_Claude_Docs"
-          ];
+          ]
+          # Primary agents can be selected with `claude --agent <name>`, but the
+          # model must not spawn them as subagents.
+          ++ map (name: "Agent(${name})") (
+            builtins.attrNames (
+              lib.filterAttrs (_: agent: agent.role == "primary") config.ai.agents
+            )
+          );
       };
       hooks = claudeHooks;
       env = {
+        CLAUDE_CODE_DISABLE_BUNDLED_SKILLS = "1";
+        CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS = "1";
+        CLAUDE_CODE_DISABLE_POLICY_SKILLS = "1";
+        CLAUDE_CODE_SUBAGENT_MODEL = aiRender.modelFor "claude-code" config.ai.agents.worker;
         DISABLE_TELEMETRY = "1";
         DISABLE_ERROR_REPORTING = "1";
         DISABLE_AUTOUPDATER = "1";
         ENABLE_CLAUDEAI_MCP_SERVERS = "false";
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW = toString config.ai.compaction.maxTokens;
       };
     };
 
     agents = builtins.mapAttrs mkAgent config.ai.agents;
     skills = builtins.mapAttrs mkSkill config.ai.skills;
+    lspServers = config.toolchain.claudeLsp;
   };
 
   config.programs.wallust.settings.templates.claude-code = {

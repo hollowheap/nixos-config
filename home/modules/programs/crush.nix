@@ -3,8 +3,7 @@
   lib,
   pkgs,
   ...
-}:
-let
+}: let
   inherit (lib) concatStringsSep mapAttrs mapAttrsToList;
 
   aiRender = config.ai.render;
@@ -12,8 +11,8 @@ let
   # Crush built-in prompt covers dirty-worktree preservation and skill loading obedience.
   bodyFor = aiRender.agentBodyForWith {
     dropDisciplineRules = {
-      lazy = [ "preserve" ];
-      skills = [ "obey" ];
+      lazy = ["preserve"];
+      skills = ["obey"];
     };
   };
 
@@ -33,21 +32,22 @@ let
       delegation instructions elsewhere in the skills.
     '') (lib.filterAttrs (_: agent: agent.role == "primary") config.ai.agents)
   );
-in
-{
+in {
   programs.crush = {
     enable = true;
+    package = aiRender.wrapWithOpenCodeKey "crush" pkgs.crush;
     enableMcpIntegration = true;
     settings = {
+      providers."opencode-go".api_key = "$OPENCODE_API_KEY";
       models = {
         large = {
           provider = "opencode-go";
-          model = aiRender.tierModelFor "crush" "high";
-          reasoning_effort = aiRender.effortFor "crush" (config.ai.agents.engineer or { effort = "high"; });
+          model = "deepseek-v4.1-flash";
+          reasoning_effort = "medium";
         };
         small = {
           provider = "opencode-go";
-          model = aiRender.tierModelFor "crush" "low";
+          model = "hy4-flash-free";
         };
       };
       options = {

@@ -53,10 +53,7 @@
 
     opal.url = "github:hollowheap/opal";
 
-    iridescent = {
-      url = "github:hollowheap/iridescent";
-      flake = false;
-    };
+    iridescent.url = "github:hollowheap/iridescent";
 
     docmd = {
       url = "github:hollowheap/docmd";

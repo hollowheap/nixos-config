@@ -1,11 +1,10 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 let
-  inherit (lib) mkIf mapAttrs mapAttrsToList optionals concatStringsSep;
+  inherit (lib) mapAttrs optionals;
 
   aiRender = config.ai.render;
 

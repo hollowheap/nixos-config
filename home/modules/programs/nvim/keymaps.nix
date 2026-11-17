@@ -23,6 +23,13 @@ in
         enable = true;
         setupOpts = {
           preset = "helix";
+          triggers = mkLuaInline ''
+            {
+              { "<auto>", mode = "nxso" },
+              { "r", mode = { "n", "x" } },
+              { "s", mode = { "n", "x" } },
+            }
+          '';
           filter = mkLuaInline "function(mapping) if mapping.lhs == 'r' and mapping.desc == 'Replace' then return false end return mapping.desc and mapping.desc ~= '' and mapping.desc ~= '<Nop>' and not mapping.hidden end";
         };
         register = {

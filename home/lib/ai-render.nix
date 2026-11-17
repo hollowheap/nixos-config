@@ -74,8 +74,9 @@ rec {
   rulesText =
     rules: agent:
     let
+      isSubagent = agent.role or "primary" == "subagent";
       matches = rule: all (cap: !rule.requires.${cap} || agent.capabilities.${cap}) capabilityNames;
-      kept = filter matches rules;
+      kept = if isSubagent then [] else filter matches rules;
     in
     optionalString (kept != [ ]) ("\n\n" + concatStringsSep "\n\n" (map (rule: rule.text) kept));
 

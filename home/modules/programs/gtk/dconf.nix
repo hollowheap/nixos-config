@@ -47,7 +47,10 @@
       read -r hex mode _ < "$cache" || true
       if [ -n "$hex" ] && [ -n "$mode" ]; then
         ${pkgs.mactahoe-icon-accent}/bin/mactahoe-icon-accent --apply "$hex" "$mode" >/dev/null 2>&1 || true
+        ${pkgs.mactahoe-gtk-accent}/bin/mactahoe-gtk-accent "$hex" >/dev/null 2>&1 || true
       fi
+    elif [ -s "${config.xdg.cacheHome}/noctalia/gtk-accent.css" ]; then
+      ${pkgs.mactahoe-gtk-accent}/bin/mactahoe-gtk-accent "${config.xdg.cacheHome}/noctalia/gtk-accent.css" >/dev/null 2>&1 || true
     fi
   '';
 }

@@ -1,16 +1,20 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 # Hyprland adapter for the abstract desktop.shortcuts catalog.
 let
   inherit (builtins) concatLists genList;
   inherit (lib.trivial) mod;
-  hypr = import ../../../lib/hyprland.nix { inherit config lib; };
+  hypr = import ../../../lib/hyprland.nix {inherit config lib;};
   inherit (hypr) mkArgs mkDsp mkDspExec mkLuaFn catalogBinds mkTouchKeyboard;
   inherit (config) launchApp;
   act = name: mkDspExec config.desktop.actions.${name}.command;
   touchKeyboard = mkTouchKeyboard pkgs;
-in
-{
-  home.packages = [ pkgs.wvkbd-split ];
+in {
+  home.packages = [pkgs.wvkbd-split];
 
   wayland.windowManager.hyprland = {
     settings = {
@@ -61,7 +65,7 @@ in
           [
             "SUPER + Q"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+              if hl.plugin.hyprtasking.is_active() then
                 hl.plugin.hyprtasking.killhovered()
               else
                 hl.dispatch(hl.dsp.window.close())
@@ -71,39 +75,33 @@ in
           [
             "SUPER + TAB"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking then
-                hl.plugin.hyprtasking.toggle("cursor")
-              else
-                hl.dispatch(hl.dsp.focus({ workspace = "previous_per_monitor" }))
-              end
+              hl.plugin.hyprtasking.toggle("cursor")
             '')
           ]
           [
             "SUPER + SHIFT + TAB"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking then
-                hl.plugin.hyprtasking.toggle("all")
-              end
+              hl.plugin.hyprtasking.toggle("all")
             '')
           ]
           [
             "escape"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+              if hl.plugin.hyprtasking.is_active() then
                 hl.plugin.hyprtasking.toggle("all")
               end
             '')
-            { non_consuming = true; }
+            {non_consuming = true;}
           ]
           [
             "SUPER + mouse:272"
             (mkDsp "window.drag()")
-            { mouse = true; }
+            {mouse = true;}
           ]
           [
             "SUPER + mouse:273"
             (mkDsp "window.resize()")
-            { mouse = true; }
+            {mouse = true;}
           ]
 
           # Active workspace controls
@@ -154,7 +152,7 @@ in
           [
             "SUPER + H"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+              if hl.plugin.hyprtasking.is_active() then
                 hl.plugin.hyprtasking.move("left")
               else
                 hl.dispatch(hl.dsp.focus({ direction = "l" }))
@@ -172,7 +170,7 @@ in
           [
             "SUPER + L"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+              if hl.plugin.hyprtasking.is_active() then
                 hl.plugin.hyprtasking.move("right")
               else
                 hl.dispatch(hl.dsp.focus({ direction = "r" }))
@@ -193,7 +191,7 @@ in
           [
             "SUPER + SHIFT + H"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+              if hl.plugin.hyprtasking.is_active() then
                 hl.plugin.hyprtasking.movewindow("left")
               else
                 hl.dispatch(hl.dsp.window.swap({ direction = "l" }))
@@ -203,7 +201,7 @@ in
           [
             "SUPER + CTRL + H"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+              if hl.plugin.hyprtasking.is_active() then
                 hl.plugin.hyprtasking.movewindow("left")
               else
                 hl.dispatch(hl.dsp.window.move({ workspace = "r-1" }))
@@ -225,7 +223,7 @@ in
           [
             "SUPER + CTRL + L"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+              if hl.plugin.hyprtasking.is_active() then
                 hl.plugin.hyprtasking.movewindow("right")
               else
                 hl.dispatch(hl.dsp.window.move({ workspace = "r+1" }))
@@ -245,7 +243,7 @@ in
           [
             "SUPER + P"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+              if hl.plugin.hyprtasking.is_active() then
                 hl.plugin.hyprtasking.move("left")
               else
                 hl.dispatch(hl.dsp.focus({ workspace = "r-1" }))
@@ -255,7 +253,7 @@ in
           [
             "SUPER + N"
             (mkLuaFn ''
-              if hl.plugin.hyprtasking and hl.plugin.hyprtasking.is_active() then
+              if hl.plugin.hyprtasking.is_active() then
                 hl.plugin.hyprtasking.move("right")
               else
                 hl.dispatch(hl.dsp.focus({ workspace = "r+1" }))
@@ -299,22 +297,22 @@ in
           [
             "XF86AudioMute"
             (act "volume-mute")
-            { locked = true; }
+            {locked = true;}
           ]
           [
             "XF86AudioPlay"
             (act "media-toggle")
-            { locked = true; }
+            {locked = true;}
           ]
           [
             "XF86AudioPrev"
             (act "media-previous")
-            { locked = true; }
+            {locked = true;}
           ]
           [
             "XF86AudioNext"
             (act "media-next")
-            { locked = true; }
+            {locked = true;}
           ]
           [
             "XF86PowerOff"
@@ -352,23 +350,21 @@ in
           [
             "switch:on:Lenovo Yoga Tablet Mode Control switch"
             (mkDspExec "pkill -USR2 wvkbd-mobintl || uwsm app -- ${touchKeyboard}")
-            { locked = true; }
+            {locked = true;}
           ]
           [
             "switch:off:Lenovo Yoga Tablet Mode Control switch"
             (mkDspExec "pkill -USR1 wvkbd-mobintl || true")
-            { locked = true; }
+            {locked = true;}
           ]
         ]
         # Appending the dynamically generated workspace sets (1-10 and 11-20)
         ++ (concatLists (
           genList (
-            i:
-            let
+            i: let
               key = toString (mod (i + 1) 10);
               wsIdx = toString (i + 1);
-            in
-            [
+            in [
               [
                 "SUPER + ${key}"
                 (mkDsp "focus({ workspace = \"${wsIdx}\" })")
@@ -378,7 +374,8 @@ in
                 (mkDsp "window.move({ workspace = \"${wsIdx}\" })")
               ]
             ]
-          ) 10
+          )
+          10
         ))
         ++ catalogBinds
       );
@@ -409,22 +406,22 @@ in
       media = {
         settings = {
           bind = map mkArgs [
-            [ "space" (act "media-toggle") ]
-            [ "p" (act "media-toggle") ]
-            [ "l" (act "media-next") ]
-            [ "right" (act "media-next") ]
-            [ "h" (act "media-previous") ]
-            [ "left" (act "media-previous") ]
-            [ "k" (act "volume-up") { repeating = true; } ]
-            [ "up" (act "volume-up") { repeating = true; } ]
-            [ "j" (act "volume-down") { repeating = true; } ]
-            [ "down" (act "volume-down") { repeating = true; } ]
-            [ "m" (act "volume-mute") ]
-            [ "slash" (mkDspExec "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle") ]
-            [ "c" (mkDspExec "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle") ]
-            [ "escape" (mkDsp "submap(\"reset\")") ]
-            [ "return" (mkDsp "submap(\"reset\")") ]
-            [ "SUPER + M" (mkDsp "submap(\"reset\")") ]
+            ["space" (act "media-toggle")]
+            ["p" (act "media-toggle")]
+            ["l" (act "media-next")]
+            ["right" (act "media-next")]
+            ["h" (act "media-previous")]
+            ["left" (act "media-previous")]
+            ["k" (act "volume-up") {repeating = true;}]
+            ["up" (act "volume-up") {repeating = true;}]
+            ["j" (act "volume-down") {repeating = true;}]
+            ["down" (act "volume-down") {repeating = true;}]
+            ["m" (act "volume-mute")]
+            ["slash" (mkDspExec "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle")]
+            ["c" (mkDspExec "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle")]
+            ["escape" (mkDsp "submap(\"reset\")")]
+            ["return" (mkDsp "submap(\"reset\")")]
+            ["SUPER + M" (mkDsp "submap(\"reset\")")]
           ];
         };
       };
@@ -432,22 +429,22 @@ in
       resize = {
         settings = {
           bind = map mkArgs [
-            [ "l" (mkDsp "layout(\"colwidth +0.05\")") { repeating = true; } ]
-            [ "right" (mkDsp "layout(\"colwidth +0.05\")") { repeating = true; } ]
-            [ "h" (mkDsp "layout(\"colwidth -0.05\")") { repeating = true; } ]
-            [ "left" (mkDsp "layout(\"colwidth -0.05\")") { repeating = true; } ]
-            [ "j" (mkDsp "window.resize({ x = 0, y = 30, relative = true })") { repeating = true; } ]
-            [ "down" (mkDsp "window.resize({ x = 0, y = 30, relative = true })") { repeating = true; } ]
-            [ "k" (mkDsp "window.resize({ x = 0, y = -30, relative = true })") { repeating = true; } ]
-            [ "up" (mkDsp "window.resize({ x = 0, y = -30, relative = true })") { repeating = true; } ]
-            [ "1" (mkDsp "layout(\"colwidth 0.33\")") ]
-            [ "2" (mkDsp "layout(\"colwidth 0.50\")") ]
-            [ "3" (mkDsp "layout(\"colwidth 0.67\")") ]
-            [ "4" (mkDsp "layout(\"colwidth 1.0\")") ]
-            [ "f" (mkDsp "layout(\"fit\")") ]
-            [ "escape" (mkDsp "submap(\"reset\")") ]
-            [ "return" (mkDsp "submap(\"reset\")") ]
-            [ "SUPER + R" (mkDsp "submap(\"reset\")") ]
+            ["l" (mkDsp "layout(\"colwidth +0.05\")") {repeating = true;}]
+            ["right" (mkDsp "layout(\"colwidth +0.05\")") {repeating = true;}]
+            ["h" (mkDsp "layout(\"colwidth -0.05\")") {repeating = true;}]
+            ["left" (mkDsp "layout(\"colwidth -0.05\")") {repeating = true;}]
+            ["j" (mkDsp "window.resize({ x = 0, y = 30, relative = true })") {repeating = true;}]
+            ["down" (mkDsp "window.resize({ x = 0, y = 30, relative = true })") {repeating = true;}]
+            ["k" (mkDsp "window.resize({ x = 0, y = -30, relative = true })") {repeating = true;}]
+            ["up" (mkDsp "window.resize({ x = 0, y = -30, relative = true })") {repeating = true;}]
+            ["1" (mkDsp "layout(\"colwidth 0.33\")")]
+            ["2" (mkDsp "layout(\"colwidth 0.50\")")]
+            ["3" (mkDsp "layout(\"colwidth 0.67\")")]
+            ["4" (mkDsp "layout(\"colwidth 1.0\")")]
+            ["f" (mkDsp "layout(\"fit\")")]
+            ["escape" (mkDsp "submap(\"reset\")")]
+            ["return" (mkDsp "submap(\"reset\")")]
+            ["SUPER + R" (mkDsp "submap(\"reset\")")]
           ];
         };
       };
@@ -455,8 +452,8 @@ in
       passthrough = {
         settings = {
           bind = map mkArgs [
-            [ "SUPER + Z" (mkDsp "submap(\"reset\")") ]
-            [ "SUPER + ESCAPE" (mkDsp "submap(\"reset\")") ]
+            ["SUPER + Z" (mkDsp "submap(\"reset\")")]
+            ["SUPER + ESCAPE" (mkDsp "submap(\"reset\")")]
           ];
         };
       };
@@ -464,11 +461,11 @@ in
       laptop = {
         settings = {
           bind = map mkArgs [
-            [ "t" (mkDsp "send_shortcut({ mods = \"\", key = \"grave\" })") ]
-            [ "SHIFT + t" (mkDsp "send_shortcut({ mods = \"SHIFT\", key = \"asciitilde\" })") ]
-            [ "y" (mkDsp "send_shortcut({ mods = \"\", key = \"Num_Lock\" })") ]
-            [ "SUPER + ALT + L" (mkDspExec "notify-send -t 1500 'Laptop Mode' 'Disabled'; hyprctl dispatch submap reset") ]
-            [ "SUPER + ESCAPE" (mkDspExec "notify-send -t 1500 'Laptop Mode' 'Disabled'; hyprctl dispatch submap reset") ]
+            ["t" (mkDsp "send_shortcut({ mods = \"\", key = \"grave\" })")]
+            ["SHIFT + t" (mkDsp "send_shortcut({ mods = \"SHIFT\", key = \"asciitilde\" })")]
+            ["y" (mkDsp "send_shortcut({ mods = \"\", key = \"Num_Lock\" })")]
+            ["SUPER + ALT + L" (mkDspExec "notify-send -t 1500 'Laptop Mode' 'Disabled'; hyprctl dispatch submap reset")]
+            ["SUPER + ESCAPE" (mkDspExec "notify-send -t 1500 'Laptop Mode' 'Disabled'; hyprctl dispatch submap reset")]
           ];
         };
       };

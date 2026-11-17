@@ -2,7 +2,7 @@
 
 - Name: `<verb>-<object>` (`audit-dependencies`, `author-pr`).
 - Description: one trigger sentence; no workflow, format, or anti-trigger list.
-- Body: workflow (at most seven steps), rules, verify; no formats, tables, or examples.
+- Body: leading `## Scope` (included and excluded work), workflow (at most seven steps), rules, verify; no formats, tables, or examples.
 - Do not nest bullets under a workflow step unless the sub-steps are distinct actions; prefer one sentence.
 - References: formats, examples, protocols, branches. Name the file; never inline it.
 - Tables in skills, references, and report templates must stay `<= 80` characters wide; convert wider tables to lists.

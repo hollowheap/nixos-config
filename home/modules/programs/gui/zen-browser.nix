@@ -19,15 +19,24 @@ in
   desktop.windowRules = [
     {
       name = "zen-popups";
-      match.appId = "zen-.*";
-      match.initialTitle = "(Library|About Zen)";
+      match.appId = "^(zen|zen-.*)$";
+      match.initialTitle = "^(Library|About Zen|Extension:.*|Page Info|Open File|Save File|File Upload|Enter name of file to save to.*)$";
       float = true;
+      center = true;
+      opaque = true;
+    }
+    {
+      name = "zen-extension-popups";
+      match.appId = "^(zen|zen-.*)$";
+      match.title = "^(Extension:.*|Library|About Zen|Page Info|Open File|Save File|File Upload|Enter name of file to save to.*)$";
+      float = true;
+      center = true;
       opaque = true;
     }
     {
       name = "zen-auth-popups";
-      match.appId = "zen-.*";
-      match.initialTitle = "(?i).*(sign in|log in|login|authentication|authorize|choose an account|permissions).*";
+      match.appId = "^(zen|zen-.*)$";
+      match.initialTitle = "(?i).*(sign in|log in|login|authentication|authorize|choose an account|permissions|connect to|oauth).*";
       float = true;
       center = true;
       size = [
@@ -36,14 +45,22 @@ in
       ];
     }
     {
+      name = "zen-modals";
+      match.appId = "^(zen|zen-.*)$";
+      match.modal = true;
+      float = true;
+      center = true;
+    }
+    {
       name = "zen-pip";
-      match.appId = "zen-.*";
+      match.appId = "^(zen|zen-.*)$";
       match.initialTitle = "Picture-in-Picture";
       float = true;
       opaque = true;
       persistentSize = true;
       content = "video";
       pin = true;
+      noInitialFocus = true;
     }
   ];
 
@@ -217,6 +234,8 @@ in
         "browser.helperApps.deleteTempFileOnExit" = true;
         "browser.download.manager.addToRecentDocs" = false;
         "middlemouse.contentLoadURL" = false;
+        "browser.link.open_newwindow" = 3;
+        "browser.link.open_newwindow.restriction" = 2;
         "dom.popup_allowed_events" = "click dblclick mousedown pointerdown";
 
         # --- URL Bar & Suggestions (Local First, Zero Ads/Telemetry) ---
