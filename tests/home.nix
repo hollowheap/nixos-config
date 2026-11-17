@@ -2,10 +2,18 @@
   pkgs,
   src,
 }:
+let
+  nvim = src.homeConfigurations.hollowheap.config.programs.nvf.settings.vim;
+  formattersJson = pkgs.writeText "nvf-formatters.json" (
+    builtins.toJSON nvim.formatter.conform-nvim.setupOpts.formatters_by_ft
+  );
+  keymapLua = pkgs.writeText "nvf-keymap.lua" nvim.luaConfigRC.keymapRelocationsAndClears.data;
+in
 pkgs.runCommand "check-home" {
   nativeBuildInputs = with pkgs; [
     findutils
     ripgrep
+    jq
   ];
 } ''
   set -euo pipefail
@@ -369,6 +377,11 @@ pkgs.runCommand "check-home" {
   rg -q '\{ "sa", desc = "Add surrounding" \}' home/modules/programs/nvim/keymaps.nix
   no_match -q '"gege"' home/modules/programs/nvim/keymaps.nix
   rg -q 'ghost_text.enabled = true;' home/modules/programs/nvim/completion.nix
+
+  jq -e '.python == ["black"] and .nix == ["alejandra"]' ${formattersJson} >/dev/null
+  rg -q 'maparg' ${keymapLua}
+  rg -q -F '"r", "<Nop>"' ${keymapLua}
+  rg -q -F '"s", "<Nop>"' ${keymapLua}
 
   touch $out
 ''
