@@ -272,6 +272,8 @@ inputs: let
     disko = inputs.disko.packages.x86_64-linux.disko;
   };
 in {
+  lib = ../lib;
+
   nixosConfigurations = osConfigurations;
 
   overlays.default = _: prev: import ../pkgs/default.nix prev;
