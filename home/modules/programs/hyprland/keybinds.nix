@@ -347,13 +347,15 @@ in {
             "SUPER + SHIFT + XF86TouchpadOff"
             (mkDsp "send_shortcut({ mods = \"\", key = \"Menu\" })")
           ]
+        ]
+        ++ lib.optionals (config.desktop.touchscreen.switchDevice != "") [
           [
-            "switch:on:Lenovo Yoga Tablet Mode Control switch"
+            "switch:on:${config.desktop.touchscreen.switchDevice}"
             (mkDspExec "pkill -USR2 wvkbd-mobintl || uwsm app -- ${touchKeyboard}")
             {locked = true;}
           ]
           [
-            "switch:off:Lenovo Yoga Tablet Mode Control switch"
+            "switch:off:${config.desktop.touchscreen.switchDevice}"
             (mkDspExec "pkill -USR1 wvkbd-mobintl || true")
             {locked = true;}
           ]

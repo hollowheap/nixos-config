@@ -1,14 +1,22 @@
-{ config, lib, ... }:
-let
+{
+  config,
+  lib,
+  ...
+}: let
   inherit (lib) mkOption;
   inherit (lib.types) int listOf nullOr str submodule unspecified;
-in
-{
+in {
   options.desktop.touchscreen = {
     output = mkOption {
       type = str;
       default = config.desktop.primaryOutput;
       description = "Touchscreen output name.";
+    };
+
+    switchDevice = mkOption {
+      type = str;
+      default = "";
+      description = "Tablet-mode switch device name for shell keybinds; empty on hosts without one.";
     };
 
     transform = mkOption {
@@ -33,10 +41,7 @@ in
           };
         }
       );
-      default = [
-        { name = "wacom-hid-53b7-pen"; }
-        { name = "wacom-hid-53b7-finger"; }
-      ];
+      default = [];
       description = "Touch and pen devices mapped to the touchscreen output.";
     };
 

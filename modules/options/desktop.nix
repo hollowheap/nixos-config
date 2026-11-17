@@ -1,5 +1,4 @@
-{ lib, ... }:
-let
+{lib, ...}: let
   inherit (lib) mkEnableOption mkOption;
   inherit (lib.types) bool float int listOf nullOr str submodule;
 
@@ -76,8 +75,7 @@ let
       };
     };
   };
-in
-{
+in {
   options.desktop = {
     touch = mkEnableOption "touchscreen compositor support";
     hdr = mkEnableOption "HDR compositor preference";
@@ -124,14 +122,7 @@ in
 
     monitors = mkOption {
       type = listOf monitorType;
-      default = [
-        {
-          output = "eDP-1";
-          mode = "2880x1800@120";
-          bitdepth = 10;
-          cm = "srgb";
-        }
-      ];
+      default = [];
       description = "Declarative monitor layout shared by Hyprland and the login greeter.";
     };
 
