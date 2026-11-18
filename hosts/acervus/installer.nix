@@ -1,0 +1,3 @@
+{installHostPkg, ...}: {
+  environment.systemPackages = [installHostPkg];
+}

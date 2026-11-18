@@ -262,6 +262,20 @@ inputs: let
   installHostPkg = pkgs.callPackage ../pkgs/install-host.nix {
     disko = inputs.disko.packages.x86_64-linux.disko;
   };
+
+  acervusInstaller = inputs.nixpkgs.lib.nixosSystem {
+    system = "x86_64-linux";
+    specialArgs = {inherit installHostPkg;};
+    modules = [
+      "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+      ../hosts/acervus/installer.nix
+    ];
+  };
+
+  acervusImage = pkgs.callPackage "${inputs.nixpkgs}/nixos/lib/make-squashfs.nix" {
+    fileName = "acervus-installer";
+    storeContents = acervusInstaller.config.isoImage.storeContents;
+  };
 in {
   lib = ../lib;
 
@@ -276,8 +290,14 @@ in {
     luks-enroll = luksEnrollPkg;
   };
 
+  images.acervus = acervusImage;
+
   apps.x86_64-linux = {
     install = {
+      type = "app";
+      program = "${installHostPkg}/bin/install-host";
+    };
+    install-acervus = {
       type = "app";
       program = "${installHostPkg}/bin/install-host";
     };
