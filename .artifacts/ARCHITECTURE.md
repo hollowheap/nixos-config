@@ -20,7 +20,7 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - `hosts/<host>`: selects profile, role, hardware traits, boot policy, and host-specific secrets.
 - `roles/<role>/system`: duty composition; server daemons are vertical slices under `roles/server/system`.
 - `modules/`: reusable system modules; hardware- and profile-agnostic.
-- `home/hollowheap.nix` plus `home/modules`: user environment composition through `import-tree`. Host-specific HM overlays remain open under `D73`.
+- `home/hollowheap.nix` plus `home/modules`: user environment composition through `import-tree`. Host overlays live in `home/hosts/<host>.nix`; refinement stays open under `D73`/`D89`/`D98`.
 - `home/modules/ai/options.nix`: shared AI schema, adapter render helpers, and the single `programs.mcp.servers` registry (`D82`). Pi-only MCP exposure is added in `renderMcpServers`; no private Pi registry remains.
 - `home/modules/ai/hooks.nix`: shared hook intent; `dropHooks` removes hooks where harness builtins already enforce the policy (`D81`).
 - `home/modules/programs/nvim`: nvf domain modules; LSP in `lsp.nix`, Blink sources and ghost text in `completion.nix`, `r`/`s` prefixes in `keymaps.nix`.
@@ -49,7 +49,8 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - `ai.*` is the contract for agents, skills, rules, disciplines, and hooks. `programs.mcp.servers` is the single MCP registry; Pi adds `codemode` exposure locally (`D82`).
 - `desktop.*` provides shared monitors, scale, fonts, compositor geometry, and input policy; host-specific values remain a debt item.
 - Wallust templates and Noctalia hooks are the dynamic color contract; base16 syntax roles stay distinct (`D105`).
-- MCP server entries require boolean `enabled`; Pi reads `OPENCODE_API_KEY` for both `opencode` and `opencode-go`.
+- MCP server entries require boolean `enabled`; Pi receives only `opencode-go`, while OpenCode and Crush keep both providers (`D119`).
+- Pi's `decide` tool uses `opencode/jev-1.13-free` with `timeoutMs = 5000` from declarative `decide.json`.
 - `Dxx` → `Sxx` → `Txx` remains the traceability chain. Some accepted decisions are not yet converted to specs and tasks.
 
 ## Operations & Security
@@ -57,22 +58,22 @@ Scope: NixOS flake for `lacuna` and `acervus`, standalone Home Manager for `holl
 - Home Manager activation and NixOS switch remain separate; verify with dry build or activation build before applying.
 - Pre-tool hooks declare git policy; the shared `ai-git-policy` hook is fail-closed, but harness-level matcher coverage remains a debt item.
 - Backend daemons bind loopback or mesh addresses; Caddy is the intended ingress boundary.
-- Declarative identity uses the GPG auth subkey's SSH public key with `mutableUsers = false` (`D112`).
+- Declarative identity uses the GPG auth subkey's SSH public key with `mutableUsers = false` (`D118`).
 - Never commit private keys; install-time secrets use ephemeral keys under `D117`.
 - `nix flake check`, domain checks, and dry builds must pass before switching.
 
 ## Known Debt
 
-- Implemented: `D81`-`D86`, `D99`-`D103`, `D105`-`D107`, `D108`, `D110`-`D120` where code and verification exist.
-- Pending: `D70`-`D79` layout, secrets, desktop, hook, MCP, and TLS decisions; `D87`-`D98` flake and desktop fixes; `D104`, `D109`, `D114`-`D116` where verification is incomplete or design is deferred.
-- `D110`/`D116` defer HTTPS and fovea access until acervus is installed and supersede `D79`; `D111`/`D117` define the squashfs installer with ephemeral keys.
+- Implemented: `D81`-`D86`, `D99`-`D103`, `D105`-`D108`, `D110`-`D116`, and `D118`-`D122` where code and verification exist.
+- Pending: unresolved `Dxx` remain in `DECISIONS.md`; route open records through `design`/`specify`/`plan` and refresh this snapshot after migration.
+- `D110`/`D116` defer HTTPS and fovea access until acervus is installed and supersede `D79`; `images.acervus` and `.#install-acervus` are shipped, while the `D117` ephemeral-key design remains open.
 - Unconverted open decisions remain; route them through the `design` skill before deriving new specs or tasks.
 - `my-pi-agent` retains 4 stale and 1 false entry in that upstream repository.
 
 ## Evidence
 
 - Requirements: `R01`–`R56` rewritten as observable outcomes on 2026-11-18; retired IDs remain recorded in `REQUIREMENTS.md`.
-- Decisions: `D01`–`D120`; superseded `D71`, `D77`, `D78`, and `D79` are closed, with successor links on `D92`, `D82`, `D108`, and `D116`. Open non-superseded decisions still require child specs.
+- Decisions: `D01`–`D122`; superseded `D71`, `D77`, `D78`, `D79`, and `D88` are closed, with successor links on `D92`, `D82`, `D108`, `D116`, and `D122`. Open non-superseded decisions still require child specs.
 - Reviews: `V01`–`V22`, including whole-system robustness review `V22`.
-- Checks: `nix flake check`, `nix build .#checks.x86_64-linux.home .#checks.x86_64-linux.ai-rendered --no-link`, and dry builds passed on 2026-11-18.
-- Last boundary update: `/review` robust pass `V22` and user decisions `D81`–`D120`.
+- Checks: `nix flake check`, `nix build .#checks.x86_64-linux.home .#checks.x86_64-linux.ai-rendered .#checks.x86_64-linux.skills-rendered --no-link`, and dry builds passed on 2026-11-18.
+- Last boundary update: `/review` robust pass `V22` and user decisions `D81`–`D122`.

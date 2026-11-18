@@ -926,7 +926,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Active stay-awake prevents suspend; no split logind policy remains..
   - Risk: Stale suspend assertion, inhibitor coordination hidden in NixOS layer..
   - Detail: tasks/T118.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T119 [S83]: Power saving lowers the actual configured refresh rate
   - Verify: `nix eval --raw .#homeConfigurations.hollowheap.config.home.file.'".config/hypr/scripts/power-mode.sh"'.text | rg -q '@60' && ! rg -q 'replaceStrings' home/modules/services/power-mode.nix`
@@ -934,7 +934,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: A 120 Hz monitor drops to 60 Hz in power-saver without literal substitution..
   - Risk: Non-120 modes stay fast, per-monitor scale discarded..
   - Detail: tasks/T119.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T120 [S84]: Login screen uses the installed shared font families
   - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.fonts.packages | jq -e 'length > 0' && nix eval --raw .#nixosConfigurations.lacuna.config.services.displayManager.noctalia-greeter.settings.appearance.font_family | grep -q .`
@@ -942,7 +942,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Sans, serif, and monospace packages are installed for the greeter..
   - Risk: Generic fallback font, HM-only font installation..
   - Detail: tasks/T120.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T121 [S85]: Compositor geometry no longer exposes an unused bar-height option
   - Verify: `! rg -q 'barHeight' home/modules/environment/compositor.nix home/modules/programs/hyprland home/modules/programs/noctalia.nix`

@@ -5,9 +5,9 @@
 - NixOS flake on x86_64-linux with release-26.05 for system packages and unstable for Home Manager, user programs, and the kernel.
 - `flake.nix` -> `flake/default.nix`: host enumeration, NixOS outputs, discovered Home Manager users, `nixOnDroidConfigurations.fovea`, devShells, packages, apps, and checks.
 - Hosts: `hosts/<name>/default.nix` import one chassis profile, one role, host-local hardware traits, and boot policy.
-- `lacuna`: laptop, desktop, and server roles with Intel, touch, HDR, Wi-Fi, Bluetooth, and RGB traits.
-- `acervus`: declared headless shell with placeholder hardware config and hybrid Intel/Nvidia PRIME support.
-- `home/hollowheap.nix` is discovered from `home/*.nix`; `home/modules` loads with `import-tree`.
+- `lacuna`: laptop, desktop, and server roles with Intel, touch, HDR, Wi-Fi, Bluetooth, and RGB traits. The HDR trait declares capability; Home Manager keeps `desktop.hdr = false`, so the internal panel stays SDR (`D122`).
+- `acervus`: headless shell with placeholder hardware config, hybrid Intel/Nvidia PRIME support, and `images.acervus` / `.#install-acervus`.
+- `home/hollowheap.nix` is discovered from `home/*.nix`; `home/modules` loads with `import-tree`; host overlays live in `home/hosts/`.
 - `nix-on-droid.nix` is the standalone fovea Termux entrypoint on unstable aarch64.
 - Tests load from `tests/default.nix`; local packages load from `pkgs/default.nix`.
 

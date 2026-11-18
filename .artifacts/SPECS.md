@@ -76,14 +76,14 @@
 
 #### Operations & Security
 
-- [x] S09 [R06] [D09]: Caddy uses internal TLS for loopback names and tailscaled trusts its CA
+- [x] S09 [R06] [D116]: Caddy uses internal TLS for loopback names and tailscaled trusts its CA
   - Verify: grep -q "tls internal" roles/server/system/default.nix && grep -q "SSL_CERT_FILE" roles/server/system/default.nix
   - Seam: loopback TLS and client trust.
   - Behavior: Headscale and Vaultwarden serve internal certs; tailscaled trusts the CA.
   - Failures: ACME attempts on hosts-file names, untrusted CA.
   - Ledger: tests/S09.md
 
-- [x] S10 [R06] [D10]: Sops secrets target lacuna's age key, install via systemd, and Vaultwarden reads its admin env
+- [x] S10 [R06] [D70]: Sops secrets target lacuna's age key, install via systemd, and Vaultwarden reads its admin env
   - Verify: grep -q "&lacuna age1cum" .sops.yaml && grep -q "vaultwarden_env" secrets.yaml && grep -q "environmentFile" roles/server/system/default.nix && nix eval .#nixosConfigurations.lacuna.config.sops.useSystemdActivation | grep -qx true
   - Seam: encrypted secrets and service consumption.
   - Behavior: activation writes `/run/secrets`; Vaultwarden reads `ADMIN_TOKEN`.
@@ -252,7 +252,7 @@
 
 #### Operations & Security
 
-- [x] S22 [R12] [D22]: Caddy can issue publicly trusted certs via DuckDNS DNS-01
+- [x] S22 [R12] [D116]: Caddy can issue publicly trusted certs via DuckDNS DNS-01
   - Verify: grep -q "dns duckdns" roles/server/system/default.nix
   - Seam: Caddy certificate issuance.
   - Behavior: DNS-01 replaces internal TLS when public trust is needed.
@@ -353,7 +353,7 @@
 
 #### Module Seams
 
-- [x] S41 [R15] [D41]: Domain checks live in `tests/` and load automatically
+- [x] S41 [R15] [D74]: Domain checks live in `tests/` and load automatically
   - Verify: nix build .#checks.x86_64-linux.layout .#checks.x86_64-linux.policy .#checks.x86_64-linux.hardware .#checks.x86_64-linux.home .#checks.x86_64-linux.services .#checks.x86_64-linux.users
   - Seam: flake `checks` output and `tests/` loader.
   - Behavior: each `tests/<domain>.nix` becomes `checks.x86_64-linux.<domain>`.
@@ -475,7 +475,7 @@
   - Failures: missing TOML keys, invalid JSON effort strings, broken eval.
   - Ledger: tests/S51.md
 
-- [x] S52 [R19] [D57]: Declarative dynamic API key delivery for AI harnesses
+- [x] S52 [R19] [D80]: Declarative dynamic API key delivery for AI harnesses
   - Verify: env -u OPENCODE_API_KEY pi auth check --provider opencode-go && zsh -c 'source ~/.config/zsh/.zshrc && echo $OPENCODE_API_KEY'
   - Seam: `home/modules/terminal/zsh.nix`, `home/modules/programs/opencode.nix`, `home/modules/programs/pi-coding-agent.nix`, `home/modules/ai/hooks.nix`.
   - Behavior: OpenCode, Pi, and Crush resolve `OPENCODE_API_KEY` and `OPENCODE_GO_API_KEY` dynamically via `rbw`; `pi` natively evaluates `!rbw get --folder dev/keys opencode` from `~/.pi/agent/auth.json`; Zsh injects keys on startup and preexec before `opencode*`, `pi*`, `crush*`, `kiro*`, or `codex*`.
@@ -553,7 +553,7 @@
 
 #### Data & Contracts
 
-- [x] S63 [R29] [D67]: MCP-capable agents see the same enabled stdio servers in every supporting harness
+- [x] S63 [R29] [D82]: MCP-capable agents see the same enabled stdio servers in every supporting harness
   - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.mcp.servers
   - Seam: `home/modules/ai/options.nix`, `home/modules/programs/{opencode,codex,crush,github-copilot-cli}.nix`.
   - Behavior: one server definition controls command, args, environment, and enablement in every supporting harness; agents without MCP capability receive no server access.
@@ -614,7 +614,7 @@
   - Failures: missing user-dirs.dirs, broken wallust template resolution, cluttered `$HOME`.
   - Ledger: tests/S53.md
 
-- [x] S56 [R23] [D61]: OMP module provides `programs.omp.enable`, generates `~/.omp/agent/` config, skills, agents, and hooks, and builds activation package
+- [x] S56 [R23] [D72]: OMP module provides `programs.omp.enable`, generates `~/.omp/agent/` config, skills, agents, and hooks, and builds activation package
   - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
   - Seam: `flake.nix`, `flake/default.nix`, `home/modules/programs/omp.nix`, `home/modules/ai/hooks.nix`.
   - Behavior: `programs.omp.enable = true` installs `omp` package, registers `inputs.omp.homeManagerModules.default`, deploys skills into `~/.omp/agent/skills/`, writes agent markdown files into `~/.omp/agent/agents/`, renders disciplines into `SYSTEM.md`, and connects pre-tool and session-start hooks.
@@ -641,7 +641,7 @@
   - Behavior: `home/modules/programs/nvim/diagrams.nix` exports `image.nvim` (eager start plugin with Kitty protocol and `magick_cli`) and `diagram.nvim` (lazy plugin with markdown/neorg integrations and dark mermaid/plantuml/d2 renderers); registers `<leader>m` bindings for render, clear, and hover; adds CLI tools (`imagemagick`, `mermaid-cli`, `plantuml`, `d2`, `graphviz`) to `programs.nvf.settings.vim.extraPackages`.
   - Failures: unfree license evaluation errors, missing CLI executables, start/opt plugin collision warnings.
   - Ledger: tests/S59.md
-- [ ] S78 [R04] [D88]: HDR is available on the hardware that supports it and absent elsewhere
+- [ ] S78 [R04] [D122]: HDR is available on the hardware that supports it and absent elsewhere
   - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.desktop.hdr | jq -e '. == true' && nix eval --json .#nixosConfigurations.acervus.config.desktop.hdr | jq -e '. == false' && nix eval --json .#homeConfigurations.hollowheap.config.desktop.hdr | jq -e '. == false'`
   - Seam: hardware/hdr.nix, hosts/lacuna/hardware.nix, home/hollowheap.nix, home/modules/programs/hyprland/hyprland.nix.
   - Behavior: Lacuna compositor enables HDR; acervus and headless contexts stay SDR..
@@ -759,14 +759,14 @@
 
 #### Module Seams
 
-- [x] S60 [R18] [D49]: On-demand retro skill evaluates active session transcript
+- [x] S60 [R18] [D72]: On-demand retro skill evaluates active session transcript
   - Verify: nix eval --json .#homeConfigurations.hollowheap.config.ai.skills.retro.description | grep -q "retrospective" && test -f home/modules/ai/skills.nix
   - Seam: `home/modules/ai/skills.nix`.
   - Behavior: `ai.skills.retro` provides single-session retrospective auditing tool efficiency, failure counts, rule compliance, and winning patterns directly from the active transcript into `.artifacts/RETRO.md`.
   - Failures: missing skill definition, invalid markdown schema.
   - Ledger: tests/S60.md
 
-- [x] S61 [R19] [D50]: Corpus-audit skill ingests compacted transcripts across sessions
+- [x] S61 [R19] [D72]: Corpus-audit skill ingests compacted transcripts across sessions
   - Verify: nix eval --json .#homeConfigurations.hollowheap.config.ai.skills.corpus-audit.description | grep -q "corpus-audit" && test -f home/modules/ai/skills.nix
   - Seam: `home/modules/ai/skills.nix`.
   - Behavior: `ai.skills.corpus-audit` provides cross-session auditing for systemic knowledge amnesia, thinking loops, and prompt waste to feed into `author-harness`.

@@ -455,7 +455,7 @@
   - Alternatives: fix only a subset; defer the seam until a later design pass.
   - Consequences: drive checks from discovered configurations, relocate inline checks, export `lib`, overlay fovea, mirror `unfreePackages` into HM, add evaluation-based assertions, narrow check sources, and register package outputs.
 
-- [ ] D88 [R04]: Enable HDR only on lacuna and consume it on both NixOS and Home Manager layers.
+- [x] D88 [R04]: Enable HDR only on lacuna and consume it on both NixOS and Home Manager layers.
   - Context: `hardware/hdr.nix` declares a setter no host imports; HM never sets `desktop.hdr`, so Hyprland HDR branches are unreachable.
   - Alternatives: enable HDR on all desktops; keep the trait dead.
   - Consequences: lacuna imports the HDR trait, its HM host overlay sets `desktop.hdr = true`, and acervus stays false.

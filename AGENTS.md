@@ -5,7 +5,7 @@ NixOS flake for `lacuna` and `acervus`, plus a standalone Home Manager configura
 ## Essential Commands
 
 - Build / check: `nix flake check`
-- Test suite: `nix build .#checks.x86_64-linux.home .#checks.x86_64-linux.ai-rendered --no-link`
+- Test suite: `nix build .#checks.x86_64-linux.home .#checks.x86_64-linux.ai-rendered .#checks.x86_64-linux.skills-rendered --no-link`
 - Single module: `nix eval --raw .#homeConfigurations.hollowheap.config.programs.pi-coding-agent.settings.defaultProvider`
 - Home Manager build: `nix build .#homeConfigurations.hollowheap.activationPackage --no-link`
 - Lacuna dry-build: `nix build .#nixosConfigurations.lacuna.config.system.build.toplevel --dry-run`
