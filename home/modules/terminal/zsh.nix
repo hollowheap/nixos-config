@@ -268,8 +268,8 @@ in
       bindkey -M viins '^[OA' fzf-history-widget
       bindkey -M vicmd 'v' edit-command-line
 
-      # Unbind conflicting or noisy default bindings (keeps C-d/C-n/C-p free for tmux)
-      for key in '^D' '^K' '^N' '^P' '^Q' '^X~' '^[,' '^[/' '^[~' '\ec'; do
+      # Unbind conflicting or noisy default bindings (keeps C-n/C-p free for tmux)
+      for key in '^K' '^N' '^P' '^Q' '^X~' '^[,' '^[/' '^[~' '\ec'; do
         bindkey -M viins -r "$key"
       done
       for key in '^N' '^P' '^Q' '^T' '\ec'; do
