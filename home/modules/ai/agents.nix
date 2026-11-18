@@ -84,7 +84,6 @@
         "researcher"
         "code-reviewer"
       ];
-      dropDisciplines = ["subagent-io"];
       skills = [
         "implement"
         "review"

@@ -532,7 +532,14 @@ in {
         if agent.prompt != ""
         then agent.prompt
         else agent.instructions;
-      agentDrops = (agent.dropDisciplines or []) ++ dropDisciplines;
+      agentDrops =
+        (agent.dropDisciplines or [])
+        ++ dropDisciplines
+        ++ (
+          if (agent.capabilities.write or false)
+          then ["subagent-io"]
+          else []
+        );
       matchingDisciplines =
         filterAttrs (
           name: d: d.target == agent.role && !(builtins.elem name agentDrops)

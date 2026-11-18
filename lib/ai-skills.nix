@@ -47,6 +47,7 @@ let
           parts = match "[[:space:]]*(.*)" line;
         in
         elemAt parts 0;
+      isBlank = line: lib.trim line == "";
       isIndented =
         line:
         line != ""
@@ -57,6 +58,11 @@ let
           [ ]
         else if isIndented (head entries) then
           [ (head entries) ] ++ takeIndented (tail entries)
+        else if isBlank (head entries) then
+          let
+            following = takeIndented (tail entries);
+          in
+            if following == [ ] then [ ] else [ (head entries) ] ++ following
         else
           [ ];
       parseEntries =
@@ -71,6 +77,8 @@ let
             block = if parts == null then null else match "(\\||>)([-+]?)" (elemAt parts 1);
             blockLines = map trimLeft (takeIndented rest);
             tailLines = lib.drop (builtins.length blockLines) rest;
+            folded = concatStringsSep " " (lib.filter (l: l != "") blockLines);
+            literal = concatStringsSep "\n" blockLines;
           in
           if parts == null then
             parseEntries rest
@@ -83,11 +91,11 @@ let
               ${key} =
                 if block != null then
                   if elemAt block 0 == ">" then
-                    concatStringsSep " " blockLines
+                    folded
                   else
-                    concatStringsSep "\n" blockLines
+                    literal
                 else if inline == "" then
-                  concatStringsSep " " blockLines
+                  folded
                 else
                   unquote inline;
             }
@@ -176,11 +184,15 @@ let
 
   parseAgents =
     raw:
-    builtins.filter (s: s != "") (
-      map lib.trim (
-        lib.splitString "," (builtins.replaceStrings [ "[" "]" "\"" "'" ] [ "" "" "" "" ] raw)
-      )
-    );
+    let
+      cleaned = builtins.replaceStrings [ "[" "]" "\"" "'" "\n" "\t" ] [ "" "" "" "" " " " " ] raw;
+      tokens = lib.concatMap (
+        part: builtins.filter (s: s != "") (map lib.trim (lib.splitString " " part))
+      ) (lib.splitString "," cleaned);
+    in
+      builtins.filter (s: s != "-" && s != "") (
+        map (s: if lib.hasPrefix "-" s then lib.trim (lib.removePrefix "-" s) else s) tokens
+      );
 
   readSkill = name:
     let
