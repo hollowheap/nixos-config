@@ -950,7 +950,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Setting or removing bar height has no dead option surface..
   - Risk: Dead option advertised, panel geometry split across modules..
   - Detail: tasks/T121.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T122 [S86]: Portal ownership stays system-level with the Hyprland portal selected
   - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.xdg.portal.enable | jq -e '. == true' && nix eval --json .#nixosConfigurations.lacuna.config.xdg.portal.extraPortals | jq -e 'length > 0'`
@@ -958,7 +958,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Screen-share and file-picker rules match the installed portal..
   - Risk: Portal config in user scope, portal app id mismatch..
   - Detail: tasks/T122.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T123 [S87]: Every declared theme template has a matching asset and a checked consumer
   - Verify: `nix build .#checks.x86_64-linux.home --no-link >/dev/null && rg -q 'starship-palette.toml' tests/home.nix`
@@ -966,7 +966,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Removing or renaming a declared template fails a check..
   - Risk: Hand-maintained asset list omits a template, stale theme target..
   - Detail: tasks/T123.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T124 [S88]: Wacom and Yoga switch names are host-scoped options
   - Verify: `nix eval --raw .#homeConfigurations.hollowheap.config.desktop.touchscreen.switchDevice | grep -q . && ! rg -q 'wacom-hid-53b7' home/modules/environment/touch.nix home/modules/programs/hyprland/keybinds.nix`
@@ -974,7 +974,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Non-Yoga hosts do not receive vendor-specific device bindings..
   - Risk: Vendor literals in shared modules, missing host override..
   - Detail: tasks/T124.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T125 [S89]: Markdown saves do not run a formatter outside the unified toolchain
   - Verify: `nix eval --json .#homeConfigurations.hollowheap.config.programs.nvf.settings.vim.formatter.conform-nvim.setupOpts.formatters_by_ft | jq -e 'has("markdown") | not'`
@@ -982,7 +982,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Prose and bullets are preserved on save while other filetypes keep their formatters..
   - Risk: deno fmt reflows Markdown, unified no-formatter contract inert..
   - Detail: tasks/T125.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T126 [S90]: Neovim no longer advertises or restores sessions
   - Verify: `! rg -q 'Restore Session|section = "session"' home/modules/programs/nvim/snacks.nix && ! rg -q 'mini.sessions' home/modules/programs/nvim/mini.nix`
@@ -990,7 +990,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Dashboard and keymaps contain no session-restore entry..
   - Risk: Dead restore UI, autoread surprise on launch..
   - Detail: tasks/T126.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T127 [S91]: Agent keymaps remain present despite headless maparg limitations
   - Verify: `rg -q '"<leader>ar"' home/modules/programs/nvim/keymaps.nix && rg -q 'AvanteAsk|AvanteToggle|AvanteFocus' home/modules/programs/nvim/keymaps.nix`
@@ -998,7 +998,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: The documented leader-a commands remain bound in a real session..
   - Risk: Headless probe deletes working bindings or which-key descriptions drift..
   - Detail: tasks/T127.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T128 [S92]: ACP providers use Nix-resolved paths instead of machine-local checkout literals
   - Verify: `! rg -q '/home/hollowheap/repos' home/modules/programs/nvim/completion.nix && rg -q 'acp_providers' home/modules/programs/nvim/completion.nix`
@@ -1006,7 +1006,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Provider paths resolve from Nix on every host..
   - Risk: Hardcoded home path, provider fails after checkout moves..
   - Detail: tasks/T128.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T129 [S93]: Shell scripts format with the unified formatter
   - Verify: `nix eval --json .#homeConfigurations.hollowheap.config.programs.nvf.settings.vim.formatter.conform-nvim.setupOpts.formatters_by_ft | jq -e '.bash == ["shfmt"] and .zsh == ["shfmt"]'`
@@ -1014,7 +1014,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Format-on-save works for bash and zsh buffers..
   - Risk: Only sh key registered, shfmt installed but unused..
   - Detail: tasks/T129.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T130 [S94]: Compositor start re-applies the persisted wallpaper theme
   - Verify: `rg -q 'settings.toml' home/modules/programs/noctalia.nix && rg -q 'wallpaper.last' home/modules/programs/noctalia.nix`
@@ -1022,7 +1022,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Restarting the shell restores GTK, icon, and Wallust state without a wallpaper change..
   - Risk: Started hook gated on a change-only environment variable..
   - Detail: tasks/T130.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T131 [S95]: Syntax roles keep distinguishable generated colors
   - Verify: `rg -q -F "base08 = '{{color9}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base09 = '{{color11}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base0A = '{{color3}}'" assets/wallust-templates/nvim-colors.lua && rg -q -F "base0F = '{{color5}}'" assets/wallust-templates/nvim-colors.lua`
@@ -1030,7 +1030,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Errors, constants, keywords, and deprecated tags remain visually separable..
   - Risk: Four roles collapse into two bright slots..
   - Detail: tasks/T131.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T132 [S96]: Editor checks assert evaluated behavior rather than file presence
   - Verify: `rg -q 'programs.nvf.settings' tests/home.nix && rg -q 'maparg|list_formatters|formatters_by_ft' tests/home.nix`
@@ -1038,7 +1038,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: A regression in formatter maps or keymap binding fails a check..
   - Risk: String-only checks pass while editor behavior is broken..
   - Detail: tasks/T132.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T133 [S97]: Dead wallust pill helper is removed
   - Verify: `! rg -q 'pill_load_wallust' home/modules/styles/pills.nix`
