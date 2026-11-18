@@ -1,5 +1,8 @@
-{ config, pkgs, ... }:
 {
+  config,
+  pkgs,
+  ...
+}: {
   programs.git = {
     enable = true;
     hooks = {
@@ -8,7 +11,7 @@
         if [ -x "$local_hook" ]; then
           "$local_hook" || exit $?
         fi
-        if git diff --cached --name-only | grep -qE '^\.?artifacts/(errors|logs)/'; then
+        if git diff --cached --diff-filter=AM --name-only | grep -qE '^\.?artifacts/(errors|logs)/'; then
           echo "ERROR: Refusing to commit ephemeral files under .artifacts/errors/ or .artifacts/logs/" >&2
           exit 1
         fi
@@ -197,6 +200,6 @@
   systemd.user.timers.git-maintenance = {
     Unit.Description = "Daily git maintenance for nixos-config";
     Timer.OnCalendar = "daily";
-    Install.WantedBy = [ "timers.target" ];
+    Install.WantedBy = ["timers.target"];
   };
 }
