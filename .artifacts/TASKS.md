@@ -576,7 +576,7 @@ Active tasks, completed history, and verification commands. Requirements live in
 
 ### Open
 
-- [ ] T22 [S22] (blocked-by: T10): Add DuckDNS DNS-01 for publicly trusted Caddy certificates
+- [x] T22 [S22] (blocked-by: T10): Add DuckDNS DNS-01 for publicly trusted Caddy certificates
   - Verify: grep -q "dns duckdns" roles/server/system/default.nix
   - Files: `roles/server/system/default.nix`, `flake.nix`, `secrets.yaml`.
   - Notes: only the public baseDomain vhost uses DNS-01; loopback Headscale/Vaultwarden still use internal TLS. Runtime issuance untested.
@@ -864,7 +864,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T110.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T111 [S75]: The shell receives EOF on Ctrl-D while the popup stays behind the prefix
+- [x] T111 [S75]: The shell receives EOF on Ctrl-D while the popup stays behind the prefix
   - Verify: `rg -q '^bind d ' home/modules/terminal/tmux.nix && ! rg -q '^bind -n C-d' home/modules/terminal/tmux.nix && ! rg -q "'^D'" home/modules/terminal/zsh.nix`
   - Files: `home/modules/terminal/tmux.nix, home/modules/terminal/zsh.nix`.
   - Notes: Ctrl-D ends input in a shell or REPL; prefix-d opens the container popup..
@@ -872,7 +872,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T111.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T112 [S76]: Agent capabilities and artifact paths are enforced consistently across harnesses
+- [x] T112 [S76]: Agent capabilities and artifact paths are enforced consistently across harnesses
   - Verify: `nix eval --raw .#homeConfigurations.hollowheap --apply 'h: h.config.ai.render.agentBodyFor h.config.ai.agents.worker' | rg -q 'Task executor' && ! rg -q 'subagent-io' home/modules/ai/agents.nix && rg -q '\.artifacts/\*\.md' home/modules/programs/kiro-cli.nix`
   - Files: `home/modules/ai/options.nix, home/modules/ai/agents.nix, home/modules/programs/kiro-cli.nix, lib/ai-skills.nix`.
   - Notes: Write-capable agents avoid read-only mandates; canonical artifact globs and parsed skills hold..
@@ -1072,7 +1072,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T136.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T137 [S101]: Acervus installation is available as a squashfs image
+- [x] T137 [S101]: Acervus installation is available as a squashfs image
   - Verify: `nix eval --raw '.#apps.x86_64-linux.install-acervus.program' >/dev/null && nix build .#images.acervus --dry-run >/dev/null`
   - Files: `flake/default.nix, hosts/acervus/*, pkgs/install-host.nix, nix-on-droid.nix`.
   - Notes: A fresh installer image can run disko and install the host without a prebuilt machine..
@@ -1088,8 +1088,8 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Detail: tasks/T138.md
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
-- [ ] T139 [S103]: Remote mount browsing is tuned without changing mount mode
-  - Verify: `nix eval --raw .#homeConfigurations.hollowheap.config.systemd.user.services.rclone-mount-gdrive.Service.ExecStart | jq -r '.[0]' | rg -q 'dir-cache-time 24h --vfs-cache-poll-interval 5m --vfs-fast-fingerprint'`
+- [x] T139 [S103]: Remote mount browsing is tuned without changing mount mode
+  - Verify: `nix eval --json .#homeConfigurations.hollowheap.config.systemd.user.services.rclone-mount-gdrive.Service.ExecStart | jq -r '.[0]' | rg -q 'dir-cache-time 24h --vfs-cache-poll-interval 5m --vfs-fast-fingerprint'`
   - Files: `home/modules/services/rclone.nix`.
   - Notes: Directory listings stay fast while the remote remains mounted..
   - Risk: Switching to sync loses live mount, cache tuning removed..

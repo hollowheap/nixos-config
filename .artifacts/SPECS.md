@@ -252,7 +252,7 @@
 
 #### Operations & Security
 
-- [ ] S22 [R12] [D22]: Caddy can issue publicly trusted certs via DuckDNS DNS-01
+- [x] S22 [R12] [D22]: Caddy can issue publicly trusted certs via DuckDNS DNS-01
   - Verify: grep -q "dns duckdns" roles/server/system/default.nix
   - Seam: Caddy certificate issuance.
   - Behavior: DNS-01 replaces internal TLS when public trust is needed.
@@ -321,7 +321,7 @@
   - Failures: Stale suspend assertion, inhibitor coordination hidden in NixOS layer..
   - Ledger: tests/S82.md
 
-- [ ] S100 [R12] [D110]: HTTPS ingress remains unchanged while the routing decision is open
+- [x] S100 [R12] [D110]: HTTPS ingress remains unchanged while the routing decision is open
   - Verify: `rg -q 'tls internal' roles/server/system/headscale.nix roles/server/system/vaultwarden.nix && ! rg -q 'tailscale cert' roles/server/system flake`
   - Seam: roles/server/system/caddy.nix, roles/server/system/headscale.nix, roles/server/system/vaultwarden.nix, roles/server/system/default.nix.
   - Behavior: No WAN exposure or Tailscale certificate dependency is introduced by this pass..
@@ -335,7 +335,7 @@
   - Failures: Wrong key, mutable users, lockout after rebuild..
   - Ledger: tests/S102.md
 
-- [ ] S104 [R12] [D116]: Handheld HTTPS access stays unchanged until the server moves
+- [x] S104 [R12] [D116]: Handheld HTTPS access stays unchanged until the server moves
   - Verify: `rg -q 'tls internal' roles/server/system/headscale.nix && rg -q 'SSL_CERT_FILE' roles/server/system/default.nix && nix eval --raw .#nixOnDroidConfigurations.fovea.config.system.stateVersion | grep -qx 24.05`
   - Seam: roles/server/system/default.nix, roles/server/system/headscale.nix, nix-on-droid.nix.
   - Behavior: No temporary mesh-pin or WAN forwarding workaround is introduced..
@@ -430,7 +430,7 @@
   - Ledger: tests/S96.md
 
 - [ ] S103 [R39] [D113]: Remote mount browsing is tuned without changing mount mode
-  - Verify: `nix eval --raw .#homeConfigurations.hollowheap.config.systemd.user.services.rclone-mount-gdrive.Service.ExecStart | jq -r '.[0]' | rg -q 'dir-cache-time 24h --vfs-cache-poll-interval 5m --vfs-fast-fingerprint'`
+  - Verify: `nix eval --json .#homeConfigurations.hollowheap.config.systemd.user.services.rclone-mount-gdrive.Service.ExecStart | jq -r '.[0]' | rg -q 'dir-cache-time 24h --vfs-cache-poll-interval 5m --vfs-fast-fingerprint'`
   - Seam: home/modules/services/rclone.nix.
   - Behavior: Directory listings stay fast while the remote remains mounted..
   - Failures: Switching to sync loses live mount, cache tuning removed..

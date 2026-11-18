@@ -54,12 +54,6 @@
     opal.url = "github:hollowheap/opal";
 
     iridescent.url = "github:hollowheap/iridescent";
-
-    docmd = {
-      url = "github:hollowheap/docmd";
-      flake = false;
-    };
-
   };
 
   outputs = inputs: import ./flake inputs;

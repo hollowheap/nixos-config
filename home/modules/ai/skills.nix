@@ -4,10 +4,8 @@
   pkgs,
   inputs,
   ...
-}:
-let
-  readSkills =
-    src:
+}: let
+  readSkills = src:
     import ../../../lib/ai-skills.nix {
       inherit lib;
       inherit src;
@@ -15,14 +13,11 @@ let
 
   opalSkills = readSkills (inputs.opal.outPath + "/skills");
   iridescentSkills = readSkills (inputs.iridescent + "/skills");
-  docmdSkills = readSkills (inputs.docmd + "/skills");
-
-  externalSkills = opalSkills // iridescentSkills // docmdSkills;
+  externalSkills = opalSkills // iridescentSkills;
 
   externalNames = lib.concatMap lib.attrNames [
     opalSkills
     iridescentSkills
-    docmdSkills
   ];
 
   duplicateExternal = builtins.attrNames (
@@ -32,8 +27,7 @@ let
   baseSkills = readSkills ../../../skills;
 
   assetSkills = readSkills ../../../assets/skills;
-in
-{
+in {
   home.packages = [
     inputs.iridescent.packages.${pkgs.stdenv.hostPlatform.system}.iridescent-artifacts
   ];
@@ -52,7 +46,7 @@ in
       message = "Every skill listed by an agent must exist in ai.skills.";
     }
     {
-      assertion = duplicateExternal == [ ];
+      assertion = duplicateExternal == [];
       message = "External skill sources define duplicate names: ${builtins.concatStringsSep ", " duplicateExternal}.";
     }
   ];

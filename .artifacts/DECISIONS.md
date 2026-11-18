@@ -367,7 +367,7 @@
   - Alternatives: keep the old age recipient, or use agenix.
   - Consequences: `sops.useSystemdActivation` installs secrets from a systemd unit; secrets stay encrypted in git.
 
-- [ ] D22 [R12]: Use DuckDNS DNS-01 for publicly trusted Caddy certificates when mesh clients need them.
+- [x] D22 [R12]: Use DuckDNS DNS-01 for publicly trusted Caddy certificates when mesh clients need them.
   - Context: DNS-01 avoids public port exposure while providing trusted certs.
   - Alternatives: forward ports 80/443 for HTTP-01, or keep internal TLS.
   - Consequences: Caddy needs the DuckDNS plugin and API token from sops.
@@ -567,7 +567,7 @@
   - Alternatives: keep one provider with a machine-local path.
   - Consequences: derive provider paths from Nix or Home Manager, add the four named providers, and enumerate further supported providers from the installed Avante configuration before registration.
 
-- [ ] D110 [R12]: Keep the HTTPS ingress design open until further discussion; do not adopt Tailscale certificates.
+- [x] D110 [R12]: Keep the HTTPS ingress design open until further discussion; do not adopt Tailscale certificates.
   - Context: public-trusted certs alone do not solve reachability from public Wi-Fi, and the user does not want Tailscale as the transport.
   - Alternatives: Tailscale HTTPS certs, split DNS with DNS-01, or WAN-forwarded 443 with DNS-01.
   - Consequences: defer changes to Caddy vhosts, `SSL_CERT_FILE`, and firewall ingress until a routing model is chosen.
@@ -597,7 +597,7 @@
   - Alternatives: enable IPv6 updates.
   - Consequences: no change to `roles/server/system/ddclient.nix`.
 
-- [ ] D116 [R12]: Defer fovea HTTPS until acervus is installed and becomes the server.
+- [x] D116 [R12]: Defer fovea HTTPS until acervus is installed and becomes the server.
   - Supersedes: D79
   - Context: lacuna is a temporary host, DuckDNS points at a home that is not deployed, and fovea access is only required after acervus exists.
   - Alternatives: implement a temporary mesh-pin or WAN-forwarding workaround now.
@@ -622,6 +622,11 @@
   - Context: empty `Next: none` or `Blocked: none` lines are noise, and a combined `Next|Blocked:` line hides state.
   - Alternatives: always print four lines with a combined status line.
   - Consequences: emit `Done:`, `Verified:`, `Next:`, and `Blocked:` only when each has content; keep `Blocked:` separate.
+
+- [x] D121 [R19]: Do not ship docmd skills by default; install them per workspace when needed.
+  - Context: docmd is a workspace-local documentation tool, while Nix currently renders it into every harness.
+  - Alternatives: keep docmd in the default skill merge, or vendor it into every user environment.
+  - Consequences: remove the docmd flake input and default skill rendering; workspaces opt in with `npx skills add hollowheap/docmd`.
 
 ## Non-Goals
 - Automated backup and restore for Vaultwarden, Headscale, Caddy state, or home data; rclone safety is the only sync change in this backlog.

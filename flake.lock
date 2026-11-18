@@ -20,22 +20,6 @@
         "type": "github"
       }
     },
-    "docmd": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1794725591,
-        "narHash": "sha256-RcBHM9esX/wqaNqBHiuai58HZNhekfWy08EXibg6Pmw=",
-        "owner": "hollowheap",
-        "repo": "docmd",
-        "rev": "d3e1a55e8f47e9268deb6917c3a2e8e0ec98dd5f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hollowheap",
-        "repo": "docmd",
-        "type": "github"
-      }
-    },
     "double-minegrub-menu": {
       "inputs": {
         "minegrub-world-sel-theme": "minegrub-world-sel-theme",
@@ -489,7 +473,6 @@
     "root": {
       "inputs": {
         "disko": "disko",
-        "docmd": "docmd",
         "double-minegrub-menu": "double-minegrub-menu",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
