@@ -10,7 +10,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: current equivalent is part of the S35 contract.
   - Risk: stale option or path.
   - Detail: tasks/T48.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T49 [S36] (blocked-by: none): Port recursive package discovery to `pkgs/default.nix`
   - Verify: nix eval --raw .#nixosConfigurations.lacuna.pkgs.double-minegrub-menu.name | grep -q double-minegrub-menu
@@ -18,7 +18,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: current equivalent is part of the S36 contract.
   - Risk: stale option or path.
   - Detail: tasks/T49.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T50 [S01] (blocked-by: none): Modularize flake outputs into `flake/default.nix`
   - Verify: test -f flake/default.nix
@@ -42,7 +42,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: current equivalent is part of the S37 contract.
   - Risk: stale option or path.
   - Detail: tasks/T52.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T53 [S17] (blocked-by: none): Deploy rootless Podman
   - Verify: nix eval .#nixosConfigurations.lacuna.config.virtualisation.podman.enable | grep -qx true
@@ -138,7 +138,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: current equivalent is part of the S30 contract.
   - Risk: stale option or path.
   - Detail: tasks/T64.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T65 [S31] (blocked-by: none): Enable DNS-over-TLS
   - Verify: nix eval --raw .#nixosConfigurations.lacuna.config.services.resolved.extraConfig | grep -q security.cloudflare-dns.com
@@ -178,7 +178,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: current equivalent is part of the S34 contract.
   - Risk: stale option or path.
   - Detail: tasks/T69.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T70 [S40] (blocked-by: none): Enable BTRFS autoScrub
   - Verify: nix eval .#nixosConfigurations.lacuna.config.services.btrfs.autoScrub.enable | grep -qx true
@@ -452,7 +452,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: 32-bit ALSA is enabled.
   - Risk: missing PulseAudio bridge.
   - Detail: tasks/T30.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T31 [S31] (blocked-by: none): Route DNS through systemd-resolved with Cloudflare DoT
   - Verify: nix eval --raw .#nixosConfigurations.lacuna.config.services.resolved.extraConfig | grep -q "security.cloudflare-dns.com"
@@ -484,7 +484,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: chassis policy only.
   - Risk: hardware traits owning policy.
   - Detail: tasks/T34.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T35 [S35] (blocked-by: none): Keep recursive module discovery in lib/default.nix
   - Verify: grep -q "mkModuleLoader" modules/default.nix && test -f lib/default.nix
@@ -492,7 +492,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: new modules are discovered automatically.
   - Risk: manual import drift.
   - Detail: tasks/T35.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T36 [S36] (blocked-by: none): Keep the local package overlay recursive
   - Verify: nix eval --raw .#nixosConfigurations.lacuna.pkgs.double-minegrub-menu.name | grep -q double-minegrub-menu && grep -q "kebabToCamel" pkgs/default.nix
@@ -500,7 +500,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: file names stay kebab, directory scopes camelCase.
   - Risk: missing package, broken scope.
   - Detail: tasks/T36.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T37 [S37] (blocked-by: none): Expose every language devShell and alias
   - Verify: for s in default ts c rust python pico nix typescript js clang cpp; do nix eval .#devShells.x86_64-linux.$s.name >/dev/null || exit 1; done
@@ -508,7 +508,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: shells stay flake-local.
   - Risk: missing alias, stale package.
   - Detail: tasks/T37.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T38 [S38] (blocked-by: none): Trust the Termux, community, and Hyprland Cachix caches
   - Verify: nix eval --json .#nixosConfigurations.lacuna.config.nix.settings.substituters | grep -q "nix-on-droid.cachix.org" && nix eval --json .#nixosConfigurations.lacuna.config.nix.settings.substituters | grep -q "hyprland.cachix.org"
@@ -516,7 +516,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: cache.nixos.org stays default.
   - Risk: missing public key.
   - Detail: tasks/T38.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T39 [S39] (blocked-by: T10): Keep server ingress ports with the Headscale role
   - Verify: grep -q "Headscale ingress" roles/server/system/default.nix && grep -q "allowedUDPPorts = \[ 3478 \]" roles/server/system/default.nix
@@ -524,7 +524,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: ports 80/443 and 3478.
   - Risk: ports in generic modules.
   - Detail: tasks/T39.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T40 [S40] (blocked-by: none): Enable BTRFS scrub, zram, and explicit mount options
   - Verify: nix eval .#nixosConfigurations.lacuna.config.services.btrfs.autoScrub.enable | grep -qx true && nix eval .#nixosConfigurations.lacuna.config.zramSwap.enable | grep -qx true
@@ -556,7 +556,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: move `styles.pills` and wallust templates into the CLI tier or a shared base first.
   - Risk: GUI-only theme dependency, duplicate options.
   - Detail: tasks/T43.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06
 
 - [x] T44 [S43] (blocked-by: T42): Port GUI app modules into opt-in `home/modules/apps/gui` bundles
   - Verify: test -f home/modules/apps/gui/ghostty.nix
@@ -564,7 +564,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: keep each app optional and absent from CLI-only hosts.
   - Risk: missing external flake modules, GUI leakage into CLI.
   - Detail: tasks/T44.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06
 
 - [x] T45 [S43] (blocked-by: T42): Port opencode and the AI option schema into `home/modules/cli`
   - Verify: test -f home/modules/cli/opencode.nix && nix eval .#homeConfigurations.hollowheap.config.programs.opencode.enable | grep -qx true
@@ -572,7 +572,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: AI agents/skills content and nvim/nvf remain separate slices.
   - Risk: HM opencode option drift, wallust template path.
   - Detail: tasks/T45.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06
 
 ### Open
 
@@ -598,7 +598,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: keep GUI-only services out of CLI.
   - Risk: service assumptions, missing packages.
   - Detail: tasks/T46.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06
 
 - [x] T47 [S43] (blocked-by: T42): Port default apps and remaining shell utilities
   - Verify: test -f home/modules/cli/default-apps.nix
@@ -606,7 +606,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: mimeApps defaults, delta/wallust-free utilities, fastfetch.
   - Risk: references to missing GUI apps, duplicate options.
   - Detail: tasks/T47.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06
 
 - [x] T76 [S43] (blocked-by: T45): Port nvim/nvf modules into `home/modules/cli`
   - Verify: test -f home/modules/cli/nvim.nix
@@ -614,7 +614,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: requires the nvf input and the wallust nvim template.
   - Risk: large closure, nvf option drift.
   - Detail: tasks/T76.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06
 
 - [x] T77 [S43] (blocked-by: T45): Port AI agents, disciplines, rules, skills, and hooks content
   - Verify: test -f home/modules/cli/ai-agents.nix
@@ -622,7 +622,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: fills the schema ported in T45 with the actual prompt/skill content.
   - Risk: prompt drift, missing skill assets.
   - Detail: tasks/T77.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06
 
 - [x] T78 [S47] (blocked-by: none): Extract Neovim quickfix, preview, and editing domain modules
   - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
@@ -646,7 +646,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Superseded by review absorption; UI authoring and audit guidance now lives in `assets/skills/review/references/ui.md`.
   - Risk: missing references or broken schema generation.
   - Detail: tasks/T80.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06
 
 - [x] T81 [S50] (blocked-by: none): Author and wire backend-author and modular-design umbrella skills
   - Verify: test -f assets/skills/review/references/backend.md && test -f assets/skills/modular-design/SKILL.md

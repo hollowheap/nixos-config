@@ -331,6 +331,19 @@
     }
   ];
 
+  decideFile = [
+    {
+      name = "${configDir}/decide.json";
+      value = {
+        force = true;
+        text = builtins.toJSON {
+          model = "opencode/jev-1.13-free";
+          timeoutMs = 5000;
+        };
+      };
+    }
+  ];
+
   skills = aiRender.mkSkillFileEntries {
     baseDir = "${configDir}/skills";
     skills = config.ai.skills;
@@ -390,7 +403,7 @@ in {
 
   home.file = lib.mkIf config.programs.pi-coding-agent.enable (
     builtins.listToAttrs (
-      skills ++ agentFiles ++ dashboardFile ++ statuslineFile ++ usagePctExtensionFile ++ docsExtensionFile ++ mcpFile ++ memoryFile
+      skills ++ agentFiles ++ dashboardFile ++ statuslineFile ++ usagePctExtensionFile ++ docsExtensionFile ++ mcpFile ++ decideFile ++ memoryFile
     )
   );
 }
