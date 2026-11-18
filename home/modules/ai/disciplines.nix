@@ -5,7 +5,9 @@
 }: let
   iridescentRules = builtins.concatStringsSep "\n" (
     builtins.filter (l: l != "" && !(lib.hasPrefix "#" l)) (
-      lib.splitString "\n" (builtins.readFile inputs.iridescent.lib.rulesFile)
+      lib.splitString "\n" (
+        builtins.readFile (inputs.iridescent + "/skills/design/references/artifacts.md")
+      )
     )
   );
 in {

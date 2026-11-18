@@ -642,7 +642,7 @@
   - Failures: unfree license evaluation errors, missing CLI executables, start/opt plugin collision warnings.
   - Ledger: tests/S59.md
 - [ ] S78 [R04] [D88]: HDR is available on the hardware that supports it and absent elsewhere
-  - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.desktop.hdr | jq -e '. == true' && nix eval --json .#nixosConfigurations.acervus.config.desktop.hdr | jq -e '. == false' && nix eval --json .#homeConfigurations.hollowheap.config.desktop.hdr | jq -e '. == true'`
+  - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.desktop.hdr | jq -e '. == true' && nix eval --json .#nixosConfigurations.acervus.config.desktop.hdr | jq -e '. == false' && nix eval --json .#homeConfigurations.hollowheap.config.desktop.hdr | jq -e '. == false'`
   - Seam: hardware/hdr.nix, hosts/lacuna/hardware.nix, home/hollowheap.nix, home/modules/programs/hyprland/hyprland.nix.
   - Behavior: Lacuna compositor enables HDR; acervus and headless contexts stay SDR..
   - Failures: Orphan trait setter, HDR on unsupported hardware, cross-layer disagreement..

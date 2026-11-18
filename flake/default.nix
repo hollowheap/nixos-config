@@ -130,7 +130,7 @@ inputs: let
   claudeModels = {
     architect = "opus";
     engineer = "opus";
-    worker = "sonnet";
+    worker = "haiku";
     scout = "haiku";
     researcher = "haiku";
     code-reviewer = "haiku";

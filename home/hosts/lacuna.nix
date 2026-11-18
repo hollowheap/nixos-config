@@ -1,6 +1,7 @@
 {
   desktop = {
-    hdr = true;
+    # The internal panel is not HDR-capable; forcing hdredid washes out SDR colors.
+    hdr = false;
     primaryOutput = "eDP-1";
 
     monitors = [

@@ -686,7 +686,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Extract `caddy.nix`, `headscale.nix`, `vaultwarden.nix`, `ddclient.nix`, and `domains.nix`; update `roles/server/system/default.nix` to aggregate; update `tests/services.nix` assertions.
   - Risk: broken reverse proxy configuration, unmerged vhosts, failed NixOS dry-run.
   - Detail: tasks/T85.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07, C08, C09
 
 - [x] T86 [S55] (blocked-by: T85): Reorganize home modules into terminal, cli, and programs taxonomy
   - Verify: nix build .#checks.x86_64-linux.home && nix build .#checks.x86_64-linux.layout && nix build .#homeConfigurations.hollowheap.activationPackage --no-link
@@ -702,7 +702,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Add `inputs.omp` pointing to `github:can1357/oh-my-pi`; import `inputs.omp.homeManagerModules.default` in `flake/default.nix`; create `home/modules/programs/omp.nix` deploying skills, agents, disciplines, rules, and hooks into `~/.omp/agent/`; update `home/modules/ai/hooks.nix` and `home/modules/ai/options.nix`.
   - Risk: flake lock resolution time, bun/rust dependency mismatches.
   - Detail: tasks/T87.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07, C08, C09
 
 - [x] T88 [S57] (blocked-by: none): Configure Pi settings to exclude tool-search, mcp, and llama.cpp built-ins
   - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.pi-coding-agent.settings.extensions && nix build .#checks.x86_64-linux.home
@@ -734,7 +734,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Define `retro` skill with 5-step workflow inspecting active `transcript.jsonl`, quantifying metrics, checking rule compliance, and emitting to `.artifacts/RETRO.md`.
   - Risk: none.
   - Detail: tasks/T91.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T92 [S61] (blocked-by: none): Author corpus-audit skill in home/modules/ai/skills.nix
   - Verify: nix eval --json .#homeConfigurations.hollowheap.config.ai.skills.corpus-audit.description | grep -q "corpus-audit" && test -f home/modules/ai/skills.nix
@@ -742,7 +742,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Define `corpus-audit` skill ingesting multi-session logs across past runs and SQLite logs, auditing workspace blind spots, cognitive traps, and tool waste into `.artifacts/audit.md`.
   - Risk: none.
   - Detail: tasks/T92.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07
 
 - [x] T93 [S62]: Render every harness from the shared agent body
   - Verify: nix eval --raw .#homeConfigurations.hollowheap.config.home.file.'".omp/agent/agents/engineer.md"'.text | grep -q 'Read target slices' && nix build .#homeConfigurations.hollowheap.activationPackage --no-link
@@ -750,7 +750,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Replace `agent.instructions` interpolation with `config.ai.render.agentBodyFor`; keep harness-specific wrappers.
   - Risk: duplicate discipline blocks, empty body, renderer option mismatch.
   - Detail: tasks/T93.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07, C08, C09
 
 - [x] T94 [S62] [T93]: Resolve model and effort through per-harness tier adapters
   - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.opencode.agents.engineer | grep -q 'opencode-go' && nix build .#homeConfigurations.hollowheap.activationPackage --no-link
@@ -758,7 +758,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Add `modelFor` and `effortFor` branches for every harness; preserve `models.<harness>` overrides; remove hardcoded model tables.
   - Risk: provider/model IDs diverge, effort vocabulary mismatch, invalid generated TOML/JSON.
   - Detail: tasks/T94.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07, C08, C09
 
 - [x] T95 [S63]: Add one MCP stdio registry and render it across supporting harnesses
   - Verify: nix eval --json .#homeConfigurations.hollowheap.config.programs.mcp.servers && nix build .#homeConfigurations.hollowheap.activationPackage --no-link
@@ -782,7 +782,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Emit deny-all before specific allows; derive task allows from `availableAgents`; keep architect artifact edits and scout delegation.
   - Risk: deny-last ordering, invalid permission key, denied delegation.
   - Detail: tasks/T97.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07, C08, C09
 
 - [x] T98 [S65] [T97]: Map capability flags to native tool lists for non-OpenCode harnesses
   - Verify: nix build .#homeConfigurations.hollowheap.activationPackage --no-link
@@ -790,7 +790,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Remove tools not declared by `capabilities.read`, `write`, `execute`, `delegate`, `mcp`, or `web`; keep harness-native tool names.
   - Risk: over-restricting a harness, tool-name drift, hidden delegation.
   - Detail: tasks/T98.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07, C08, C09
 
 - [x] T99 [S70]: Drop shared model and effort routing abstractions
   - Verify: `! rg -q 'modelFor|effortFor|ai\.tiers|harness-routing' home/modules home/lib --glob '*.nix' && nix build .#homeConfigurations.hollowheap.activationPackage --no-link`
@@ -822,7 +822,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: replace Pi's private registry with the shared registry and keep codemode exposure.
   - Risk: private registry survives, direct exposure, server missing from an adapter.
   - Detail: tasks/T102.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07, C08, C09
 
 - [x] T103 [S66]: Adapt hook contracts to harness builtins
   - Verify: `nix build .#checks.x86_64-linux.home --no-link && nix eval --json .#homeConfigurations.hollowheap.config.ai.hooks --apply 'h: builtins.hasAttr "pre-tool" h' | grep -qx true`
@@ -830,7 +830,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: add per-harness drops for hooks already provided natively while preserving one shared command, matcher, and timeout shape.
   - Risk: duplicate external hook, dropped hook without builtin, fail-open pre-tool execution.
   - Detail: tasks/T103.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07, C08, C09
 
 - [x] T104 [S71]: Remove repomap hook, generator, and artifacts
   - Verify: `! rg -q 'repomap' home/modules/ai/hooks.nix && test ! -f pkgs/repomap.nix && test ! -e .artifacts/repomap.md && ! rg -q 'repomap' .artifacts/ARCHITECTURE.md`
@@ -838,7 +838,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: delete the hook entries, generator package, Kiro resource, and lowercase artifact.
   - Risk: surviving lowercase map, stale Kiro resource, documentation drift.
   - Detail: tasks/T104.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07, C08, C09
 
 - [ ] T108 [S72]: Shared secrets decrypt on both hosts while server-only secrets stay restricted
   - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.sops.secrets --apply 's: s ? vaultwarden_env && s ? wireless_env' | grep -qx true && nix eval --json .#nixosConfigurations.acervus.config.sops.secrets --apply 's: !(s ? vaultwarden_env) && s ? wireless_env' | grep -qx true`
@@ -878,7 +878,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Notes: Write-capable agents avoid read-only mandates; canonical artifact globs and parsed skills hold..
   - Risk: Contradictory discipline, lowercase artifact paths, malformed skill YAML, fail-open hooks..
   - Detail: tasks/T112.md
-  - Cases: C01, C02, C03, C04, C05, C06, C07, C08
+  - Cases: C01, C02, C03, C04, C05, C06, C07, C08, C09
 
 - [x] T113 [S77]: Every discovered host and user is covered by evaluated checks
   - Verify: `nix eval --json .#nixosConfigurations --apply 'c: builtins.length (builtins.attrNames c)' | grep -qx 2 && nix eval --json .#checks.x86_64-linux --apply 'c: builtins.hasAttr "ai-rendered" c && builtins.hasAttr "skills-rendered" c' | grep -qx true && nix flake check --no-build >/dev/null`
@@ -889,7 +889,7 @@ Active tasks, completed history, and verification commands. Requirements live in
   - Cases: C01, C02, C03, C04, C05, C06, C07, C08
 
 - [x] T114 [S78]: HDR is available on the hardware that supports it and absent elsewhere
-  - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.desktop.hdr | jq -e '. == true' && nix eval --json .#nixosConfigurations.acervus.config.desktop.hdr | jq -e '. == false' && nix eval --json .#homeConfigurations.hollowheap.config.desktop.hdr | jq -e '. == true'`
+  - Verify: `nix eval --json .#nixosConfigurations.lacuna.config.desktop.hdr | jq -e '. == true' && nix eval --json .#nixosConfigurations.acervus.config.desktop.hdr | jq -e '. == false' && nix eval --json .#homeConfigurations.hollowheap.config.desktop.hdr | jq -e '. == false'`
   - Files: `hardware/hdr.nix, hosts/lacuna/hardware.nix, home/hollowheap.nix, home/modules/programs/hyprland/hyprland.nix`.
   - Notes: Lacuna compositor enables HDR; acervus and headless contexts stay SDR..
   - Risk: Orphan trait setter, HDR on unsupported hardware, cross-layer disagreement..

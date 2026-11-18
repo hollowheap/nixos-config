@@ -628,6 +628,12 @@
   - Alternatives: keep docmd in the default skill merge, or vendor it into every user environment.
   - Consequences: remove the docmd flake input and default skill rendering; workspaces opt in with `npx skills add hollowheap/docmd`.
 
+- [x] D122 [R04]: Keep the HDR hardware trait but do not force HDR on lacuna's internal panel.
+  - Supersedes: D88
+  - Context: forced `cm = "hdredid"`, `supports_hdr = 1`, and `prefer_hdr = 1` washed out SDR colors on the internal display.
+  - Alternatives: disable the HDR trait entirely; keep forcing HDR and tune SDR luminance.
+  - Consequences: NixOS records the hardware capability; Home Manager sets `desktop.hdr = false` and the compositor keeps `cm = "srgb"`.
+
 ## Non-Goals
 - Automated backup and restore for Vaultwarden, Headscale, Caddy state, or home data; rclone safety is the only sync change in this backlog.
 - UKI/lanzaboote initrd signing, measured boot, and TPM PCR policy changes.
