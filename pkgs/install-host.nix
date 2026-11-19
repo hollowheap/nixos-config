@@ -14,6 +14,7 @@
 }:
 let
   luksEnroll = callPackage ./luks-enroll.nix { };
+  bootstrapPython = python3.withPackages (ps: [ ps.pyyaml ]);
 in
 writeShellApplication {
   name = "install-host";
@@ -24,7 +25,7 @@ writeShellApplication {
     git
     gnugrep
     openssh
-    python3
+    bootstrapPython
     sbctl
     sops
     ssh-to-age
@@ -32,10 +33,15 @@ writeShellApplication {
   ];
 
   text = ''
+    ${builtins.readFile ./acervus-bootstrap.sh}
+
     repo="$PWD"
     host=""
     ssh_key=""
     sbctl_dir=""
+    bootstrap_secrets=""
+    bootstrap_recipient=""
+    bootstrap_output=""
     skip_disko=0
     regen_hw=0
     setup_sbctl=1
@@ -45,15 +51,20 @@ writeShellApplication {
     usage() {
       cat <<'EOF'
     Usage: install-host <host> [OPTIONS]
+           install-host prepare-acervus --recipient AGE --output PATH [--repo PATH]
 
-    Run Disko partitioning, SOPS host-key provisioning (via GPG), Secure Boot key
+    Run Disko partitioning, SOPS host-key provisioning, Secure Boot key
     creation, nixos-install, and optional LUKS recovery/TPM2 enrollment.
 
-    Run this as your normal user with GPG configured; privileged steps invoke sudo.
+    Acervus uses an encrypted wireless bundle prepared for its permanent host key.
+    Run prepare-acervus on the admin workstation to split and encrypt the legacy source.
 
     Options:
       --repo PATH        Flake repository path (default: current directory)
       --ssh-key PATH     Existing ed25519 private host key to install into /mnt/etc/ssh/
+      --bootstrap-secrets PATH  Shared SOPS bundle for Acervus
+      --recipient AGE           Public Acervus age recipient for prepare-acervus
+      --output PATH             New output directory for prepare-acervus
       --sbctl-dir PATH   Existing sbctl directory to copy into /mnt/var/lib/sbctl
       --skip-disko       Skip Disko destroy/format/mount (use existing /mnt)
       --regen-hw         Run nixos-generate-config --no-filesystems for this host
@@ -85,6 +96,18 @@ writeShellApplication {
           ;;
         --ssh-key)
           ssh_key="$2"
+          shift 2
+          ;;
+        --bootstrap-secrets)
+          bootstrap_secrets="$2"
+          shift 2
+          ;;
+        --recipient)
+          bootstrap_recipient="$2"
+          shift 2
+          ;;
+        --output)
+          bootstrap_output="$2"
           shift 2
           ;;
         --sbctl-dir)
@@ -141,12 +164,32 @@ writeShellApplication {
 
     repo="$(readlink -f "$repo")"
 
+    if [ "$host" = prepare-acervus ]; then
+      if [ -z "$bootstrap_recipient" ] || [ -z "$bootstrap_output" ]; then
+        echo "prepare-acervus requires --recipient and --output." >&2
+        exit 2
+      fi
+      exec python3 ${./prepare-acervus-bootstrap.py} "$repo" "$bootstrap_recipient" "$bootstrap_output"
+    fi
+    if [ -n "$bootstrap_recipient" ] || [ -n "$bootstrap_output" ]; then
+      echo "--recipient and --output apply only to prepare-acervus." >&2
+      exit 2
+    fi
+
     if [ ! -f "$repo/flake.nix" ] || [ ! -f "$repo/hosts/$host/default.nix" ]; then
       echo "Invalid flake or host '$host' in $repo" >&2
       exit 1
     fi
 
-    if [ ! -f "$repo/.sops.yaml" ] || [ ! -f "$repo/secrets.yaml" ]; then
+    if [ "$host" = acervus ]; then
+      if [ -z "$bootstrap_secrets" ]; then
+        echo "Acervus requires --bootstrap-secrets." >&2
+        exit 2
+      fi
+    elif [ -n "$bootstrap_secrets" ]; then
+      echo "Bootstrap options apply only to acervus." >&2
+      exit 2
+    elif [ ! -f "$repo/.sops.yaml" ] || [ ! -f "$repo/secrets.yaml" ]; then
       echo "Missing .sops.yaml or secrets.yaml in $repo" >&2
       exit 1
     fi
@@ -202,8 +245,22 @@ writeShellApplication {
     age_pub="$(${ssh-to-age}/bin/ssh-to-age -i "$host_key.pub")"
     echo "Host age recipient for $host: $age_pub"
 
-    sops_changed=0
-    if python3 - "$repo/.sops.yaml" "$host" "$age_pub" <<'PY'
+    if [ "$host" = acervus ]; then
+      if [ ! -f "$bootstrap_secrets" ] && [ -t 0 ]; then
+        printf 'Place the encrypted common.yaml at %s and press Enter.\n' "$bootstrap_secrets" >&2
+        read -r
+      fi
+      if [ ! -f "$bootstrap_secrets" ] || [ ! -r "$bootstrap_secrets" ]; then
+        echo "The encrypted bundle is unavailable. Resume with --skip-disko after preparing it." >&2
+        exit 1
+      fi
+      bootstrap_dir="$(mktemp -d)"
+      trap 'rm -f -- "$bootstrap_dir/host-secrets.yaml"; rmdir -- "$bootstrap_dir"' EXIT
+      cp -- "$bootstrap_secrets" "$bootstrap_dir/host-secrets.yaml"
+      validate_acervus_bootstrap "$host_key" "$bootstrap_dir/host-secrets.yaml"
+    else
+      sops_changed=0
+      if python3 - "$repo/.sops.yaml" "$host" "$age_pub" <<'PY'
     import re
     import sys
 
@@ -264,36 +321,37 @@ writeShellApplication {
         sys.exit(10)
     sys.exit(0)
     PY
-    then
-      :
-    else
-      rc=$?
-      if [ "$rc" -eq 10 ]; then
-        sops_changed=1
+      then
+        :
       else
-        exit "$rc"
+        rc=$?
+        if [ "$rc" -eq 10 ]; then
+          sops_changed=1
+        else
+          exit "$rc"
+        fi
       fi
-    fi
 
-    host_age_key="$(as_root ${ssh-to-age}/bin/ssh-to-age -private-key -i "$host_key")"
-    verify_sops() {
-      SOPS_AGE_KEY="$host_age_key" sops -d "$repo/secrets.yaml" >/dev/null 2>&1
-    }
+      host_age_key="$(as_root ${ssh-to-age}/bin/ssh-to-age -private-key -i "$host_key")"
+      verify_sops() {
+        SOPS_AGE_KEY="$host_age_key" sops -d "$repo/secrets.yaml" >/dev/null 2>&1
+      }
 
-    if [ "$sops_changed" -eq 1 ] || ! verify_sops; then
-      echo "==> Re-encrypting secrets.yaml for $host (using GPG)..."
-      sops updatekeys -y "$repo/secrets.yaml"
-    fi
+      if [ "$sops_changed" -eq 1 ] || ! verify_sops; then
+        echo "==> Re-encrypting secrets.yaml for $host (using GPG)..."
+        sops updatekeys -y "$repo/secrets.yaml"
+      fi
 
-    if ! verify_sops; then
+      if ! verify_sops; then
+        unset host_age_key
+        echo "Verification failed: target host key cannot decrypt $repo/secrets.yaml" >&2
+        exit 1
+      fi
       unset host_age_key
-      echo "Verification failed: target host key cannot decrypt $repo/secrets.yaml" >&2
-      exit 1
-    fi
-    unset host_age_key
-    echo "Verified: $host key decrypts secrets.yaml."
+      echo "Verified: $host key decrypts secrets.yaml."
 
-    git -C "$repo" add -N .sops.yaml secrets.yaml "hosts/$host/hardware-configuration.nix" 2>/dev/null || true
+      git -C "$repo" add -N .sops.yaml secrets.yaml "hosts/$host/hardware-configuration.nix" 2>/dev/null || true
+    fi
 
     if [ "$setup_sbctl" -eq 1 ]; then
       if [ -n "$sbctl_dir" ]; then
@@ -308,7 +366,29 @@ writeShellApplication {
     fi
 
     echo "==> Running nixos-install for $host..."
-    as_root nixos-install --flake "$repo#$host" --no-root-passwd
+    if [ "$host" = acervus ]; then
+      flake_uri="$(python3 -c 'import pathlib, sys; print(pathlib.Path(sys.argv[1]).as_uri())' "$repo")"
+      system="$(
+        ACERVUS_BOOTSTRAP_FLAKE="git+$flake_uri" \
+        ACERVUS_BOOTSTRAP_FILE="$bootstrap_dir/host-secrets.yaml" \
+        nix build --impure --no-write-lock-file --no-link --print-out-paths --expr '
+          let
+            flake = builtins.getFlake (builtins.getEnv "ACERVUS_BOOTSTRAP_FLAKE");
+            target = import ${../lib/acervus-bootstrap-system.nix} {
+              configuration = flake.nixosConfigurations.acervus;
+              encryptedFile = builtins.path {
+                path = builtins.getEnv "ACERVUS_BOOTSTRAP_FILE";
+                name = "acervus-bootstrap.yaml";
+              };
+            };
+          in target.config.system.build.toplevel
+        '
+      )"
+      as_root nixos-install --system "$system" --no-root-passwd
+      echo "Promote the prepared SOPS files and wire their scopes into the repository before rebuilding."
+    else
+      as_root nixos-install --flake "$repo#$host" --no-root-passwd
+    fi
 
     if [ "$setup_luks" -eq 1 ] && [ -e /dev/disk/by-partlabel/disk-main-luks ]; then
       echo "==> Enrolling LUKS recovery key (skipping TPM2 until UEFI Secure Boot state is finalized)..."
